@@ -4,7 +4,11 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from users import settings
 from jose import JWTError, jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
+from fastapi.security import OAuth2
+from fastapi.security.utils import get_authorization_scheme_param
+from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
+from typing import Optional
 
 # hashing password algorithm (BCRYPT for new hash) with support for old algorithm
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -64,20 +68,58 @@ def get_all_users(db: Session):
 
 
 # generate token
-def gen_token(username):
+def gen_token(username, time: int = settings.ACCESS_TOKEN_EXPIRE_MINUTES):
     data = {'sub': username}
-    expires_in = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    expires_in = timedelta(minutes=time)
     expire = datetime.utcnow() + expires_in
     data.update({'exp': expire})
     return jwt.encode(data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
+def get_payload(token: str):
+    payload = None
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    except:
+        pass
+    return payload
+
 
 # get username of currently logged in user
 def get_current_user(db, token):
-    response = {"Unauthorized": "Not valid credentials"}
-    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-    username: str = payload.get("sub")
-    user = db.query(models.User).filter(models.User.username == username).first()
-    if user:
-        response = {"Greeting": "Welcome back " + user.username + "!"}
-    return response
+    payload = get_payload(token)
+    user = None
+    if payload:
+        username: str = payload.get("sub")
+        user = db.query(models.User).filter(models.User.username == username).first()
+    return user
+
+def set_expiry(timestamp, token):
+    payload = get_payload(token)
+    updated_token = {"access_token": None, "token_type": "bearer"}
+    if payload:
+        username = payload["sub"]
+        access_token = gen_token(username, timestamp)
+        updated_token['access_token'] = access_token
+    return updated_token
+
+class OAuth2PasswordBearerWithCookie(OAuth2):
+        def __init__(self, tokenUrl: str, scheme_name: str = None, scopes: dict = None, auto_error: bool = True):
+            if not scopes:
+                scopes = {}
+            flows = OAuthFlowsModel(password={"tokenUrl": tokenUrl, "scopes": scopes})
+            super().__init__(flows=flows, scheme_name=scheme_name, auto_error=auto_error)
+
+        async def __call__(self, request: Request) -> Optional[str]:
+            authorization: str = request.cookies.get("access_token")
+
+            scheme, param = get_authorization_scheme_param(authorization)
+            if not authorization or scheme.lower() != "bearer":
+                if self.auto_error:
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="Not authenticated",
+                        headers={"www-Authenticate": "Bearer"},
+                    )
+                else:
+                    return None
+            return param

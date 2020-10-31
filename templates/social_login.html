@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Social Login</title>
+  <meta name="google-signin-client_id" content="973829616666-n71ceelkr8spfb1ldtt6318e54v1cebr.apps.googleusercontent.com">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="g-signin2" data-onsuccess="onSignIn"> Sign in with google </div>
+    <!-- google login url -->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script>
+        var id_token;
+        function onSignIn(googleUser) {
+            token = googleUser.getAuthResponse().id_token;
+        }
+        $(document).ready(function(){
+            $(".g-signin2").on("click", function(){
+                $.post("http://localhost",
+                      {"token": token},
+                      function(data, status){
+                           alert("data send");
+                      }
+                );
+            });
+        });
+    </script>
+</body>
+</html>
