@@ -1,7 +1,9 @@
 from sqlalchemy import Boolean, Column, Integer, String, Date
-import database
+from sqlalchemy.ext.declarative import declarative_base
 
-class User(database.Base):
+Base = declarative_base()
+
+class User(Base):
 
     __tablename__ = "user"
 
@@ -15,6 +17,7 @@ class User(database.Base):
     is_verified = Column(Boolean, default=False)
     created_date = Column(Date, nullable=True)
     modified_date = Column(Date, nullable=True)
+    is_social_account = Column(Boolean, default=False)
 
 
 

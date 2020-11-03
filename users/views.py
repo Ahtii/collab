@@ -4,11 +4,14 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from users import settings
 from jose import JWTError, jwt
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, HTTPException, status, Request, Response
 from fastapi.security import OAuth2
 from fastapi.security.utils import get_authorization_scheme_param
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from typing import Optional
+from starlette.status import HTTP_403_FORBIDDEN
+import httplib2
+from oauth2client import client
 
 # hashing password algorithm (BCRYPT for new hash) with support for old algorithm
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -30,8 +33,9 @@ def verify_password(plain, hashed):
 
 # register logic
 def register(db: Session, user: validators.RegisterValidator):
+    print("inside register view")
     if already_registered(db, user.email):
-        return {"Error", "Email already registered"}
+        raise HTTPException(status_code=400, detail="Email already registered!")
     user = user.dict()
     user['password'] = gen_hash(user['password'])
     db_user = models.User(**user)
@@ -66,7 +70,6 @@ def login(db: Session, user: validators.LoginValidator):
 def get_all_users(db: Session):
     return db.query(models.User).all()
 
-
 # generate token
 def gen_token(username, time: int = settings.ACCESS_TOKEN_EXPIRE_MINUTES):
     data = {'sub': username}
@@ -93,14 +96,52 @@ def get_current_user(db, token):
         user = db.query(models.User).filter(models.User.username == username).first()
     return user
 
-def set_expiry(timestamp, token):
-    payload = get_payload(token)
-    updated_token = {"access_token": None, "token_type": "bearer"}
-    if payload:
-        username = payload["sub"]
-        access_token = gen_token(username, timestamp)
-        updated_token['access_token'] = access_token
-    return updated_token
+def get_lastname(data, first_name):
+    last_name = ""
+    if "family_name" in data.keys():
+        last_name = data["family_name"]
+    else:
+        name = data["name"]
+        if name.isspace():
+            name = name.split(" ").lower()
+            if name.length > 1:
+                if name[-1] != first_name:
+                    last_name = name[-1]
+    return last_name
+
+# social login
+def social_login(db: Session, request: Request, response: Response, data: validators.SocialLoginValidator):
+    # for protecting from CSRF
+    if not request.headers.get("X-Requested-With"):
+        raise HTTPException(status_code=400, detail="Incorrect headers")
+
+    data = data.dict()
+    type = data['type'].strip().lower()
+    auth_code = data['token']
+    if type == "google":
+        try:
+            credentials = client.credentials_from_clientsecrets_and_code(
+                settings.CLIENT_SECRETS_JSON, ['profile'],
+                auth_code
+            )
+            token_data = credentials.id_token
+            first_name = token_data["given_name"].lower()
+            last_name = get_lastname(token_data, first_name)
+            username = first_name + last_name
+            user_data  = {
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": token_data["email"],
+                "username": username,
+                "password": "",
+                "is_social_account": True
+            }
+            user = validators.RegisterValidator(**user_data)
+            user = register(db, user)
+            access_token = gen_token(user.username)
+            response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
+        except:
+            raise HTTPException(status_code=400, detail="Cannot be authenticated")
 
 class OAuth2PasswordBearerWithCookie(OAuth2):
         def __init__(self, tokenUrl: str, scheme_name: str = None, scopes: dict = None, auto_error: bool = True):
@@ -110,7 +151,16 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
             super().__init__(flows=flows, scheme_name=scheme_name, auto_error=auto_error)
 
         async def __call__(self, request: Request) -> Optional[str]:
+            #header_authorization: str = request.headers.get("Authorization")
+            #cookie_authorization: str = request.cookies.get("Authorization")
             authorization: str = request.cookies.get("access_token")
+            #
+            # header_scheme, header_param = get_authorization_scheme_param(
+            #     header_authorization
+            # )
+            # cookie_scheme, cookie_param = get_authorization_scheme_param(
+            #     cookie_authorization
+            # )
 
             scheme, param = get_authorization_scheme_param(authorization)
             if not authorization or scheme.lower() != "bearer":
@@ -123,3 +173,25 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
                 else:
                     return None
             return param
+
+            # if header_scheme.lower() == "bearer":
+            #     authorization = True
+            #     scheme = header_scheme
+            #     param = header_param
+            #
+            # elif cookie_scheme.lower() == "bearer":
+            #     authorization = True
+            #     scheme = cookie_scheme
+            #     param = cookie_param
+            #
+            # else:
+            #     authorization = False
+            #
+            # if not authorization or scheme.lower() != "bearer":
+            #     if self.auto_error:
+            #         raise HTTPException(
+            #             status_code=HTTP_403_FORBIDDEN, detail="Not authenticated"
+            #         )
+            #     else:
+            #         return None
+            # return param
