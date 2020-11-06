@@ -89,11 +89,11 @@ class ConnectionManager:
         for connection in self.active_connections:
             await connection[0].send_text(message)
 
-   async def specific(self, message: str, user: models.User):
-       for connection in self.active_connections:
-           if connection[1] == user:
-               await connection[0].send_text(message)
-               break
+    async def specific(self, message: str, user: models.User):
+        for connection in self.active_connections:
+            if connection[1] == user:
+                await connection[0].send_text(message)
+                break
 
 manager = ConnectionManager()
 
