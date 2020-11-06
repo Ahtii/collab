@@ -12,15 +12,21 @@ from typing import Optional
 from starlette.status import HTTP_403_FORBIDDEN
 import httplib2
 from oauth2client import client
+import random
 
 # hashing password algorithm (BCRYPT for new hash) with support for old algorithm
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 # check for registered email
 def already_registered(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
+def gen_username_if_present(db: Session, username: str):
+    user = db.query(models.User).filter(models.User.username == username).first()
+    if user:
+        rand = random.choice("0192843657")
+        username = username+last_id+rand
+    return username
 
 # generate hashed password
 def gen_hash(password):
@@ -33,9 +39,10 @@ def verify_password(plain, hashed):
 
 # register logic
 def register(db: Session, user: validators.RegisterValidator):
-    print("inside register view")
     if already_registered(db, user.email):
         raise HTTPException(status_code=400, detail="Email already registered!")
+    #user.username = gen_username_if_present(db, user.username)
+    print(gen_username_if_present(db, user.username))
     user = user.dict()
     user['password'] = gen_hash(user['password'])
     db_user = models.User(**user)
@@ -128,7 +135,7 @@ def social_login(db: Session, request: Request, response: Response, data: valida
             first_name = token_data["given_name"].lower()
             last_name = get_lastname(token_data, first_name)
             username = first_name + last_name
-            user_data  = {
+            user_data = {
                 "first_name": first_name,
                 "last_name": last_name,
                 "email": token_data["email"],
@@ -137,7 +144,9 @@ def social_login(db: Session, request: Request, response: Response, data: valida
                 "is_social_account": True
             }
             user = validators.RegisterValidator(**user_data)
-            user = register(db, user)
+            db_user = db.query(models.User).filter(models.User.username == user.username).first()
+            if db_user is None:
+                user = register(db, user)
             access_token = gen_token(user.username)
             response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
         except:
@@ -151,17 +160,7 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
             super().__init__(flows=flows, scheme_name=scheme_name, auto_error=auto_error)
 
         async def __call__(self, request: Request) -> Optional[str]:
-            #header_authorization: str = request.headers.get("Authorization")
-            #cookie_authorization: str = request.cookies.get("Authorization")
             authorization: str = request.cookies.get("access_token")
-            #
-            # header_scheme, header_param = get_authorization_scheme_param(
-            #     header_authorization
-            # )
-            # cookie_scheme, cookie_param = get_authorization_scheme_param(
-            #     cookie_authorization
-            # )
-
             scheme, param = get_authorization_scheme_param(authorization)
             if not authorization or scheme.lower() != "bearer":
                 if self.auto_error:
@@ -173,25 +172,3 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
                 else:
                     return None
             return param
-
-            # if header_scheme.lower() == "bearer":
-            #     authorization = True
-            #     scheme = header_scheme
-            #     param = header_param
-            #
-            # elif cookie_scheme.lower() == "bearer":
-            #     authorization = True
-            #     scheme = cookie_scheme
-            #     param = cookie_param
-            #
-            # else:
-            #     authorization = False
-            #
-            # if not authorization or scheme.lower() != "bearer":
-            #     if self.auto_error:
-            #         raise HTTPException(
-            #             status_code=HTTP_403_FORBIDDEN, detail="Not authenticated"
-            #         )
-            #     else:
-            #         return None
-            # return param

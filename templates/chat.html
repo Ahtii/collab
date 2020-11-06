@@ -1,10 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Collab</title>
+    <!-- jQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Custom Script -->
+    <script>
+        //$.get("/api/user",function(response){
+        //    console.log(response);
+        //});
+        $(document).ready(function(){
+            // setup js socket
+            var ws = new WebSocket("ws://localhost:8000/api/ws");
+            ws.onmessage = function(event) {
+                var messages = document.getElementById('messages');
+                var message = document.createElement('p');
+                var content = document.createTextNode(event.data);
+                message.appendChild(content);
+                messages.appendChild(message);
+            };
+            // send message
+            function sendMessage() {
+                var input = document.getElementById("messageText");
+                ws.send(input.value);
+                input.value = '';
+            }
+            $("#chat-form").on("submit", function(e){
+                e.preventDefault();
+                sendMessage();
+            });
+            $("#logout").on("click", function(){
+                $.post("/api/logout");
+            });
+        });
+    </script>
 </head>
 <body>
-$END$
+    <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+        <h3> WebSocket Chat <button id="logout" style="background: rgb(230, 230, 230); margin-left: 10px; padding: 5px;"> Logout </button></h3>
+        <form id="chat-form">
+            <input type="text" id="messageText" autocomplete="off"/>
+            <button type="submit">Send</button>
+        </form>
+        <div id="messages" style="text-align: left;"></div>
+    </div>
 </body>
 </html>

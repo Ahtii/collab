@@ -1,10 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Collab</title>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        // load script on page load
+        $(document).ready(function(){
+            // send data to backend on submit
+            $("#register-form").on("submit", function(e){
+                e.preventDefault();
+                var form_data = {
+                    "first_name": $("#firstname").val(),
+                    "last_name": $("#lastname").val(),
+                    "email": $("#email").val(),
+                    "username": $("#username").val(),
+                    "password": $("#password").val(),
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/register',
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(form_data)
+                });
+            });
+        });
+    </script>
 </head>
 <body>
-$END$
+    <!-- Register Form -->
+    <div style="text-align: center;">
+        <h3> Register to <strong style="color:teal;">Collab</strong></h3><br>
+        <form id="register-form">
+            <input id="firstname" placeholder="First Name"><br><br>
+            <input id="lastname" placeholder="Last Name"><br><br>
+            <input id="email" placeholder="Email"><br><br>
+            <input id="username" placeholder="Username"><br><br>
+            <input id="password" placeholder="password"><br><br><br>
+            <button type="submit"> Register </button>
+        </form><br>
+        <h4>Already have an account ? <a href="/login">login here</a></h4>
+    </div>
 </body>
 </html>

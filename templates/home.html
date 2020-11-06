@@ -6,6 +6,14 @@
 </head>
 <body>
     <div style="text-align: center;">
+        {% if context %}
+            <div id="not-auth">
+                 <h4>Please login to your account or create one by registering.</h4>
+                <a href="/login" style="background: rgb(230, 230, 230); padding: 10px;"> Login </a> &nbsp; <a href="/register" style="background: rgb(230, 230, 230); padding: 10px;"> Register </a>
+            </div>
+        {% else %}
+            <strong> welcome back {{ user }}! </strong>
+        {% endif %}
     </div>
 </body>
 </html>
