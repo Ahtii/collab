@@ -3,6 +3,7 @@ import database
 from users import validators, views, models
 from users.views import OAuth2PasswordBearerWithCookie
 from fastapi import FastAPI, Depends, HTTPException, Response, Request
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 
@@ -18,6 +19,13 @@ def get_db():
         db.close()
 
 templates = Jinja2Templates(directory="templates")
+
+                    # TEMPLATES
+
+# home template
+@app.get("/")
+def home(request: Request):
+    return templates.TemplateResponse("home.html", {"request": request})
 
 def get_user(token: str = Depends(TOKEN_MANAGER),db: Session = Depends(get_db)):
     return views.get_current_user(db, token)
@@ -36,31 +44,42 @@ def login(request: Request):
 @app.get("/chat", include_in_schema=False)
 def login(request: Request, user: models.User = Depends(get_user)):
     if user is None:
-        raise HTTPException(status_code=401, detail="Unauthorized user")
+        return {"error": "Unauthorized user please login"}
     return templates.TemplateResponse("chat.html", {"request": request})
 
-@app.post("/api/register/")
+                                # API ENDPOINTS
+
+@app.get("/api/current_user")
+def get_current_user(request: Request):
+    token = request.cookies.get("access_token")
+    user = views.get_current_user(token)
+    user = user.dict()
+    return user
+
+@app.post("/api/register")
 async def create_user(user: validators.RegisterValidator, db: Session = Depends(get_db)):
-    db_user = views.register(db, user)
-    if db_user is None:
-        raise HTTPException(status_code=400, detail="Unable to register")
+    response = views.register(db, user)
+    if response == {}:
+        return RedirectResponse(url="/login", status_code=302)
+    return response
 
 # login and generate token for further authentication
 @app.post("/api/token")
 async def authenticate(credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = views.authenticate(db, credentials.username, credentials.password)
-    if not user:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    access_token = views.gen_token(user.username)
-    response = Response()
-    response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
+    response = {"error": "Incorrect username or password"}
+    if user:
+        #response = Response()
+        response = RedirectResponse(url="/chat", status_code=302)
+        access_token = views.gen_token(user.username)
+        response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
     return response
 
 # logout the user by deleting the cookie
 @app.post("/api/logout")
 async def logout(response: Response):
     response.delete_cookie("access_token")
-    return {"response": "logged out"}
+    return RedirectResponse(url="/", status_code=302)
 
 # authenticating socail login and generating token
 @app.post("/api/sociallogin", include_in_schema=False)
@@ -101,6 +120,7 @@ manager = ConnectionManager()
 async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(get_db)):
     token = websocket.cookies.get("access_token")
     token = token.split(" ")[1]
+    print(token)
     user = views.get_current_user(db, token)
     if user:
         await manager.connect(websocket, user)

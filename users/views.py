@@ -17,17 +17,6 @@ import random
 # hashing password algorithm (BCRYPT for new hash) with support for old algorithm
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# check for registered email
-def already_registered(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).first()
-
-def gen_username_if_present(db: Session, username: str):
-    user = db.query(models.User).filter(models.User.username == username).first()
-    if user:
-        rand = random.choice("0192843657")
-        username = username+last_id+rand
-    return username
-
 # generate hashed password
 def gen_hash(password):
     return pwd_context.hash(password)
@@ -36,41 +25,30 @@ def gen_hash(password):
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
-
 # register logic
 def register(db: Session, user: validators.RegisterValidator):
-    if already_registered(db, user.email):
-        raise HTTPException(status_code=400, detail="Email already registered!")
-    #user.username = gen_username_if_present(db, user.username)
-    print(gen_username_if_present(db, user.username))
-    user = user.dict()
-    user['password'] = gen_hash(user['password'])
-    db_user = models.User(**user)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    response = {}
+    if db.query(models.User).filter(models.User.email == user.email).first():
+        response.update({"error": "email already exists"})
+    elif db.query(models.User).filter(models.User.username == user.username).first():
+        response.update({"error": "username already exists"})
+    else:
+        pass
+        # user = user.dict()
+        # user['password'] = gen_hash(user['password'])
+        # db_user = models.User(**user)
+        # db.add(db_user)
+        # db.commit()
+    return response
 
 
 # authenticated user
 def authenticate(db: Session, username: str, password: str):
-    user = db.query(models.User).filter(models.User.username == username).first()
+    user = db.query(models.User).filter((models.User.username == username) | (models.User.email == username)).first()
     if user:
         if not verify_password(password, user.password):
             return None
     return user
-
-
-# login logic
-def login(db: Session, user: validators.LoginValidator):
-    response = {"response": "username or password did not match!"}
-    db_user = db.query(models.User).filter(
-        (models.User.username == user.username) &
-        (models.User.password == user.password)
-    ).first()
-    if db_user:
-        response["response"] = "Welcome back, " + user.username + "!"
-    return response
 
 
 # get list of users

@@ -42,22 +42,15 @@
             // login to backend
             $("#login-form").on("submit", function(e){
                 e.preventDefault();
-                /*var form_data = {
-                    "username": $("#username").val(),
-                    "password": $("#password").val()
-                };*/
                 var form_data = {}
                 $(this).find("input[name]").each(function (index, node) {
                     form_data[node.name] = node.value;
                 });
-                console.log(form_data);
-                $.ajax({
-                    type: 'POST',
-                    url: '/api/token',
-                    data: form_data,
-                    success: function(response){
-                        console.log(response);
-                    }
+                $.post("/api/token", form_data, function(response){
+                    $("#err").text("");
+                    var error = response["error"]
+                    if (error != "")
+                        $("#err").text(error);
                 });
             });
         });
@@ -70,10 +63,9 @@
         <form id="login-form">
             <input id="username" placeholder="Username" name="username"><br><br>
             <input id="password" placeholder="password" name="password"><br><br>
-            <button type="submit"> Login </button>
-            <br>
+            <button type="submit"> Login </button><br>
+            <p id="err" style="color: red;"></p><br>
             <h6 style="text-align: center;"> Or </h6>
-<!--            <hr style="width: 200px;">-->
             <a id="google_signin" style="text-align: center; background: rgb(230, 230, 230); padding: 6px; border: 1px solid rgb(32, 42, 62); border-radius: 3px;"> Sign in with google </a>
         </form>
     </div>
