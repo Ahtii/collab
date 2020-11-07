@@ -6,9 +6,13 @@ from fastapi import FastAPI, Depends, HTTPException, Response, Request
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
+from fastapi import WebSocketDisconnect
 
 app = FastAPI()
+# authentication
 TOKEN_MANAGER = OAuth2PasswordBearerWithCookie(tokenUrl="/api/token")
+# websockets
+manager = views.ConnectionManager()
 
 # create request session
 def get_db():
@@ -49,19 +53,20 @@ def login(request: Request, user: models.User = Depends(get_user)):
 
                                 # API ENDPOINTS
 
-@app.get("/api/current_user")
-def get_current_user(request: Request):
+@app.get("/api/user")
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    response = {}
     token = request.cookies.get("access_token")
-    user = views.get_current_user(token)
-    user = user.dict()
-    return user
+    if token:
+        token = token.split(" ")[1]
+        user = views.get_current_user(db, token)
+        if user:
+            response = {"user": user.username}
+    return response
 
 @app.post("/api/register")
 async def create_user(user: validators.RegisterValidator, db: Session = Depends(get_db)):
-    response = views.register(db, user)
-    if response == {}:
-        return RedirectResponse(url="/login", status_code=302)
-    return response
+    return views.register(db, user)
 
 # login and generate token for further authentication
 @app.post("/api/token")
@@ -69,58 +74,33 @@ async def authenticate(credentials: OAuth2PasswordRequestForm = Depends(), db: S
     user = views.authenticate(db, credentials.username, credentials.password)
     response = {"error": "Incorrect username or password"}
     if user:
-        #response = Response()
-        response = RedirectResponse(url="/chat", status_code=302)
+        response = Response()
         access_token = views.gen_token(user.username)
         response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
     return response
 
 # logout the user by deleting the cookie
 @app.post("/api/logout")
-async def logout(response: Response):
-    response.delete_cookie("access_token")
-    return RedirectResponse(url="/", status_code=302)
+async def logout(request: Request, response: Response, db: Session = Depends(get_db)):
+    token = request.cookies.get("access_token")
+    data = {}
+    if token:
+        token = token.split(" ")[1]
+        user = views.get_current_user(db, token)
+        if user:
+            manager.delete(user)
+            response.delete_cookie("access_token")
+    return data
 
 # authenticating socail login and generating token
 @app.post("/api/sociallogin", include_in_schema=False)
 def social_login(request: Request, response: Response, data: validators.SocialLoginValidator, db: Session = Depends(get_db)):
     return views.social_login(db, request, response, data)
 
-# websockets simple example
-
-from fastapi import WebSocket
-
-from typing import List
-from fastapi import WebSocketDisconnect
-
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: List[(WebSocket, models.User)] = []
-
-    async def connect(self, websocket: WebSocket, user: models.User):
-        await websocket.accept()
-        self.active_connections.append((websocket, user))
-
-    def disconnect(self, websocket: WebSocket, user: models.User):
-        self.active_connections.remove((websocket, user))
-
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection[0].send_text(message)
-
-    async def specific(self, message: str, user: models.User):
-        for connection in self.active_connections:
-            if connection[1] == user:
-                await connection[0].send_text(message)
-                break
-
-manager = ConnectionManager()
-
 @app.websocket("/api/ws")
-async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(get_db)):
+async def websocket_endpoint(websocket: views.WebSocket, db: Session = Depends(get_db)):
     token = websocket.cookies.get("access_token")
     token = token.split(" ")[1]
-    print(token)
     user = views.get_current_user(db, token)
     if user:
         await manager.connect(websocket, user)

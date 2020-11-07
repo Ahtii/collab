@@ -49,8 +49,10 @@
                 $.post("/api/token", form_data, function(response){
                     $("#err").text("");
                     var error = response["error"]
-                    if (error != "")
+                    if (error)
                         $("#err").text(error);
+                    else
+                        window.location.href = "/";
                 });
             });
         });
@@ -61,8 +63,8 @@
     <div style="position: absolute;left: 50%; transform: translateX(-50%);">
         <h3> Login to <strong style="color:teal;">Collab</strong></h3><br>
         <form id="login-form">
-            <input id="username" placeholder="Username" name="username"><br><br>
-            <input id="password" placeholder="password" name="password"><br><br>
+            <input style="height: 20px;" id="username" placeholder="Username" name="username"><br><br>
+            <input style="height: 20px;" id="password" placeholder="password" name="password"><br><br>
             <button type="submit"> Login </button><br>
             <p id="err" style="color: red;"></p><br>
             <h6 style="text-align: center;"> Or </h6>

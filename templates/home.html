@@ -7,8 +7,46 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $(document).ready(function(){
+            // get user if logged in
             $.get("/api/user", function(response){
-                 console.log(response);
+                 user = response["user"]
+                 if (user){
+                    $("#not-auth").css("display", "none");
+                    html = "<strong>"+user+"</strong>"
+                    $("#auth h4").append(html);
+                    $("#auth").css("display", "inline-block");
+                    // setup js socket
+                    var ws = new WebSocket("ws://localhost:8000/api/ws");
+                    ws.onmessage = function(event) {
+                        var messages = document.getElementById('messages');
+                        var message = document.createElement('p');
+                        var content = document.createTextNode(event.data);
+                        /*var error = content["error"]
+                        if (error != "")
+                            $("#err").text(error);
+                        else {*/
+                            message.appendChild(content);
+                            messages.appendChild(message);
+                        //}
+                    };
+                    // send message
+                    function sendMessage() {
+                        var input = document.getElementById("messageText");
+                        ws.send(input.value);
+                        input.value = '';
+                    }
+                    // submit form for chatting
+                    $("#chat-form").on("submit", function(e){
+                        e.preventDefault();
+                        sendMessage();
+                    });
+                    // logout the user
+                    $("#logout").on("click", function(){
+                        $.post("/api/logout", function(response){
+                            window.location.href = "/"
+                        });
+                    });
+                 }
             });
         });
     </script>
@@ -16,8 +54,24 @@
 <body>
     <div style="text-align: center;">
         <div id="not-auth" style="display: none;">
-             <h4>Please login to your account or create one by registering.</h4>
+             <h4>Please login to your account or create one for starting a conversion.</h4>
             <a href="/login" style="background: rgb(230, 230, 230); padding: 10px;"> Login </a> &nbsp; <a href="/register" style="background: rgb(230, 230, 230); padding: 10px;"> Register </a>
+        </div>
+        <div id="auth">
+            <strong id="err"></strong><br>
+            <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+                <h3> Collab Chat <button id="logout" style="background: rgb(230, 230, 230); margin-left: 10px; padding: 5px;"> Logout </button></h3>
+                <form id="chat-form">
+                    <input type="text" id="messageText" autocomplete="off"/>
+                    <button type="submit">Send</button>
+                </form>
+                <div id="messages" style="text-align: left;"></div>
+            </div>
+            <!--<div>
+                <ul>
+                    <li></li>
+                </ul>
+            </div>-->
         </div>
     </div>
 </body>

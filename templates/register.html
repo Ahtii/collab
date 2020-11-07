@@ -18,19 +18,13 @@
                     "username": $("#username").val(),
                     "password": $("#password").val(),
                 };
-                /*$.ajax({
-                    type: 'POST',
-                    url: '/api/register',
-                    contentType: "application/json",
-                    dataType: "json",
-                    data: JSON.stringify(form_data)
-                });*/
                 $.post("/api/register", JSON.stringify(form_data), function(response){
                     $("#err").text("");
                     var error = response["error"]
-                    if (error != ""){
+                    if (error)
                         $("#err").text(error);
-                    }
+                    else
+                        window.location.href = "/login";
                 });
             });
         });
@@ -41,11 +35,11 @@
     <div style="text-align: center;">
         <h3> Register to <strong style="color:teal;">Collab</strong></h3><br>
         <form id="register-form">
-            <input id="firstname" placeholder="First Name"><br><br>
-            <input id="lastname" placeholder="Last Name"><br><br>
-            <input id="email" placeholder="Email"><br><br>
-            <input id="username" placeholder="Username"><br><br>
-            <input id="password" placeholder="password"><br><br><br>
+            <input style="height: 20px;" id="firstname" placeholder="First Name"><br><br>
+            <input style="height: 20px;" id="lastname" placeholder="Last Name"><br><br>
+            <input style="height: 19px;" id="email" placeholder="Email"><br><br>
+            <input style="height: 20px;" id="username" placeholder="Username"><br><br>
+            <input style="height: 20px;" id="password" placeholder="password"><br><br><br>
             <button type="submit"> Register </button><br>
             <p id="err" style="color:red;"></p>
         </form><br>

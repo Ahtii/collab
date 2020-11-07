@@ -9,6 +9,8 @@ from fastapi.security import OAuth2
 from fastapi.security.utils import get_authorization_scheme_param
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from typing import Optional
+from fastapi import WebSocket, WebSocketDisconnect
+from typing import List
 from starlette.status import HTTP_403_FORBIDDEN
 import httplib2
 from oauth2client import client
@@ -33,12 +35,11 @@ def register(db: Session, user: validators.RegisterValidator):
     elif db.query(models.User).filter(models.User.username == user.username).first():
         response.update({"error": "username already exists"})
     else:
-        pass
-        # user = user.dict()
-        # user['password'] = gen_hash(user['password'])
-        # db_user = models.User(**user)
-        # db.add(db_user)
-        # db.commit()
+        user = user.dict()
+        user['password'] = gen_hash(user['password'])
+        db_user = models.User(**user)
+        db.add(db_user)
+        db.commit()
     return response
 
 
@@ -129,6 +130,32 @@ def social_login(db: Session, request: Request, response: Response, data: valida
             response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
         except:
             raise HTTPException(status_code=400, detail="Cannot be authenticated")
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[(WebSocket, models.User)] = []
+
+    async def connect(self, websocket: WebSocket, user: models.User):
+        await websocket.accept()
+        self.active_connections.append((websocket, user))
+
+    def disconnect(self, websocket: WebSocket, user: models.User):
+        self.active_connections.remove((websocket, user))
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection[0].send_text(message)
+
+    async def specific(self, message: str, user: models.User):
+        for connection in self.active_connections:
+            if connection[1] == user:
+                await connection[0].send_text(message)
+                break
+
+    def delete(self, user: models.User):
+        for connection in self.active_connections:
+            if connection[1].username == user.username:
+                self.disconnect(connection[0], connection[1])
 
 class OAuth2PasswordBearerWithCookie(OAuth2):
         def __init__(self, tokenUrl: str, scheme_name: str = None, scopes: dict = None, auto_error: bool = True):
