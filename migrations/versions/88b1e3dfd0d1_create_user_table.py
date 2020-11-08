@@ -1,8 +1,8 @@
-"""create_user
+"""create user table
 
-Revision ID: d91910617625
+Revision ID: 88b1e3dfd0d1
 Revises: 
-Create Date: 2020-11-03 15:02:43.312683
+Create Date: 2020-11-08 14:56:17.597485
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd91910617625'
+revision = '88b1e3dfd0d1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,7 +29,6 @@ def upgrade():
     sa.Column('is_verified', sa.Boolean(), nullable=True),
     sa.Column('created_date', sa.Date(), nullable=True),
     sa.Column('modified_date', sa.Date(), nullable=True),
-    sa.Column('is_social_account', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_id'), 'user', ['id'], unique=False)
