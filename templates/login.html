@@ -8,7 +8,7 @@
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" type="text/javascript"></script>
     <!-- Google API -->
-    <script src="https://apis.google.com/js/client:platform.js?onload=start" type="text/javascript"></script>
+    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer type="text/javascript"></script>
     <!-- Custom jQuery-->
     <script type="text/javascript" src="/static/js/login.js"></script>
 </head>
@@ -20,9 +20,9 @@
             <input id="username" placeholder="Username" name="username"><br><br>
             <input id="password" placeholder="password" name="password"><br><br>
             <button type="submit"> Login </button><br>
-            <p id="err"></p><br>
-            <h6> Or </h6>
-            <a id="google_signin"> Sign in with google </a>
+            <p id="err"></p>
+            <h6> OR </h6>
+            <a id="google-signin"> Sign in with google </a>
         </form>
     </div>
 </body>

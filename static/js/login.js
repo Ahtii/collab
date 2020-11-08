@@ -1,26 +1,32 @@
 // google login entrypoint
-/*function start() {
+function start() {
     gapi.load('auth2', function(){
         auth2 = gapi.auth2.init({
             client_id: "973829616666-n71ceelkr8spfb1ldtt6318e54v1cebr.apps.googleusercontent.com"
         });
     });
-}*/
+}
 // load script on page load
 $(document).ready(function(){
     // callback to send authentication code to backend
     function signInCallback(authResult){
         if (authResult['code']) {
-            $("#google-signin").addClass("hide");
              $.ajax({
                 type: 'POST',
-                url: '/api/sociallogin',
+                url: '/api/social_login',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 },
                 contentType: "application/json",
                 dataType: "json",
-                data: JSON.stringify({"type": "google", "token": authResult['code']})
+                data: JSON.stringify({"type": "google", "token": authResult['code']}),
+                success: function(response){
+                    var error = response["error"]
+                    if (error){
+                        $("#err").text(error);
+                    } else
+                        window.location.href="/"
+                }
             });
         }
     }

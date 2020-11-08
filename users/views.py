@@ -112,40 +112,53 @@ def get_lastname(data, first_name):
 
 # social login
 def social_login(db: Session, request: Request, response: Response, data: validators.SocialLoginValidator):
+    return_response = {}
     # for protecting from CSRF
     if not request.headers.get("X-Requested-With"):
-        raise HTTPException(status_code=400, detail="Incorrect headers")
-
-    data = data.dict()
-    type = data['type'].strip().lower()
-    auth_code = data['token']
-    if type == "google":
-        try:
-            credentials = client.credentials_from_clientsecrets_and_code(
-                settings.CLIENT_SECRETS_JSON, ['profile'],
-                auth_code
-            )
-            token_data = credentials.id_token
-            first_name = token_data["given_name"].lower()
-            last_name = get_lastname(token_data, first_name)
-            username = first_name + last_name
-            user_data = {
-                "first_name": first_name,
-                "last_name": last_name,
-                "email": token_data["email"],
-                "username": username,
-                "password": "",
-                "is_social_account": True
-            }
-            user = validators.RegisterValidator(**user_data)
-            db_user = db.query(models.User).filter(models.User.username == user.username).first()
-            if db_user is None:
-                user = register(db, user)
-            access_token = gen_token(user.username)
-            response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
-        except:
-            raise HTTPException(status_code=400, detail="Cannot be authenticated")
-
+        return_response = {"error": "Something went wrong."}
+    else:
+        data = data.dict()
+        type = data['type'].strip().lower()
+        auth_code = data['token']
+        if type == "google":
+            try:
+                print("inside try except block")
+                credentials = client.credentials_from_clientsecrets_and_code(
+                    settings.CLIENT_SECRETS_JSON, ['profile'],
+                    auth_code
+                )
+                token_data = credentials.id_token
+                print("value is: ")
+                print(token_data)
+                first_name = token_data["given_name"].lower()
+                last_name = get_lastname(token_data, first_name)
+                username = first_name + last_name
+                user_data = {
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "email": token_data["email"],
+                    "username": username,
+                    "password": "",
+                    "is_social_account": True
+                }
+                print("data: ")
+                print(data)
+                user = validators.RegisterValidator(**user_data)
+                db_user = db.query(models.User).filter(models.User.username == user.username).first()
+                print("user: ")
+                print(user)
+                if db_user is None:
+                    db_user = register(db, user)
+                    print("db user")
+                    if "error" in db_user:
+                        return_response = db_user
+                access_token = gen_token(user.username)
+                print("access token")
+                print(access_token)
+                response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
+            except:
+                return_response = {"error": "Cannot authenticate"}
+    return return_response
 
 class SocketManager:
     def __init__(self):

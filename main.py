@@ -81,7 +81,7 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
     return user
 
 # authenticating socail login and generating token
-@app.post("/api/sociallogin", include_in_schema=False)
+@app.post("/api/social_login", include_in_schema=False)
 def social_login(request: Request, response: Response, data: validators.SocialLoginValidator, db: Session = Depends(get_db)):
     return views.social_login(db, request, response, data)
 
