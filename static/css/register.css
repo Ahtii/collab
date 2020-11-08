@@ -1,0 +1,12 @@
+.register {
+    text-align: center;
+}
+.register strong {
+    color: teal;
+}
+#register-form input {
+    height: 20px;
+}
+#register-form err {
+    color: red;
+}

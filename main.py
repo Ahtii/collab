@@ -7,13 +7,15 @@ from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi import WebSocketDisconnect
-from typing import Optional
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 # authentication
 TOKEN_MANAGER = OAuth2PasswordBearerWithCookie(tokenUrl="/api/token")
 # websockets
 socket_manager = views.SocketManager()
+# static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # create request session
 def get_db():

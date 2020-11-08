@@ -3,72 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Collab</title>
+    <!-- Custom css -->
+    <link rel="stylesheet" href="/static/css/login.css">
     <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" type="text/javascript"></script>
     <!-- Google API -->
-    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
-    <!-- Custome jQuery including google login-->
-    <script>
-        // google login entrypoint
-        function start() {
-            gapi.load('auth2', function(){
-                auth2 = gapi.auth2.init({
-                    client_id: "973829616666-n71ceelkr8spfb1ldtt6318e54v1cebr.apps.googleusercontent.com"
-                });
-            });
-        }
-        // load script on page load
-        $(document).ready(function(){
-            // callback to send authentication code to backend
-            function signInCallback(authResult){
-                if (authResult['code']) {
-                    $("#google_signin").attr('style', 'display: none');
-                     $.ajax({
-                        type: 'POST',
-                        url: '/api/sociallogin',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        contentType: "application/json",
-                        dataType: "json",
-                        data: JSON.stringify({"type": "google", "token": authResult['code']})
-                    });
-                }
-            }
-            // attach callback on click of google login button
-            $("#google_signin").on("click", function(){
-                auth2.grantOfflineAccess().then(signInCallback);
-            });
-            // login to backend
-            $("#login-form").on("submit", function(e){
-                e.preventDefault();
-                var form_data = {}
-                $(this).find("input[name]").each(function (index, node) {
-                    form_data[node.name] = node.value;
-                });
-                $.post("/api/token", form_data, function(response){
-                    $("#err").text("");
-                    var error = response["error"]
-                    if (error)
-                        $("#err").text(error);
-                    else
-                        window.location.href = "/";
-                });
-            });
-        });
-    </script>
+    <script src="https://apis.google.com/js/client:platform.js?onload=start" type="text/javascript"></script>
+    <!-- Custom jQuery-->
+    <script type="text/javascript" src="/static/js/login.js"></script>
 </head>
 <body>
     <!-- Login Form -->
-    <div style="position: absolute;left: 50%; transform: translateX(-50%);">
-        <h3> Login to <strong style="color:teal;">Collab</strong></h3><br>
+    <div class="login">
+        <h3> Login to <strong>Collab</strong></h3><br>
         <form id="login-form">
-            <input style="height: 20px;" id="username" placeholder="Username" name="username"><br><br>
-            <input style="height: 20px;" id="password" placeholder="password" name="password"><br><br>
+            <input id="username" placeholder="Username" name="username"><br><br>
+            <input id="password" placeholder="password" name="password"><br><br>
             <button type="submit"> Login </button><br>
-            <p id="err" style="color: red;"></p><br>
-            <h6 style="text-align: center;"> Or </h6>
-            <a id="google_signin" style="text-align: center; background: rgb(230, 230, 230); padding: 6px; border: 1px solid rgb(32, 42, 62); border-radius: 3px;"> Sign in with google </a>
+            <p id="err"></p><br>
+            <h6> Or </h6>
+            <a id="google_signin"> Sign in with google </a>
         </form>
     </div>
 </body>

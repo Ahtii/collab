@@ -1,0 +1,28 @@
+.login {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.login strong {
+    color:teal;
+}
+.login input, .login input {
+    height: 20px;
+}
+#err {
+    color: red;
+}
+#login-form h6 {
+    text-align: center;
+}
+#google-signin {
+    text-align: center;
+    background: rgb(230, 230, 230);
+    padding: 6px;
+    border: 1px solid rgb(32, 42, 62);
+    border-radius: 3px;
+}
+.hide {
+    display: none;
+}
+
