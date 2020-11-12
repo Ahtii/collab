@@ -184,14 +184,18 @@ class SocketManager:
                 await connection[0].send_json(data)
                 found_receiver = True
 
-    def delete(self, user: models.User):
+    async def delete(self, user: models.User):
         for connection in self.active_connections:
             if connection[1].username == user.username:
                 self.disconnect(connection[0], connection[1])
+                print("from websockets")
+                await self.get_online_users()
+                break
 
     async def get_online_users(self):
         response = {"receivers": []}
         for connection in self.active_connections:
+            print(connection[1].username)
             response['receivers'].append(connection[1].username)
 
         for connection in self.active_connections:
@@ -200,11 +204,14 @@ class SocketManager:
 
     async def to_room_participants(self, data: dict):
         for connection in self.active_connections:
+            print("checking for participants")
+            print(connection[1].username)
             if connection[1].username in data['participants']:
+                print("found match")
+                print(connection[1].username)
+                print("data to send is")
+                print(data)
                 await connection[0].send_json(data)
-
-    # async def show_rooms(self):
-
 
 
 class OAuth2PasswordBearerWithCookie(OAuth2):

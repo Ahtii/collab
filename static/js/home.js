@@ -42,13 +42,7 @@ $(document).ready(function(){
     socket.onmessage = function(event) {
         var parent = $("#messages");
         var data = JSON.parse(event.data);
-//        var index = data.indexOf(":");
-//        var sender = data.substring(0, index);
         var sender = data['sender'];
-//        console.log(current_user);
-//        if (sender == current_user)
-//            sender = "you";
-//        var message = data.substring(index + 1, data.length);
         var message = data['message']
         if (message){
             var user = $("#cur_user").text();
@@ -56,7 +50,7 @@ $(document).ready(function(){
                 sender = "you";
             var content = "<p><strong>"+sender+": </strong><br><span>"+message+"</span></p>";
             parent.append(content);
-        } else {
+        } else if(sender) {
             if ($("#auth").hasClass("hide")){
                 $("#auth").removeClass("hide");
                 $("#not-auth").addClass("hide");
@@ -65,7 +59,6 @@ $(document).ready(function(){
             var parent = $("#left-sidebar ul");
             parent.empty();
             receivers = data['receivers'];
-            console.log('receivers: ');
             $.each(receivers, function(index, receiver){
                 console.log(receiver);
                 if (sender != receiver){
@@ -73,6 +66,10 @@ $(document).ready(function(){
                     parent.append(child);
                 }
             });
+        } else {
+            var room = data['room'];
+            console.log(room);
+            $("#rooms ul").append("<li>"+room+"</li>");
         }
     };
     // send message with websocket

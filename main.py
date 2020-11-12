@@ -82,7 +82,7 @@ async def authenticate(credentials: OAuth2PasswordRequestForm = Depends(), db: S
 async def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:
-        socket_manager.delete(user)
+        await socket_manager.delete(user)
         response.delete_cookie("access_token")
     return user
 
@@ -122,10 +122,16 @@ async def websocket_endpoint(websocket: views.WebSocket, db: Session = Depends(g
             # ROOM ENDPOINTS
 
 @app.post("/api/users/rooms")
-def create_room(request: Request, room_data: validators.CreateRoom, db: Session = Depends(get_db)):
+async def create_room(request: Request, room_data: validators.CreateRoom, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:
         response = views.create_room(user, room_data, db)
+        print("room is")
+        print(response)
+        room = response['room']
+        if room:
+            response['participants'] = views.get_participants(room, db)
+            await socket_manager.to_room_participants(response)
     else:
         response = {"error": "Unauthorized user"}
     return response
