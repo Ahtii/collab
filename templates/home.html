@@ -19,7 +19,7 @@
         <div id="auth" class="hide">
             <strong id="err"></strong><br>
             <div class="chat-section">
-                <h3> <span>public chat</span> <button id="logout"> Logout </button></h3>
+                <h3><span>public chat</span></h3>
                 <form id="chat-form">
                     <input type="text" id="messageText" autocomplete="off"/>
                     <button type="submit">Send</button>
@@ -34,8 +34,14 @@
             <div id="right-sidebar">
                 <strong> profile </strong>
                 <p id="cur_user"></p>
+                <button id="logout"> Logout </button>
                 <strong> options </strong>
                 <p id="public_chat"> public chat </p>
+                <p id="room"> <a href="/room"> create room </a> </p>
+                <strong> rooms </strong>
+                <div id="rooms">
+                    <ul></ul>
+                </div>
             </div>
         </div>
     </div>

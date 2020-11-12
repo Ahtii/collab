@@ -1,3 +1,4 @@
+aiofiles==0.6.0
 alembic==1.4.3
 apiclient==1.0.4
 appdirs==1.4.3

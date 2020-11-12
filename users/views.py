@@ -54,11 +54,6 @@ def authenticate(db: Session, username: str, password: str):
     return user
 
 
-# get list of users
-def get_all_users(db: Session):
-    return db.query(models.User).all()
-
-
 # generate token
 def gen_token(username, time: int = settings.ACCESS_TOKEN_EXPIRE_MINUTES):
     data = {'sub': username}
@@ -96,6 +91,16 @@ def get_current_user(db, token):
     return user
 
 
+def get_all_users(db: Session):
+    response = {"users": ""}
+    users = db.query(models.User).all()
+    users_list = []
+    for user in users:
+        users_list.append(user.username)
+    response["users"] = users_list
+    return response
+
+
 def get_lastname(data, first_name):
     last_name = ""
     if "family_name" in data.keys():
@@ -122,14 +127,11 @@ def social_login(db: Session, request: Request, response: Response, data: valida
         auth_code = data['token']
         if type == "google":
             try:
-                print("inside try except block")
                 credentials = client.credentials_from_clientsecrets_and_code(
                     settings.CLIENT_SECRETS_JSON, ['profile'],
                     auth_code
                 )
                 token_data = credentials.id_token
-                print("value is: ")
-                print(token_data)
                 first_name = token_data["given_name"].lower()
                 last_name = get_lastname(token_data, first_name)
                 username = first_name + last_name
@@ -141,24 +143,18 @@ def social_login(db: Session, request: Request, response: Response, data: valida
                     "password": "",
                     "is_social_account": True
                 }
-                print("data: ")
-                print(data)
                 user = validators.RegisterValidator(**user_data)
                 db_user = db.query(models.User).filter(models.User.username == user.username).first()
-                print("user: ")
-                print(user)
                 if db_user is None:
                     db_user = register(db, user)
-                    print("db user")
                     if "error" in db_user:
                         return_response = db_user
                 access_token = gen_token(user.username)
-                print("access token")
-                print(access_token)
                 response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
             except:
                 return_response = {"error": "Cannot authenticate"}
     return return_response
+
 
 class SocketManager:
     def __init__(self):
@@ -171,34 +167,44 @@ class SocketManager:
     def disconnect(self, websocket: WebSocket, user: models.User):
         self.active_connections.remove((websocket, user))
 
-    async def broadcast(self, sender: str, message: str):
+    async def broadcast(self, data: dict):
         for connection in self.active_connections:
-            await connection[0].send_text(sender+":"+message)
+            await connection[0].send_json(data)
 
-    async def specific(self, sender: str, reciever: str, message: str):
-        print("inside specific")
+    async def specific(self, data: dict):
         found_sender = False
-        found_reciever = False
+        found_receiver = False
         for connection in self.active_connections:
-            if found_sender and found_reciever:
+            if found_sender and found_receiver:
                 break
-            if connection[1].username == sender:
-                await connection[0].send_text(sender + ":" + message)
+            if connection[1].username == data['sender']:
+                await connection[0].send_json(data)
                 found_sender = True
-            elif connection[1].username == reciever:
-                await connection[0].send_text(sender+":"+message)
-                found_reciever = True
+            elif connection[1].username == data['receiver']:
+                await connection[0].send_json(data)
+                found_receiver = True
 
     def delete(self, user: models.User):
         for connection in self.active_connections:
             if connection[1].username == user.username:
                 self.disconnect(connection[0], connection[1])
 
-    def get_online_users(self):
-        users = {"users": []}
+    async def get_online_users(self):
+        response = {"receivers": []}
         for connection in self.active_connections:
-            users["users"].append(connection[1].username)
-        return users
+            response['receivers'].append(connection[1].username)
+
+        for connection in self.active_connections:
+            response.update({"sender": connection[1].username})
+            await connection[0].send_json(response)
+
+    async def to_room_participants(self, data: dict):
+        for connection in self.active_connections:
+            if connection[1].username in data['participants']:
+                await connection[0].send_json(data)
+
+    # async def show_rooms(self):
+
 
 
 class OAuth2PasswordBearerWithCookie(OAuth2):
@@ -221,3 +227,45 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
             else:
                 return None
         return param
+
+
+# create room
+def create_room(user: models.User, room_data: validators.CreateRoom, db: Session):
+    room = models.Room(
+            name=room_data.name,
+            admin=user.username,
+            description=room_data.description
+    )
+    room.participants.append(user)
+    for participant in room_data.participants:
+        participant = participant.strip()
+        user = db.query(models.User).filter(models.User.username == participant).first()
+        if user:
+            room.participants.append(user)
+    db.add(room)
+    db.commit()
+    response = {"room": room.name}
+    return response
+
+
+# get rooms
+def get_rooms(user: models.User, db: Session):
+    rooms = db.query(models.Room).all()
+    room_list = []
+    for room in rooms:
+        if user in room.participants:
+            data = {
+                "name": room.name,
+                "description": room.description,
+                "participants": room.participants
+            }
+            room_list.append(data)
+    response = {"rooms": room_list}
+    return response
+
+# get room participants
+def get_participants(room: str, db: Session):
+    room = db.query(models.Room).filter(models.Room.name == room).first()
+    if room:
+        return [participant.username for participant in room.participants]
+    return None

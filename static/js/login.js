@@ -41,7 +41,7 @@ $(document).ready(function(){
         $(this).find("input[name]").each(function (index, node) {
             form_data[node.name] = node.value;
         });
-        $.post("/api/token", form_data, function(response){
+        $.post("/api/users/token", form_data, function(response){
             $("#err").text("");
             var error = response["error"]
             if (error)

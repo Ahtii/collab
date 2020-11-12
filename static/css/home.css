@@ -6,9 +6,12 @@
     padding: 10px;
 }
 #logout {
-    background: rgb(230, 230, 230);
+    background: rgb(220, 220, 220);
     margin-left: 10px;
     padding: 5px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    margin-top: -5px;
 }
 #messages {
     text-align: left;

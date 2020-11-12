@@ -19,3 +19,9 @@ class SocialLoginValidator(BaseModel):
     type: str
     token: str
 
+# create room validator
+class CreateRoom(BaseModel):
+    name: str
+    description: str = None
+    participants: list
+

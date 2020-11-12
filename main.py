@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 # authentication
-TOKEN_MANAGER = OAuth2PasswordBearerWithCookie(tokenUrl="/api/token")
+TOKEN_MANAGER = OAuth2PasswordBearerWithCookie(tokenUrl="/api/users/token")
 # websockets
 socket_manager = views.SocketManager()
 # static files
@@ -42,26 +42,32 @@ def register(request: Request):
 # login template
 @app.get("/login", include_in_schema=False)
 def login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse("login.html", {"request": request})\
+
+# room template
+@app.get("/room", include_in_schema=False)
+def login(request: Request):
+    return templates.TemplateResponse("room.html", {"request": request})
 
                                 # API ENDPOINTS
 
-@app.get("/api/current_user")
+@app.get("/api/user")
 def get_current_user(request: Request, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     return views.gen_response(user)
 
-@app.get("/api/online_users")
-def get_online_users():
-    return socket_manager.get_online_users()
+# get all users
+@app.get("/api/users")
+def get_all_users(db: Session = Depends(get_db)):
+    return views.get_all_users(db)
 
-# create user
-@app.post("/api/register")
+# create a user
+@app.post("/api/users")
 async def create_user(user: validators.RegisterValidator, db: Session = Depends(get_db)):
     return views.register(db, user)
 
-# login and generate token for further authentication
-@app.post("/api/token")
+# login the user and generate token for further authentication
+@app.post("/api/users/token")
 async def authenticate(credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = views.authenticate(db, credentials.username, credentials.password)
     response = {"error": "Incorrect username or password"}
@@ -71,8 +77,8 @@ async def authenticate(credentials: OAuth2PasswordRequestForm = Depends(), db: S
         response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
     return response
 
-# logout the user by deleting the cookie
-@app.post("/api/logout")
+# logout the user
+@app.delete("/api/users")
 async def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:
@@ -88,24 +94,50 @@ def social_login(request: Request, response: Response, data: validators.SocialLo
 @app.websocket("/api/ws")
 async def websocket_endpoint(websocket: views.WebSocket, db: Session = Depends(get_db)):
     user = views.get_current_user(db, websocket.cookies.get("access_token"))
-    print("inside websockets")
     if user:
         await socket_manager.connect(websocket, user)
-        print("got connected to "+user.username)
+        response = {"sender": user.username}
+        await socket_manager.get_online_users()
         try:
-            print("inside try block")
             while True:
                 data = await websocket.receive_json()
-                reciever = data["client"]
+                receiver = data["receiver"]
+                room = data["room"]
                 msg = data["message"]
-                print(reciever)
-                if reciever:
-                    await socket_manager.specific(user.username, reciever, msg)
+                if receiver:
+                    response.update(data)
+                    await socket_manager.specific(response)
+                elif room:
+                    participants = views.get_participants(room, db)
+                    response.update({"participants": participants, "message": msg})
+                    await socket_manager.to_room_participants(response)
                 else:
-                    await socket_manager.broadcast(user.username, msg)
+                    response.update({"message": msg})
+                    await socket_manager.broadcast(response)
         except WebSocketDisconnect:
             socket_manager.disconnect(websocket, user)
             # await manager.broadcast(f"{user.username} left")
+
+
+            # ROOM ENDPOINTS
+
+@app.post("/api/users/rooms")
+def create_room(request: Request, room_data: validators.CreateRoom, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    if user:
+        response = views.create_room(user, room_data, db)
+    else:
+        response = {"error": "Unauthorized user"}
+    return response
+
+@app.get("/api/users/rooms")
+def get_rooms(request: Request, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    if user:
+        response = views.get_rooms(user, db)
+    else:
+        response = {"error": "Unauthorized user"}
+    return response
 
 
 

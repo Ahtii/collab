@@ -1,35 +1,32 @@
 /* home jQuery */
 
 $(document).ready(function(){
-    var current_user = null;
     var selected_user = "";
-    // get user if logged in
-    $.get("/api/current_user", function(response){
-         current_user = response["user"]
-         if (current_user){
-            $("#auth").removeClass("hide");
-            $("#not-auth").addClass("hide");
-            $("#right-sidebar #cur_user").text(current_user);
-            // get list of online users
-            $.get("/api/online_users", function(response){
-                var users_list = response["users"]
-                if (!jQuery.isEmptyObject(users_list)){
-                    var parent = $("#left-sidebar ul");
-                    $.each(users_list, function(key, value){
-                        if (current_user != value){
-                            child = "<li> <a>"+value+"</a> </li>";
-                            parent.append(child);
-                        }
-                    });
-                }
+    var selected_room = "";
+    $.get("/api/users/rooms", function(response){
+        var rooms_list = response["rooms"]
+        if (!jQuery.isEmptyObject(rooms_list)){
+            var parent = $("#rooms ul");
+            $.each(rooms_list, function(key, value){
+                child = "<li>"+value["name"]+"</li>";
+                parent.append(child);
             });
-         }
+        }
     });
-    // change from one public chat to personal
-    $(document).on("click", "ul a", function(){
+    $(document).on("click", "#rooms li", function(){
+        var room = $(this).text();
+        if (room){
+            $("#auth h3 span").text(room);
+            selected_user = "";
+            selected_room = room;
+        }
+    });
+    // change from public chat to personal chat
+    $(document).on("click", "#left-sidebar ul a", function(){
        var user = $(this).text();
-       $("#auth h3 span").text(user);
+       $("#auth h3 span").text("chatting with "+user);
        selected_user = user;
+       selected_room = "";
     });
     // change from personal to public chat
     $(document).on("click", "#public_chat", function(){
@@ -37,28 +34,54 @@ $(document).ready(function(){
         if (text != "public chat"){
             $("#auth h3 span").text("public chat");
             selected_user = "";
+            selected_room = "";
         }
     });
     // create websocket
     var socket = new WebSocket("ws://localhost:8000/api/ws");
     socket.onmessage = function(event) {
         var parent = $("#messages");
-        var data = event.data;
-        var index = data.indexOf(":");
-        var sender = data.substring(0, index);
-        if (sender == current_user)
-            sender = "you";
-        sender = sender + ":"
-        var message = data.substring(index + 1, data.length);
-        var content = "<p><strong>"+sender+"</strong><br><span>"+message+"</span></p>";
-        parent.append(content);
+        var data = JSON.parse(event.data);
+//        var index = data.indexOf(":");
+//        var sender = data.substring(0, index);
+        var sender = data['sender'];
+//        console.log(current_user);
+//        if (sender == current_user)
+//            sender = "you";
+//        var message = data.substring(index + 1, data.length);
+        var message = data['message']
+        if (message){
+            var user = $("#cur_user").text();
+            if (user == sender)
+                sender = "you";
+            var content = "<p><strong>"+sender+": </strong><br><span>"+message+"</span></p>";
+            parent.append(content);
+        } else {
+            if ($("#auth").hasClass("hide")){
+                $("#auth").removeClass("hide");
+                $("#not-auth").addClass("hide");
+                $("#right-sidebar #cur_user").text(sender);
+            }
+            var parent = $("#left-sidebar ul");
+            parent.empty();
+            receivers = data['receivers'];
+            console.log('receivers: ');
+            $.each(receivers, function(index, receiver){
+                console.log(receiver);
+                if (sender != receiver){
+                    var child = "<li> <a>"+receiver+"</a> </li>";
+                    parent.append(child);
+                }
+            });
+        }
     };
     // send message with websocket
     function sendMessage() {
         var input = document.getElementById("messageText");
         data = {
             "message": input.value,
-            "client": selected_user
+            "receiver": selected_user,
+            "room": selected_room
         };
         socket.send(JSON.stringify(data));
         input.value = '';
@@ -71,8 +94,12 @@ $(document).ready(function(){
     });
     // logout the user
     $("#logout").on("click", function(){
-        $.post("/api/logout", function(response){
-            window.location.href = "/"
+        $.ajax({
+            url: '/api/users',
+            type: 'DELETE',
+            success: function(response){
+                window.location.href = "/"
+            }
         });
     });
 });

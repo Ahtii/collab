@@ -10,7 +10,7 @@ $(document).ready(function(){
             "username": $("#username").val(),
             "password": $("#password").val(),
         };
-        $.post("/api/register", JSON.stringify(form_data), function(response){
+        $.post("/api/users", JSON.stringify(form_data), function(response){
             $("#err").text("");
             var error = response["error"]
             if (error)
