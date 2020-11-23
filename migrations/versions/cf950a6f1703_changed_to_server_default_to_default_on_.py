@@ -1,8 +1,8 @@
-"""modified Room user column
+"""changed to server_default to default on base message
 
-Revision ID: ee3dffe1625c
-Revises: bab0d5b94c75
-Create Date: 2020-11-08 20:03:09.983387
+Revision ID: cf950a6f1703
+Revises: abcfe29f88a4
+Create Date: 2020-11-22 22:22:19.894289
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ee3dffe1625c'
-down_revision = 'bab0d5b94c75'
+revision = 'cf950a6f1703'
+down_revision = 'abcfe29f88a4'
 branch_labels = None
 depends_on = None
 

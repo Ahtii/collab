@@ -1,0 +1,39 @@
+.chat-page {
+    text-align: center;
+}
+.btn {
+    background: rgb(230, 230, 230);
+    padding: 10px;
+}
+#message-sep {
+    max-width: 40%;
+    text-align: left;
+}
+#messages {
+    min-height: 200px;
+    overflow: auto;
+}
+.notifier {
+    background-color: lightgreen;
+    border-radius: 5px;
+    font-size: 11px;
+    position: absolute;
+    left: 100%;
+    top: 0;
+}
+.date {
+    color: rgb(80, 80, 80);
+    font-size: 12px;
+    float: right;
+}
+.hide {
+    display: none;
+}
+.chat-section {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+h3 {
+    text-align: center;
+}

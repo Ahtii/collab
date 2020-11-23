@@ -46,7 +46,6 @@ $(document).ready(function(){
             "description": $("#room-desc").val(),
             "participants": sel_participants
         };
-        console.log(data);
         $.post("/api/users/rooms",JSON.stringify(data), function(response){
             var error = response["error"];
             if (error){

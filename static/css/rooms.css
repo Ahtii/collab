@@ -1,0 +1,31 @@
+.rooms-page {
+    text-align: center;
+}
+.btn {
+    background: rgb(230, 230, 230);
+    padding: 10px;
+}
+#message-sep {
+    max-width: 40%;
+    text-align: left;
+}
+#messages {
+    min-height: 200px;
+    overflow: auto;
+}
+.date {
+    color: rgb(80, 80, 80);
+    font-size: 12px;
+    float: right;
+}
+.hide {
+    display: none;
+}
+.rooms-section {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+h3 {
+    text-align: center;
+}

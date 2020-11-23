@@ -3,18 +3,15 @@ from users import models, validators
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from users import settings
-from jose import JWTError, jwt
-from fastapi import Depends, HTTPException, status, Request, Response
+from jose import jwt
+from fastapi import HTTPException, status, Request, Response
 from fastapi.security import OAuth2
 from fastapi.security.utils import get_authorization_scheme_param
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from typing import Optional
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
 from typing import List
-from starlette.status import HTTP_403_FORBIDDEN
-import httplib2
 from oauth2client import client
-import random
 
 # hashing password algorithm (BCRYPT for new hash) with support for old algorithm
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -28,6 +25,18 @@ def gen_hash(password):
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
+def create_update_public_room(db: Session, user: models.User):
+    room = db.query(models.Room).filter(models.Room.is_default == True).first()
+    if room:
+        room.participants.append(user)
+    else:
+        room = models.Room(
+            name="Collab",
+            admin="",
+            description="This is a public room"
+        )
+    db.add(room)
+    db.commit()
 
 # register logic
 def register(db: Session, user: validators.RegisterValidator):
@@ -42,6 +51,7 @@ def register(db: Session, user: validators.RegisterValidator):
         db_user = models.User(**user)
         db.add(db_user)
         db.commit()
+        #create_update_public_room(db, db_user)
     return response
 
 
@@ -61,13 +71,6 @@ def gen_token(username, time: int = settings.ACCESS_TOKEN_EXPIRE_MINUTES):
     expire = datetime.utcnow() + expires_in
     data.update({'exp': expire})
     return jwt.encode(data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-
-
-def gen_response(user: models.User):
-    response = {}
-    if user:
-        response["user"] = user.username
-    return response
 
 
 def get_payload(token: str):
@@ -167,17 +170,17 @@ class SocketManager:
     def disconnect(self, websocket: WebSocket, user: models.User):
         self.active_connections.remove((websocket, user))
 
-    async def broadcast(self, data: dict):
+    async def broadcast(self,db: Session, data: dict):
         for connection in self.active_connections:
             await connection[0].send_json(data)
 
-    async def specific(self, data: dict):
+    async def to_specific_user(self, data: dict):
         found_sender = False
         found_receiver = False
         for connection in self.active_connections:
             if found_sender and found_receiver:
                 break
-            if connection[1].username == data['sender']:
+            if connection[1].username == data['author']:
                 await connection[0].send_json(data)
                 found_sender = True
             elif connection[1].username == data['receiver']:
@@ -188,30 +191,44 @@ class SocketManager:
         for connection in self.active_connections:
             if connection[1].username == user.username:
                 self.disconnect(connection[0], connection[1])
-                print("from websockets")
                 await self.get_online_users()
                 break
 
     async def get_online_users(self):
         response = {"receivers": []}
         for connection in self.active_connections:
-            print(connection[1].username)
             response['receivers'].append(connection[1].username)
-
         for connection in self.active_connections:
             response.update({"sender": connection[1].username})
             await connection[0].send_json(response)
 
     async def to_room_participants(self, data: dict):
         for connection in self.active_connections:
-            print("checking for participants")
-            print(connection[1].username)
             if connection[1].username in data['participants']:
-                print("found match")
-                print(connection[1].username)
-                print("data to send is")
-                print(data)
                 await connection[0].send_json(data)
+
+    async def populate_old_messages(self, data: dict):
+        for connection in self.active_connections:
+            if connection[1].username == data['user']:
+                data.pop('user')
+                # data.update({""})
+                await connection[0].send_json(data)
+                break
+
+    async def recent_messages(self, data: dict):
+        for connection in self.active_connections:
+            if connection[1].username == data['cur_user']:
+                await connection[0].send_json(data)
+                break
+
+    async def populate_rooms(self, rooms: list, user: models.User):
+        for room in rooms:
+            if user in room['participants']:
+                for connection in self.active_connections:
+                    if connection[1].username == user.username:
+                        await connection[0].send_json(room)
+                        break
+
 
 
 class OAuth2PasswordBearerWithCookie(OAuth2):
@@ -235,13 +252,12 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
                 return None
         return param
 
-
 # create room
 def create_room(user: models.User, room_data: validators.CreateRoom, db: Session):
     room = models.Room(
-            name=room_data.name,
-            admin=user.username,
-            description=room_data.description
+        name=room_data.name,
+        admin=user.username,
+        description=room_data.description
     )
     room.participants.append(user)
     for participant in room_data.participants:
@@ -260,15 +276,17 @@ def get_rooms(user: models.User, db: Session):
     rooms = db.query(models.Room).all()
     room_list = []
     for room in rooms:
-        if user in room.participants:
+        participants = room.participants
+        if user in participants:
             data = {
                 "name": room.name,
                 "description": room.description,
-                "participants": room.participants
+                "participants": [participant.username for participant in participants]
             }
             room_list.append(data)
     response = {"rooms": room_list}
     return response
+
 
 # get room participants
 def get_participants(room: str, db: Session):
@@ -276,3 +294,62 @@ def get_participants(room: str, db: Session):
     if room:
         return [participant.username for participant in room.participants]
     return None
+
+
+def create_message(db: Session, data: dict):
+    response = None
+    try:
+        sender_id = data['sender_id']
+        username = data['username']
+        if sender_id:
+            message = models.PersonalMessage()
+            message.text = data['message']
+            message.sender_id = sender_id
+            receiver = data['receiver']
+            receiver = db.query(models.User).filter(
+                models.User.username == receiver
+            ).first()
+            message.receiver_id = receiver.id
+            db.add(message)
+            db.commit()
+            response = {
+                "author": username,
+                "message": message.text,
+                "date": message.created_date.strftime("%H:%M %p"),
+                "receiver": receiver.username
+            }
+        else:
+            pass
+    except:
+        pass
+    return response
+
+def create_room_message(db: Session, data: dict):
+    response = None
+    try:
+        room = db.query(models.Room).filter(
+            models.Room.name == data['room']
+        ).first()
+        if room:
+            sender = db.query(models.User).filter(
+               models.User.username == data['user']
+            ).first()
+            if sender:
+                message = models.RoomMessage()
+                message.text = data['message']
+                message.sender_id = sender.id
+                message.room_id = room.id
+                db.add(message)
+                db.commit()
+                response = {
+                    "author": sender.username,
+                    "message": message.text,
+                    "date": message.created_date.strftime("%H:%M %p"),
+                    "room": room.name,
+                    "participants": [participant.username for participant in room.participants]
+                }
+            else:
+                pass
+    except:
+        pass
+    return response

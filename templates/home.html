@@ -6,7 +6,7 @@
     <!--Custom Css -->
     <link rel="stylesheet" href="/static/css/home.css">
     <!-- jQuery-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
     <!-- Custom jQuery -->
     <script src="/static/js/home.js"></script>
 </head>
@@ -18,30 +18,27 @@
         </div>
         <div id="auth" class="hide">
             <strong id="err"></strong><br>
-            <div class="chat-section">
-                <h3><span>public chat</span></h3>
-                <form id="chat-form">
-                    <input type="text" id="messageText" autocomplete="off"/>
-                    <button type="submit">Send</button>
-                </form>
-                <div id="messages"></div>
+            <div id="chat-body">
+                <h3><span>Collab</span><hr id="message-sep"></h3>
+                <p id="no-message">No messages to display</p>
+                <div id="messages" class="hide"></div>
             </div>
             <div id="left-sidebar">
-                <strong> online users </strong><br>
-                <ul>
-                </ul>
+                <div id="online-users">
+                    <strong> online users </strong><br>
+                    <ul>
+                    </ul>
+                </div><br>
+                <div id="rooms">
+                    <strong id="room-heading"> rooms </strong>
+                    <ul></ul>
+                </div>
             </div>
             <div id="right-sidebar">
                 <strong> profile </strong>
                 <p id="cur_user"></p>
-                <button id="logout"> Logout </button>
-                <strong> options </strong>
-                <p id="public_chat"> public chat </p>
+                <button id="logout"> Logout </button><br>
                 <p id="room"> <a href="/room"> create room </a> </p>
-                <strong> rooms </strong>
-                <div id="rooms">
-                    <ul></ul>
-                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Collab</title>
+    <!--Custom Css -->
+    <link rel="stylesheet" href="/static/css/rooms.css">
+    <!-- jQuery-->
+    <script src="/static/js/jquery.min.js"></script>
+    <!-- Custom jQuery -->
+    <script src="/static/js/rooms.js"></script>
+</head>
+<body>
+    <div id="rooms-page">
+        <strong id="err"></strong><br>
+        <div class="rooms-section">
+            <h3><span></span></h3>
+            <hr id="message-sep"><br>
+            <div id="messages"></div>
+            <form id="rooms-form">
+                <input type="text" id="messageText" autocomplete="off"/>
+                <button type="submit">Send</button>
+            </form><br>
+        </div>
+    </div>
+</body>
+</html>
