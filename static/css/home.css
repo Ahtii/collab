@@ -30,6 +30,9 @@
     text-align: left;
     left: 20%;
 }
+#messages p {
+    padding: 5px;
+}
 #message-sep {
     width: 60%;
 }
@@ -37,12 +40,11 @@
     position: relative;
 }
 .notifier {
-    background-color: lightgreen;
+    font-size: 8px;
+}
+.highlight {
+    background-color: rgb(230, 230, 230);
     border-radius: 5px;
-    font-size: 11px;
-    position: absolute;
-    left: 100%;
-    top: 0;
 }
 .date {
     color: rgb(80, 80, 80);

@@ -12,6 +12,7 @@ from typing import Optional
 from fastapi import WebSocket
 from typing import List
 from oauth2client import client
+import os, pathlib, random
 
 # hashing password algorithm (BCRYPT for new hash) with support for old algorithm
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -158,6 +159,8 @@ def social_login(db: Session, request: Request, response: Response, data: valida
                 return_response = {"error": "Cannot authenticate"}
     return return_response
 
+# def gen_file_url(user, filename):
+#     return os.path.join("/media/"+user+"/"+filename)
 
 class SocketManager:
     def __init__(self):
@@ -181,9 +184,13 @@ class SocketManager:
             if found_sender and found_receiver:
                 break
             if connection[1].username == data['author']:
+                print("data to be send to "+data['author'])
+                print(data)
                 await connection[0].send_json(data)
                 found_sender = True
             elif connection[1].username == data['receiver']:
+                print("data to be send to "+data['receiver'])
+                print(data)
                 await connection[0].send_json(data)
                 found_receiver = True
 
@@ -211,7 +218,8 @@ class SocketManager:
         for connection in self.active_connections:
             if connection[1].username == data['user']:
                 data.pop('user')
-                # data.update({""})
+                print("data to be send")
+                print(data)
                 await connection[0].send_json(data)
                 break
 
@@ -287,6 +295,26 @@ def get_rooms(user: models.User, db: Session):
     response = {"rooms": room_list}
     return response
 
+# generate file url
+def gen_file_dir(directory, file):
+    root = pathlib.Path(file).parent.absolute()
+    relative_path = "/static/media/uploads"
+    absolute_path = str(root) + relative_path
+    target_url = os.path.join(absolute_path, directory)
+    return target_url
+
+def create_file(dir, name, file):
+    path = dir + "/" + name
+    if os.path.isdir(dir):
+        if os.path.isfile(path):
+            bits = str(random.getrandbits(80))
+            name_extension = path.split(".")
+            path = name_extension[0] + bits + "." + name_extension[1]
+    else:
+        os.mkdir(dir)
+    with open(path, "wb") as f:
+        f.write(file)
+    return path
 
 # get room participants
 def get_participants(room: str, db: Session):
@@ -295,7 +323,7 @@ def get_participants(room: str, db: Session):
         return [participant.username for participant in room.participants]
     return None
 
-
+# create message object and save it in db
 def create_message(db: Session, data: dict):
     response = None
     try:
@@ -310,14 +338,30 @@ def create_message(db: Session, data: dict):
                 models.User.username == receiver
             ).first()
             message.receiver_id = receiver.id
+            print("message in:")
+            print(message)
+            file = data.get('file')
+            print("our file is:")
+            print(file)
+            if file:
+                message.attachment_url = file
+            print("attempt save message")
             db.add(message)
             db.commit()
+            print("saved message")
             response = {
                 "author": username,
                 "message": message.text,
                 "date": message.created_date.strftime("%H:%M %p"),
                 "receiver": receiver.username
             }
+            if file:
+                response.update({
+                    "file": message.attachment_url,
+                    "filename": data.get("filename")
+                })
+            print("response message: ")
+            print(response)
         else:
             pass
     except:
@@ -339,6 +383,11 @@ def create_room_message(db: Session, data: dict):
                 message.text = data['message']
                 message.sender_id = sender.id
                 message.room_id = room.id
+                file = data.get('file')
+                print("our file in room is")
+                print(file)
+                if file:
+                    message.attachment_url = file
                 db.add(message)
                 db.commit()
                 response = {
@@ -348,6 +397,11 @@ def create_room_message(db: Session, data: dict):
                     "room": room.name,
                     "participants": [participant.username for participant in room.participants]
                 }
+                if file:
+                    response.update({
+                        "file": message.attachment_url,
+                        "filename": data.get("filename")
+                    })
             else:
                 pass
     except:

@@ -1,12 +1,13 @@
 from sqlalchemy.orm import Session
-import database
+import database, os, pathlib
 from users import validators, views, models
 from users.views import OAuth2PasswordBearerWithCookie
-from fastapi import FastAPI, Depends, Response, Request
+from fastapi import FastAPI, Depends, Response, Request, Form, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi import WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+import random
 
 app = FastAPI()
 # authentication
@@ -16,6 +17,7 @@ socket_manager = views.SocketManager()
 # static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+FILE_SIZE = 5000000
 
 # create request session
 def get_db():
@@ -124,7 +126,7 @@ def get_old_conversation(id):
               FROM personal_message\
               WHERE sender_id = "+id+" OR receiver_id = "+id+"\
         )\
-        SELECT sender_id, text, created_date, receiver_id\
+        SELECT sender_id, text, created_date, receiver_id, attachment_url\
         FROM cte\
         WHERE rn = 1;"
 
@@ -150,6 +152,12 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                 "receiver": receiver.username,
                 "user": user.username
             }
+            if message.attachment_url:
+                filename = message.attachment_url.split("/")[-1]
+                msg_data.update({
+                    "file": str(message.attachment_url),
+                    "filename": filename
+                })
             await socket_manager.populate_old_messages(msg_data)
         response = views.get_rooms(user, db)
         rooms = response["rooms"]
@@ -168,6 +176,8 @@ async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = D
     if user:
         await socket_manager.connect(websocket, user)
         response = {"user": user.username}
+        print("receiver")
+        print(receiver)
         receiver = db.query(models.User).filter(models.User.username == receiver).first()
         old_messages = db.query(models.PersonalMessage).filter(
             ((models.PersonalMessage.sender_id == user.id) &
@@ -182,27 +192,58 @@ async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = D
             else:
                 sender_name = receiver.username
                 receiver_name = user.username
-            data = {
+            msg_data = {
                 "author": sender_name,
                 "message": message.text,
                 "date": message.created_date.strftime("%H:%M %p"),
                 "receiver": receiver_name,
-                "user": response['user']
+                "user": user.username
             }
+            if message.attachment_url:
+                filename = message.attachment_url.split("/")[-1]
+                msg_data.update({
+                    "file": str(message.attachment_url),
+                    "filename": filename
+                })
             # await socket_manager.specific(data)
-            await socket_manager.populate_old_messages(data)
+            await socket_manager.populate_old_messages(msg_data)
         try:
+            print("file is")
+            print("testing")
             while True:
                 data = await websocket.receive_json()
                 receiver = data["receiver"]
-                if receiver:
-                    response.update(data)
-                    data = response
-                    data.update({"sender_id": user.id, "username": user.username})
-                    message = views.create_message(db, data)
-                    await socket_manager.to_specific_user(message)
+                response.update(data)
+                data = response
+                data.update({"sender_id": user.id, "username": user.username})
+                file_data = data.get('file')
+                print("file here")
+                print(file_data)
+                if file_data:
+                    file_size = file_data['size']
+                    print("receiver is")
+                    print(receiver)
+                    if file_size <= FILE_SIZE:
+                        file = await websocket.receive_bytes()
+                        print("file is")
+                        print(file)
+                        print("data is")
+                        print(data)
+                        filename = file_data['filename']
+                        file_dir = views.gen_file_dir(user.username, __file__)
+                        file_url = views.create_file(file_dir, filename, file)
+                        data.update({
+                            "file": file_url,
+                            "filename": filename
+                        })
+                        print(data)
+                    else:
+                        print("file size exceeded!")
+                message = views.create_message(db, data)
+                await socket_manager.to_specific_user(message)
         except WebSocketDisconnect:
             socket_manager.disconnect(websocket, user)
+            print("error occurred")
             # await manager.broadcast(f"{user.username} left")@app.websocket("/api/user-chat/{receiver}")
 
 @app.websocket("/api/room-chat/{room}")
@@ -210,7 +251,6 @@ async def room_chat(websocket: views.WebSocket, room: str, db: Session = Depends
     user = views.get_current_user(db, websocket.cookies.get("access_token"))
     if user:
         await socket_manager.connect(websocket, user)
-        response = {"user": user.username}
         room = db.query(models.Room).filter(models.Room.name == room).first()
         RoomMessage = models.RoomMessage
         old_messages = db.query(RoomMessage).filter(
@@ -224,17 +264,35 @@ async def room_chat(websocket: views.WebSocket, room: str, db: Session = Depends
                     models.User.id == message.sender_id
                 ).first()
                 sender_name = sender.username
-            data = {
+            msg_data = {
                 "author": sender_name,
                 "message": message.text,
                 "date": message.created_date.strftime("%H:%M %p"),
                 "room": room.name,
-                "user": response['user']
+                "user": user.username
             }
-            await socket_manager.populate_old_messages(data)
+            if message.attachment_url:
+                filename = message.attachment_url.split("/")[-1]
+                msg_data.update({
+                    "file": str(message.attachment_url),
+                    "filename": filename
+                })
+            await socket_manager.populate_old_messages(msg_data)
         try:
             while True:
                 data = await websocket.receive_json()
+                file_data = data.get('file')
+                if file_data:
+                    file_size = file_data['size']
+                    if file_size <= FILE_SIZE:
+                        file = await websocket.receive_bytes()
+                        filename = file_data['filename']
+                        file_dir = views.gen_file_dir(room.name, __file__)
+                        file_url = views.create_file(file_dir, filename, file)
+                        data.update({
+                            "file": file_url,
+                            "filename": filename
+                        })
                 message = views.create_room_message(db, data)
                 await socket_manager.to_room_participants(message)
         except WebSocketDisconnect:

@@ -5,6 +5,8 @@
     <title>Collab</title>
     <!--Custom Css -->
     <link rel="stylesheet" href="/static/css/rooms.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- jQuery-->
     <script src="/static/js/jquery.min.js"></script>
     <!-- Custom jQuery -->
@@ -18,7 +20,11 @@
             <hr id="message-sep"><br>
             <div id="messages"></div>
             <form id="rooms-form">
-                <input type="text" id="messageText" autocomplete="off"/>
+                <hr>
+                <span id="err-msg"></span>
+                &nbsp; <i id="upload" class="fa fa-folder-open"></i>&nbsp;
+                <input type="file" id="file" class="hide" name="file">
+                <input type="text" id="messageText" autocomplete="off" name="text"/>
                 <button type="submit">Send</button>
             </form><br>
         </div>

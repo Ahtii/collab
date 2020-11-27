@@ -4,6 +4,7 @@ $(document).ready(function(){
     var url = window.location.href;
     var room = url.slice(url.indexOf('=') + 1);
     var user = "", socket;
+    var file = null;
     room = room.replace("%20", " ");
     $("h3 span").text(room);
     $.get("/api/user", function(response){
@@ -17,11 +18,15 @@ $(document).ready(function(){
                 var message = data['message'];
                 var date = data['date'];
                 var room = data['room'];
+                var file = data['file'];
+                var file_url = "";
                 var parent = $("#messages");
-                if (message){
+                if (message || file){
                     if (user == author)
                         author = "you";
-                    var content = "<p><strong>"+author+": </strong> &nbsp; <span class='date'>"+date+"</span><br><span>"+message+"</span></p>";
+                    if (file)
+                        file_url = "<br><a href='"+file+"'>"+data['filename']+"</a>";
+                    var content = "<p><strong>"+author+": </strong> &nbsp; <span class='date'>"+date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
                     parent.append(content);
                 }
             };
@@ -35,13 +40,41 @@ $(document).ready(function(){
             "room": room,
             "user": user
         };
-        socket.send(JSON.stringify(data));
+        if (file){
+            var file_data = {
+                "filename": file['name'],
+                "type": file['type'],
+                "size": file['size']
+            };
+            console.log("file name");
+            console.log(file['name']);
+            if (file_data['size'] <= 5000000){
+                data["file"] = file_data;
+                console.log(JSON.stringify(data));
+                socket.send(JSON.stringify(data));
+                socket.send(file);
+            } else
+                $("#err-msg").text("Only files less than 5MB allowed.");
+        } else {
+            console.log(JSON.stringify(data));
+            socket.send(JSON.stringify(data));
+        }
         input.value = '';
     }
     // submit form for chatting
     $("#rooms-form").on("submit", function(e){
         e.preventDefault();
-        //var socket = createSocket();
         sendMessage();
+    });
+     // open file dialog
+    $("#upload").on("click", function(){
+        // code to send file to server
+        $("#file").click();
+    });
+    // get opened file
+    $("#file").on("change", function(e){
+        // code to send file to server
+        $("#err-msg").text("");
+        file = e.target.files[0];
     });
 });

@@ -26,16 +26,19 @@ $(document).ready(function(){
             socket.onmessage = function(event) {
                 var data = JSON.parse(event.data);
                 var sender = data['sender'];
-                //var cur_user = data['cur_user'];
+                var receiver = data['receiver'];
                 var author = data['author'];
                 var message = data['message'];
                 var date = data['date'];
                 var room = data['room'];
+                var file = data['file'];
+                var file_url = "";
                 var parent = $("#messages");
+                console.log(data);
                 if(sender) {
                     var parent = $("#online-users ul");
                     parent.empty();
-                    receivers = data['receivers'];
+                    var receivers = data['receivers'];
                     $.each(receivers, function(index, receiver){
                         if (sender != receiver){
                             var child = "<li> <a>"+receiver+"</a></li>";
@@ -43,13 +46,35 @@ $(document).ready(function(){
                         }
                     });
                 }
-                if (message){
+                if (message || file){
                     $("#no-message").addClass("hide");
                     $("#messages").removeClass("hide");
-                    if (user == author)
+                    if (file)
+                        file_url = "<br><a href='"+file+"'>"+data['filename']+"</a>";
+                    var user_tag = author;
+                    if (user == author){
                         author = "you";
-                    var content = "<p><strong>"+author+"</strong>:  &nbsp; <span class='date'>"+date+"</span><br><span>"+message+"</span></p>";
-                    parent.append(content);
+                        user_tag = receiver;
+                    }
+                    var messages = $("#messages p");
+                    var no_match = true;
+                    $.each(messages, function(index, msg){
+                        console.log(index);
+                        var user_msg = $(msg).children("strong").text();
+                        if (user_msg == user_tag){
+                            $(msg).empty();
+                            var notifier = "<i class='badge badge-primary notifier'>1</i>";
+                            var content = "<strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+date+"</span> &nbsp;"+notifier+"<br><span>"+author+"</span>: <span>"+message+"</span>"+file_url;
+                            $(msg).addClass("highlight");
+                            $(msg).append(content);
+                            no_match = false;
+                            return false;
+                        }
+                    });
+                    if (no_match){
+                        var content = "<p><strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+date+"</span><br><span>"+author+"</span>: <span>"+message+"</span>"+file_url+"</p>";
+                        parent.append(content);
+                    }
                 }
             };
          }
