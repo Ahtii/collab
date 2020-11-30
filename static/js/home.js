@@ -49,8 +49,12 @@ $(document).ready(function(){
                 if (message || file){
                     $("#no-message").addClass("hide");
                     $("#messages").removeClass("hide");
-                    if (file)
-                        file_url = "<br><a href='"+file+"'>"+data['filename']+"</a>";
+                    if (file){
+                        var full_path = file.split("/");
+                        var file_owner = full_path[full_path.length - 2];
+                        var file_name = full_path[full_path.length - 1];    
+                        file_url = "<br><a href='/preview-file?user="+file_owner+"&file="+file_name+"'>"+data['filename']+"</a>";
+                    }                            
                     var user_tag = author;
                     if (user == author){
                         author = "you";
@@ -75,10 +79,10 @@ $(document).ready(function(){
                         var content = "<p><strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+date+"</span><br><span>"+author+"</span>: <span>"+message+"</span>"+file_url+"</p>";
                         parent.append(content);
                     }
-                }
+                }                
             };
          }
-    });
+    });    
     $(document).on("click", "#messages p", function(){
         var user = $(this).children("strong").text();
         window.location.href = "/direct?user="+user;

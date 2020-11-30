@@ -5,9 +5,12 @@ from users.views import OAuth2PasswordBearerWithCookie
 from fastapi import FastAPI, Depends, Response, Request, Form, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
-from fastapi import WebSocketDisconnect
+from fastapi import WebSocketDisconnect, Query
 from fastapi.staticfiles import StaticFiles
-import random
+from typing import List
+from starlette.responses import FileResponse
+from fastapi.responses import StreamingResponse
+import random, magic
 
 app = FastAPI()
 # authentication
@@ -48,6 +51,21 @@ def register(request: Request):
 @app.get("/login", include_in_schema=False)
 def login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
+# render file template
+@app.get("/preview-file/", include_in_schema=False)
+def preview_file(request: Request):    
+    user = str(request.query_params['user'])
+    filename = str(request.query_params['file'])  
+    absolute_path = views.gen_file_dir(user, __file__) + "/" + filename    
+    mime = magic.Magic(mime=True)
+    mtype = mime.from_file(absolute_path)
+    if "image" in mtype or "pdf" in mtype:
+        return FileResponse(absolute_path, media_type=mtype)    
+    else:
+        return FileResponse(absolute_path, filename=filename)            
+    # file = open(absolute_path, mode="rb")
+    # return StreamingResponse(file, media_type=mtype)
 
 
 # direct chat template
