@@ -22,8 +22,12 @@ $(document).ready(function(){
                 if (message || file){
                     if (user == author)
                         author = "you";
-                    if (file)
-                        file_url = "<br><a href='"+file+"'>"+data['filename']+"</a>";
+                    if (file){
+                        var full_path = file.split("/");
+                        var file_owner = full_path[full_path.length - 2];
+                        var file_name = full_path[full_path.length - 1];    
+                        file_url = "<br><a href='/preview-file?user="+file_owner+"&file="+file_name+"'>"+data['filename']+"</a>";
+                    }                            
                     console.log("file name:");
                     console.log(data['filename']);
                     var content = "<p><strong>"+author+": </strong> &nbsp; <span class='date'>"+date+"</span><br><span>"+message+"</span>"+file_url+"</p>";

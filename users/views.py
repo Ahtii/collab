@@ -300,7 +300,7 @@ def gen_file_dir(directory, file):
     root = pathlib.Path(file).parent.absolute()
     relative_path = "/static/media/uploads"
     absolute_path = str(root) + relative_path
-    target_url = os.path.join(absolute_path, directory)
+    target_url = os.path.join(absolute_path, directory)    
     return target_url
 
 def create_file(dir, name, file):
@@ -309,7 +309,7 @@ def create_file(dir, name, file):
         if os.path.isfile(path):
             bits = str(random.getrandbits(80))
             name_extension = path.split(".")
-            path = name_extension[0] + bits + "." + name_extension[1]
+            path = name_extension[0] + bits + "." + name_extension[1]            
     else:
         os.mkdir(dir)
     with open(path, "wb") as f:

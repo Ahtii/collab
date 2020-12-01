@@ -32,8 +32,7 @@ $(document).ready(function(){
     var selected_user = "";
     var selected_room = "";
     var user = "", socket;
-
-
+  
     function genProfile(){
 
       $.get("/api/user", function(response){
@@ -168,11 +167,7 @@ $(document).ready(function(){
     auth2.grantOfflineAccess().then(signInCallback);
   });
 
-  
-
-
   genProfile();
-
 
    // user login
    $("#login-form").on("submit", function(e){
@@ -194,19 +189,8 @@ $(document).ready(function(){
 
         } //brace of else
 
-
-
-
-            //alert("Login Successfull");
     });
 
-    
-
-        
-
-
-
- 
       $(document).on("click", "#messages p", function(){
           var user = $(this).children("strong").text();
           window.location.href = "/direct?user="+user;

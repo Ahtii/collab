@@ -1,4 +1,4 @@
-import os
+import os, pathlib
 
 # secret, algorithm and token expiry time
 
@@ -9,6 +9,5 @@ TOKEN_URL = "/api/auth/token"
 
 # google login
 CLIENT_ID = "973829616666-n71ceelkr8spfb1ldtt6318e54v1cebr.apps.googleusercontent.com"
-CLIENT_SECRETS_JSON = "/home/scareleven/collab/users/client_secret_973829616666-n71ceelkr8spfb1ldtt6318e54v1cebr.apps.googleusercontent.com.json"
-
-
+base_path = pathlib.Path(__file__).parent.absolute()
+CLIENT_SECRETS_JSON = str(base_path)+"/client_secret_973829616666-n71ceelkr8spfb1ldtt6318e54v1cebr.apps.googleusercontent.com.json"
