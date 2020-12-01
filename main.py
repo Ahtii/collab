@@ -148,7 +148,7 @@ def get_old_conversation(id):
         FROM cte\
         WHERE rn = 1;"
 
-
+# for profile
 @app.websocket("/api/user-connect")
 async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)):
     user = views.get_current_user(db, websocket.cookies.get("access_token"))
@@ -187,7 +187,7 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
         except WebSocketDisconnect:
             socket_manager.disconnect(websocket, user)
 
-
+# for direct chat
 @app.websocket("/api/user-chat/{receiver}")
 async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = Depends(get_db)):
     user = views.get_current_user(db, websocket.cookies.get("access_token"))
@@ -235,32 +235,23 @@ async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = D
                 data = response
                 data.update({"sender_id": user.id, "username": user.username})
                 file_data = data.get('file')
-                print("file here")
-                print(file_data)
                 if file_data:
                     file_size = file_data['size']
-                    print("receiver is")
-                    print(receiver)
                     if file_size <= FILE_SIZE:
                         file = await websocket.receive_bytes()
-                        print("file is")
-                        print(file)
-                        print("data is")
-                        print(data)
                         filename = file_data['filename']
                         file_dir = views.gen_file_dir(user.username, __file__)
                         file_url = views.create_file(file_dir, filename, file)
                         data.update({
                             "file": file_url,
                             "filename": filename
-                        })
-                        print(data)
-                    else:
+                        })      
+                    else:                        
                         print("file size exceeded!")
                 message = views.create_message(db, data)
                 await socket_manager.to_specific_user(message)
         except WebSocketDisconnect:
-            socket_manager.disconnect(websocket, user)
+            socket_manager.disconnect(websocket, user)            
             print("error occurred")
             # await manager.broadcast(f"{user.username} left")@app.websocket("/api/user-chat/{receiver}")
 
