@@ -1,76 +1,7 @@
-.home-page {
-    text-align: center;
-}
-#chat-body {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40%;
-}
-/* .btn {
-    background: rgb(230, 230, 230);
-    padding: 10px;
-} */
-#logout {
-    background: rgb(220, 220, 220);
-    margin-left: 10px;
-    padding: 5px;
-    border-radius: 10px;
-    margin-bottom: 5px;
-    margin-top: -5px;
-}
-#room-heading {
-    margin-top: 50px;
-}
-#no-messages {
-    color: rgb(200, 200, 200);
-}
-#messages {
-    position: absolute;
-    text-align: left;
-    left: 20%;
-}
-#messages p {
-    padding: 5px;
-}
-#message-sep {
-    width: 60%;
-}
-#left-sidebar ul {
-    position: relative;
-}
-.notifier {
-    font-size: 8px;
-}
-.highlight {
-    background-color: rgb(230, 230, 230);
-    border-radius: 5px;
-}
-.date {
-    color: rgb(80, 80, 80);
-    font-size: 12px;
-    float: right;
-}
-.hide {
-    display: none;
-}
-#left-sidebar {
-    position: absolute;
-    left: 5%;
-    top: 10%;
-    text-align: left;
-}
-.chat-section {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-}
-#right-sidebar {
-    position: absolute;
-    left: 85%;
-    top: 10%;
-}
 
+
+
+/*Arsalan's Code*/
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
 
 * {
@@ -133,10 +64,6 @@ form.sign-up-form {
 
 form.sign-in-form {
   z-index: 2;
-}
-
-.hide {
-  display: none;
 }
 
 .title {
@@ -548,4 +475,86 @@ form.sign-in-form {
     bottom: 28%;
     left: 50%;
   }
+}
+
+
+
+/* Ahtisham's Code*/
+
+/* .btn {
+    background: rgb(230, 230, 230);
+    padding: 10px;
+} */
+
+
+.hide {
+  display: none;
+}
+
+.home-page {
+    text-align: center;
+} 
+#chat-body {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
+}
+
+#logout {
+    background: rgb(220, 220, 220);
+    margin-left: 10px;
+    padding: 5px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    margin-top: -5px;
+}
+#room-heading {
+    margin-top: 50px;
+}
+#no-messages {
+    color: rgb(200, 200, 200);
+}
+#messages {
+    position: absolute;
+    text-align: left;
+    left: 20%;
+}
+#messages p {
+    padding: 5px;
+}
+#message-sep {
+    width: 60%;
+}
+#left-sidebar ul {
+    position: relative;
+}
+.notifier {
+    font-size: 8px;
+}
+.highlight {
+    background-color: rgb(230, 230, 230);
+    border-radius: 5px;
+}
+.date {
+    color: rgb(80, 80, 80);
+    font-size: 12px;
+    float: right;
+}
+
+#left-sidebar {
+    position: absolute;
+    left: 5%;
+    top: 10%;
+    text-align: left;
+}
+.chat-section {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#right-sidebar {
+    position: absolute;
+    left: 85%;
+    top: 10%;
 }
