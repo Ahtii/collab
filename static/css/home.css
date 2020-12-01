@@ -1,4 +1,4 @@
-/* .home-page {
+.home-page {
     text-align: center;
 }
 #chat-body {
@@ -7,10 +7,10 @@
     transform: translateX(-50%);
     width: 40%;
 }
-.btn {
+/* .btn {
     background: rgb(230, 230, 230);
     padding: 10px;
-}
+} */
 #logout {
     background: rgb(220, 220, 220);
     margin-left: 10px;
@@ -69,7 +69,7 @@
     position: absolute;
     left: 85%;
     top: 10%;
-} */
+}
 
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
 
@@ -133,6 +133,10 @@ form.sign-up-form {
 
 form.sign-in-form {
   z-index: 2;
+}
+
+.hide {
+  display: none;
 }
 
 .title {
