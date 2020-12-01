@@ -148,13 +148,13 @@ def social_login(db: Session, request: Request, response: Response, data: valida
                     "is_social_account": True
                 }
                 user = validators.RegisterValidator(**user_data)
-                db_user = db.query(models.User).filter(models.User.username == user.username).first()
+                db_user = db.query(models.User).filter(models.User.username == user.username).first()                
                 if db_user is None:
-                    db_user = register(db, user)
-                    if "error" in db_user:
+                    db_user = register(db, user)                    
+                    if "error" in db_user:              
                         return_response = db_user
-                access_token = gen_token(user.username)
-                response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
+                access_token = gen_token(user.username)                
+                response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)                
             except:
                 return_response = {"error": "Cannot authenticate"}
     return return_response
