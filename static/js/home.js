@@ -24,9 +24,6 @@ function start() {
   });
 }
 
-
-
-
 /* home jQuery */
 $(document).ready(function(){
     var selected_user = "";
@@ -191,37 +188,34 @@ $(document).ready(function(){
 
     });
 
-      $(document).on("click", "#messages p", function(){
-          var user = $(this).children("strong").text();
-          window.location.href = "/direct?user="+user;
-      });
-      $(document).on("click", "#rooms li", function(){
-          var room = $(this).text();
-          if (room)
-              window.location.href = "/rooms?room="+room;
-      });
-      // change from public chat to personal chat
-      $(document).on("click", "#online-users ul a", function(){
-          var user = $(this).text();
-          socket.close();
-          window.location.href = "/direct?user="+user;
-      });
-      //send message with websocket
-      function sendMessage() {
-          var input = document.getElementById("messageText");
-          data = {
-              "message": input.value,
-              "receiver": selected_user,
-              "room": selected_room
-          };
-          socket.send(JSON.stringify(data));
-          input.value = '';
-      }
-      
-
-      console.log($("#logout"));
-
 }); //closing of login
+
+$(document).on("click", "#messages p", function(){
+    var user = $(this).children("strong").text();
+    window.location.href = "/direct?user="+user;
+});
+$(document).on("click", "#rooms li", function(){
+    var room = $(this).text();
+    if (room)
+        window.location.href = "/rooms?room="+room;
+});
+// change from public chat to personal chat
+$(document).on("click", "#online-users ul a", function(){
+    var user = $(this).text();
+    socket.close();
+    window.location.href = "/direct?user="+user;
+});
+//send message with websocket
+function sendMessage() {
+    var input = document.getElementById("messageText");
+    data = {
+        "message": input.value,
+        "receiver": selected_user,
+        "room": selected_room
+    };
+    socket.send(JSON.stringify(data));
+    input.value = '';
+}
 
 // logout the user
 $(document).on("click", "#logout", function(){
