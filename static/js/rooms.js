@@ -57,6 +57,7 @@ $(document).ready(function(){
                 console.log(JSON.stringify(data));
                 socket.send(JSON.stringify(data));
                 socket.send(file);
+                $("#selected-file").text("");
             } else
                 $("#err-msg").text("Only files less than 5MB allowed.");
         } else {
@@ -79,6 +80,8 @@ $(document).ready(function(){
     $("#file").on("change", function(e){
         // code to send file to server
         $("#err-msg").text("");
+        $("#selected-file").text("");
         file = e.target.files[0];
+        $("#selected-file").text(file["name"]);
     });
 });

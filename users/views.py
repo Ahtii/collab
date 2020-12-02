@@ -298,9 +298,13 @@ def get_rooms(user: models.User, db: Session):
 # generate file url
 def gen_file_dir(directory, file):
     root = pathlib.Path(file).parent.absolute()
-    relative_path = "/static/media/uploads"
-    absolute_path = str(root) + relative_path
-    target_url = os.path.join(absolute_path, directory)    
+    media_path = "/static/media"            
+    absolute_media_path = str(root) + media_path
+    uploads = os.path.join(absolute_media_path, "uploads")    
+    if not os.path.isdir(uploads):
+        os.mkdir(uploads)
+    absolute_path = absolute_media_path + "/uploads"    
+    target_url = os.path.join(absolute_path, directory)
     return target_url
 
 def create_file(dir, name, file):

@@ -22,7 +22,10 @@
             <form id="chat-form" name="chat-form">
                 <hr>
                 <span id="err-msg"></span>
-                &nbsp; <i id="upload" class="fa fa-folder-open"></i>&nbsp;
+                <div id = "file-section">
+                    <i id="upload" class="fa fa-folder-open"></i> &nbsp;
+                    <span id="selected-file"></span>
+                </div>
                 <input type="file" id="file" class="hide" name="file">
                 <input type="text" id="messageText" autocomplete="off" name="text"/>
                 <button type="submit">Send</button>
