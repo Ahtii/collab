@@ -5,7 +5,7 @@ $(document).ready(function(){
     var room = url.slice(url.indexOf('=') + 1);
     var user = "", socket;
     var file = null;
-    room = room.replace("%20", " ");
+    room = room.replaceAll("%20", " ");
     $("h3 span").text(room);
     $.get("/api/user", function(response){
          user = response["user"];
