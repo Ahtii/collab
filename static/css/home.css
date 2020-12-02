@@ -138,6 +138,7 @@ form.sign-in-form {
   border-color: seagreen;
   transition: 0.4s ease-in;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .social-iconu {
