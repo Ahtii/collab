@@ -287,6 +287,7 @@ def get_rooms(user: models.User, db: Session):
         participants = room.participants
         if user in participants:
             data = {
+                "id": room.id,
                 "name": room.name,
                 "description": room.description,
                 "participants": [participant.username for participant in participants]

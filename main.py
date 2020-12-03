@@ -70,18 +70,18 @@ def preview_file(request: Request):
 
 # direct chat template
 @app.get("/direct", include_in_schema=False)
-def login(request: Request):
+def direct(request: Request):
     return templates.TemplateResponse("direct.html", {"request": request})
 
 # room chat template
-@app.get("/rooms", include_in_schema=False)
-def login(request: Request):
-    return templates.TemplateResponse("rooms.html", {"request": request})
+@app.get("/room", include_in_schema=False)
+def room(request: Request):
+    return templates.TemplateResponse("room.html", {"request": request})
 
 # room template
-@app.get("/room", include_in_schema=False)
-def login(request: Request):
-    return templates.TemplateResponse("room.html", {"request": request})
+@app.get("/create_room", include_in_schema=False)
+def create_room(request: Request):
+    return templates.TemplateResponse("create_room.html", {"request": request})
 
     # API ENDPOINTS
 
@@ -91,7 +91,10 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
     response = {}
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:
-        response = {"user": user.username}
+        response = {
+            "user": user.username,
+            "id": user.id
+        }
     return response
 
 
@@ -102,13 +105,13 @@ def get_all_users(db: Session = Depends(get_db)):
 
 
 # create a user
-@app.post("/api/users")
+@app.post("/api/user")
 async def create_user(user: validators.RegisterValidator, db: Session = Depends(get_db)):
     return views.register(db, user)
 
 
 # login the user and generate token for further authentication
-@app.post("/api/users/token")
+@app.post("/api/user/token")
 async def authenticate(credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = views.authenticate(db, credentials.username, credentials.password)
     response = {"error": "Incorrect username or password"}
@@ -120,7 +123,7 @@ async def authenticate(credentials: OAuth2PasswordRequestForm = Depends(), db: S
 
 
 # logout the user
-@app.delete("/api/users")
+@app.delete("/api/user")
 async def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:
@@ -130,7 +133,7 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
 
 
 # authenticating socail login and generating token
-@app.post("/api/social_login", include_in_schema=False)
+@app.post("/api/social-login", include_in_schema=False)
 def social_login(request: Request, response: Response, data: validators.SocialLoginValidator,
                  db: Session = Depends(get_db)):
     return views.social_login(db, request, response, data)
@@ -144,7 +147,7 @@ def get_old_conversation(id):
               FROM personal_message\
               WHERE sender_id = "+id+" OR receiver_id = "+id+"\
         )\
-        SELECT sender_id, text, created_date, receiver_id, attachment_url\
+        SELECT id, sender_id, text, created_date, receiver_id, attachment_url\
         FROM cte\
         WHERE rn = 1;"
 
@@ -154,7 +157,7 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
     user = views.get_current_user(db, websocket.cookies.get("access_token"))
     if user:
         await socket_manager.connect(websocket, user)
-        await socket_manager.get_online_users()
+        await socket_manager.get_online_users()        
         messages = db.execute(get_old_conversation(str(user.id)))
         for message in messages:
             sender = db.query(models.User).filter(
@@ -164,6 +167,7 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                 models.User.id == message.receiver_id
             ).first()
             msg_data = {
+                "id": message.id, 
                 "author": sender.username,
                 "message": message.text,
                 "date": message.created_date.strftime("%H:%M %p"),
@@ -311,8 +315,8 @@ async def room_chat(websocket: views.WebSocket, room: str, db: Session = Depends
             # ROOM ENDPOINTS
 
 
-@app.post("/api/users/rooms")
-async def create_room(request: Request, room_data: validators.CreateRoom, db: Session = Depends(get_db)):
+@app.post("/api/user/{id}/rooms")
+async def create_room(request: Request, id: int, room_data: validators.CreateRoom, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:
         response = views.create_room(user, room_data, db)
@@ -324,8 +328,8 @@ async def create_room(request: Request, room_data: validators.CreateRoom, db: Se
     return response
 
 
-@app.get("/api/users/rooms")
-def get_rooms(request: Request, db: Session = Depends(get_db)):
+@app.get("/api/user/{id}/rooms")
+def get_rooms(request: Request, id: int, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:
         response = views.get_rooms(user, db)

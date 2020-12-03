@@ -15,6 +15,11 @@ user_room = Table('user_room', Base.metadata,
                   Column('room_id', Integer, ForeignKey('room.id'))
                   )
 
+# class Profile(Base):
+#     __tablename__ = "profile"
+
+#     id = Column(Integer, primary_key=True)
+
 
 class User(Base):
 

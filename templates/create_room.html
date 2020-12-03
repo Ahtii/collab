@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Collab</title>
+    <!-- Custom Css -->
+    <link rel="stylesheet" href="/static/css/create_room.css">
+    <!-- jQuery -->
+    <script src="/static/js/jquery.min.js"></script>
+    <!-- Custom jQuery -->
+    <script src="/static/js/create_room.js"></script>
+</head>
+<body>
+    <!-- Room Form -->
+    <div class="room">
+        <form id="room-form">
+            <h3> Create Room <button type="submit"> Create </button></h3><br>
+            <span id="err"></span>
+            <input id="room-name" placeholder="Room Name"><br><br>
+            <input id="room-desc" placeholder="Description"><br>
+            <div id="participants">
+                <p> Select Participants </p>
+                <ul>
+                </ul>
+            </div>
+            <div id="sel-participants">
+                <p> Selected Participants </p>
+                <ul>
+                </ul>
+            </div>
+        </form><br>
+    </div>
+</body>
+</html>

@@ -1,29 +1,40 @@
-.room {
+.rooms-page {
     text-align: center;
 }
-#room-form {
-    height: 300px;
-    overflow: auto;
-    position: relative;
+.btn {
+    background: rgb(230, 230, 230);
+    padding: 10px;
 }
-#participants {
+#message-sep {
+    max-width: 40%;
+    text-align: left;
+}
+#messages {
+    min-height: 200px;
+    overflow: auto;
+}
+#err-msg {
+    color: maroon;
+    display: block;
+    font-size: 12px;
+    padding-left: 10px;
+}
+.date {
+    color: rgb(80, 80, 80);
+    font-size: 12px;
+    float: right;
+}
+.hide {
+    display: none;
+}
+.rooms-section {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    width: 20%;
 }
-#participants ul {
-    text-align: left;
+h3 {
+    text-align: center;
 }
-#participants li:hover {
-    background-color: rgb(230, 230, 230);
-    cursor: pointer;
-}
-#sel-participants {
-    position: absolute;
-    left: 5%;
-    width: 20%;
-}
-#sel-participants ul {
-    text-align: left;
+#file-section{
+    padding-bottom: 4px;
 }

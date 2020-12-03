@@ -29,6 +29,7 @@ $(document).ready(function(){
     var selected_user = "";
     var selected_room = "";
     var user = "", socket;
+    var uid;    
   
     function genProfile(){
 
@@ -40,7 +41,8 @@ $(document).ready(function(){
                $("#not-auth").addClass("hide");
                $("#cur_user").text(user);
            }
-           $.get("/api/users/rooms", function(response){
+           uid = response['id'];
+           $.get("/api/user/"+uid+"/rooms", function(response){
                var rooms_list = response["rooms"]
                if (!jQuery.isEmptyObject(rooms_list)){
                    var parent = $("#rooms ul");
@@ -54,6 +56,7 @@ $(document).ready(function(){
            socket = new WebSocket("ws://localhost:8000/api/user-connect");
            socket.onmessage = function(event) {
                var data = JSON.parse(event.data);
+               var mid = data['id'];
                var sender = data['sender'];
                var receiver = data['receiver'];
                var author = data['author'];
@@ -62,7 +65,7 @@ $(document).ready(function(){
                var room = data['room'];
                var file = data['file'];
                var file_url = "";
-               var parent = $("#messages");
+               var parent = $("#messages");               
                console.log(data);
                if(sender) {
                    var parent = $("#online-users ul");
@@ -124,7 +127,7 @@ $(document).ready(function(){
         "password": $("#password").val()
       };
       console.log(form_data);
-      $.post("/api/users", JSON.stringify(form_data),function(response){
+      $.post("/api/user", JSON.stringify(form_data),function(response){
         var error = response["error"];
         if (error)
           alert(error);
@@ -140,7 +143,7 @@ $(document).ready(function(){
          console.log(authResult['code']);
          $.ajax({
             type: 'POST',
-            url: '/api/social_login',
+            url: '/api/social-login',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             },
@@ -175,7 +178,7 @@ $(document).ready(function(){
         console.log(node.name);
         console.log(node.value);
     });
-    $.post("/api/users/token", form_data, function(response){
+    $.post("/api/user/token", form_data, function(response){
         //$("#err").text("");
         var error = response["error"];
         if (error)
@@ -197,12 +200,12 @@ $(document).on("click", "#messages p", function(){
 $(document).on("click", "#rooms li", function(){
     var room = $(this).text();
     if (room)
-        window.location.href = "/rooms?room="+room;
+        window.location.href = "/room?name="+room;
 });
-// change from public chat to personal chat
+// direct to personal chat
 $(document).on("click", "#online-users ul a", function(){
     var user = $(this).text();
-    socket.close();
+    // socket.close();
     window.location.href = "/direct?user="+user;
 });
 //send message with websocket
@@ -220,7 +223,7 @@ function sendMessage() {
 // logout the user
 $(document).on("click", "#logout", function(){
     $.ajax({
-        url: '/api/users',
+        url: '/api/user',
         type: 'DELETE',
         success: function(response){
             window.location.href = "/"
