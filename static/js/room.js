@@ -14,6 +14,7 @@ $(document).ready(function(){
             socket = new WebSocket("ws://localhost:8000/api/room-chat/"+room);
             socket.onmessage = function(event) {
                 var data = JSON.parse(event.data);
+                var mid = data['id'];
                 var author = data['author'];
                 var message = data['message'];
                 var date = data['date'];
@@ -29,8 +30,9 @@ $(document).ready(function(){
                         var file_owner = full_path[full_path.length - 2];
                         var file_name = full_path[full_path.length - 1];    
                         file_url = "<br><a href='/preview-file?user="+file_owner+"&file="+file_name+"'>"+data['filename']+"</a>";
-                    }                            
-                    var content = "<p><strong>"+author+": </strong> &nbsp; <span class='date'>"+date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
+                    } 
+                    var mid_html = "<input class='mid' value="+mid+" hidden/>";                           
+                    var content = "<p>"+mid_html+"<strong>"+author+": </strong> &nbsp; <span class='date'>"+date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
                     parent.append(content);
                 }
             };

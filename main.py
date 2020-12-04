@@ -215,6 +215,7 @@ async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = D
                 sender_name = receiver.username
                 receiver_name = user.username
             msg_data = {
+                "id": message.id,
                 "author": sender_name,
                 "message": message.text,
                 "date": message.created_date.strftime("%H:%M %p"),
@@ -278,6 +279,7 @@ async def room_chat(websocket: views.WebSocket, room: str, db: Session = Depends
                 ).first()
                 sender_name = sender.username
             msg_data = {
+                "id": message.id,
                 "author": sender_name,
                 "message": message.text,
                 "date": message.created_date.strftime("%H:%M %p"),

@@ -13,6 +13,7 @@ $(document).ready(function(){
             socket = new WebSocket("ws://localhost:8000/api/user-chat/"+receiver);
             socket.onmessage = function(event) {
                 var data = JSON.parse(event.data);
+                var mid = data['id'];
                 var sender = data['sender'];
                 var author = data['author'];
                 var message = data['message'];
@@ -31,7 +32,8 @@ $(document).ready(function(){
                     }                            
                     console.log("file name:");
                     console.log(data['filename']);
-                    var content = "<p><strong>"+author+": </strong> &nbsp; <span class='date'>"+date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
+                    var mid_html = "<input class='mid' value="+mid+" hidden/>";
+                    var content = "<p>"+mid_html+"<strong>"+author+": </strong> &nbsp; <span class='date'>"+date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
                     parent.append(content);
                 }
             };
