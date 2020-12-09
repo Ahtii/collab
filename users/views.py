@@ -13,6 +13,9 @@ from fastapi import WebSocket
 from typing import List
 from oauth2client import client
 import os, pathlib, random
+from datetime import datetime
+from dateutil import tz
+import pytz
 
 # hashing password algorithm (BCRYPT for new hash) with support for old algorithm
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -26,18 +29,10 @@ def gen_hash(password):
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
-def create_update_public_room(db: Session, user: models.User):
-    room = db.query(models.Room).filter(models.Room.is_default == True).first()
-    if room:
-        room.participants.append(user)
-    else:
-        room = models.Room(
-            name="Collab",
-            admin="",
-            description="This is a public room"
-        )
-    db.add(room)
-    db.commit()
+def get_timezone(d, timezone):
+    d_utc = d.replace(tzinfo=tz.tzutc())
+    d_local = d_utc.astimezone(pytz.timezone(timezone)).strftime("%H:%M %p")
+    return d_local
 
 # register logic
 def register(db: Session, user: validators.RegisterValidator):
@@ -52,7 +47,6 @@ def register(db: Session, user: validators.RegisterValidator):
         db_user = models.User(**user)
         db.add(db_user)
         db.commit()
-        #create_update_public_room(db, db_user)
     return response
 
 
@@ -297,15 +291,26 @@ def get_rooms(user: models.User, db: Session):
     return response
 
 # generate file url
-def gen_file_dir(directory, file):
+def gen_file_dir(directory, file, msg_file = True):
     root = pathlib.Path(file).parent.absolute()
-    media_path = "/static/media"            
+    media_path = "/static/media"
     absolute_media_path = str(root) + media_path
     uploads = os.path.join(absolute_media_path, "uploads")    
     if not os.path.isdir(uploads):
         os.mkdir(uploads)
-    absolute_path = absolute_media_path + "/uploads"    
-    target_url = os.path.join(absolute_path, directory)
+    absolute_path = absolute_media_path + "/uploads"
+    user_dir = os.path.join(absolute_path, directory)
+    if not os.path.isdir(user_dir):
+        os.mkdir(user_dir)
+    if msg_file:
+        target_url = os.path.join(user_dir, "files")
+        if not os.path.isdir(target_url):
+            os.mkdir(target_url)
+    else:
+        target_url = os.path.join(user_dir, "profile")
+        if not os.path.isdir(target_url):
+            os.mkdir(target_url)
+
     return target_url
 
 def create_file(dir, name, file):
@@ -357,7 +362,8 @@ def create_message(db: Session, data: dict):
             response = {
                 "author": username,
                 "message": message.text,
-                "date": message.created_date.strftime("%H:%M %p"),
+                "ist_date": get_timezone(message.created_date, "Asia/Kolkata") + " IST",
+                "est_date": get_timezone(message.created_date, "US/Eastern")  + " EST",                
                 "receiver": receiver.username
             }
             if file:
@@ -398,7 +404,8 @@ def create_room_message(db: Session, data: dict):
                 response = {
                     "author": sender.username,
                     "message": message.text,
-                    "date": message.created_date.strftime("%H:%M %p"),
+                    "ist_date": get_timezone(message.created_date, "Asia/Kolkata") + " IST",
+                    "est_date": get_timezone(message.created_date, "US/Eastern")  + " EST",  
                     "room": room.name,
                     "participants": [participant.username for participant in room.participants]
                 }

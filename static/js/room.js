@@ -17,7 +17,8 @@ $(document).ready(function(){
                 var mid = data['id'];
                 var author = data['author'];
                 var message = data['message'];
-                var date = data['date'];
+                var ist_date = data['ist_date'];
+                var est_date = data['est_date'];
                 var room = data['room'];
                 var file = data['file'];
                 var file_url = "";
@@ -27,12 +28,12 @@ $(document).ready(function(){
                         author = "you";
                     if (file){
                         var full_path = file.split("/");
-                        var file_owner = full_path[full_path.length - 2];
+                        var file_owner = full_path[full_path.length - 3];
                         var file_name = full_path[full_path.length - 1];    
                         file_url = "<br><a href='/preview-file?user="+file_owner+"&file="+file_name+"'>"+data['filename']+"</a>";
                     } 
                     var mid_html = "<input class='mid' value="+mid+" hidden/>";                           
-                    var content = "<p>"+mid_html+"<strong>"+author+": </strong> &nbsp; <span class='date'>"+date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
+                    var content = "<p>"+mid_html+"<strong>"+author+": </strong> &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
                     parent.append(content);
                 }
             };

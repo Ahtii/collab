@@ -61,7 +61,8 @@ $(document).ready(function(){
                var receiver = data['receiver'];
                var author = data['author'];
                var message = data['message'];
-               var date = data['date'];
+               var ist_date = data['ist_date'];
+               var est_date = data['est_date'];
                var room = data['room'];
                var file = data['file'];
                var file_url = "";
@@ -83,7 +84,7 @@ $(document).ready(function(){
                    $("#messages").removeClass("hide");
                    if (file){
                         var full_path = file.split("/");
-                        var file_owner = full_path[full_path.length - 2];
+                        var file_owner = full_path[full_path.length - 3];
                         var file_name = full_path[full_path.length - 1];    
                         file_url = "<br><a href='/preview-file?user="+file_owner+"&file="+file_name+"'>"+data['filename']+"</a>"; 
                    }                       
@@ -100,7 +101,7 @@ $(document).ready(function(){
                        if (user_msg == user_tag){
                            $(msg).empty();
                            var notifier = "<i class='badge badge-primary notifier'>1</i>";
-                           var content = "<strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+date+"</span> &nbsp;"+notifier+"<br><span>"+author+"</span>: <span>"+message+"</span>"+file_url;
+                           var content = "<strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span>"+notifier+"<br><span>"+author+"</span>: <span>"+message+"</span>"+file_url;
                            $(msg).addClass("highlight");
                            $(msg).append(content);
                            no_match = false;
@@ -108,7 +109,7 @@ $(document).ready(function(){
                        }
                    });
                    if (no_match){
-                       var content = "<p><strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+date+"</span><br><span>"+author+"</span>: <span>"+message+"</span>"+file_url+"</p>";
+                       var content = "<p><strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+author+"</span>: <span>"+message+"</span>"+file_url+"</p>";
                        parent.append(content);
                    }
                }

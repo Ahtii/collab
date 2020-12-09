@@ -155,9 +155,9 @@ def get_old_conversation(id):
 @app.websocket("/api/user-connect")
 async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)):
     user = views.get_current_user(db, websocket.cookies.get("access_token"))
-    if user:
+    if user:        
         await socket_manager.connect(websocket, user)
-        await socket_manager.get_online_users()        
+        await socket_manager.get_online_users()
         messages = db.execute(get_old_conversation(str(user.id)))
         for message in messages:
             sender = db.query(models.User).filter(
@@ -170,7 +170,8 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                 "id": message.id, 
                 "author": sender.username,
                 "message": message.text,
-                "date": message.created_date.strftime("%H:%M %p"),
+                "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
+                "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",                
                 "receiver": receiver.username,
                 "user": user.username
             }
@@ -218,7 +219,8 @@ async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = D
                 "id": message.id,
                 "author": sender_name,
                 "message": message.text,
-                "date": message.created_date.strftime("%H:%M %p"),
+                "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
+                "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",
                 "receiver": receiver_name,
                 "user": user.username
             }
@@ -234,7 +236,7 @@ async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = D
             print("file is")
             print("testing")
             while True:
-                data = await websocket.receive_json()
+                data = await websocket.receive_json()   
                 receiver = data["receiver"]
                 response.update(data)
                 data = response
@@ -242,15 +244,19 @@ async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = D
                 file_data = data.get('file')
                 if file_data:
                     file_size = file_data['size']
-                    if file_size <= FILE_SIZE:
-                        file = await websocket.receive_bytes()
-                        filename = file_data['filename']
-                        file_dir = views.gen_file_dir(user.username, __file__)
-                        file_url = views.create_file(file_dir, filename, file)
-                        data.update({
-                            "file": file_url,
-                            "filename": filename
-                        })      
+                    if file_size <= FILE_SIZE:                        
+                        try:                    
+                            file = await websocket.receive_bytes()
+                            filename = file_data['filename']
+                            file_dir = views.gen_file_dir(user.username, __file__)
+                            file_url = views.create_file(file_dir, filename, file)
+                            data.update({
+                                "file": file_url,
+                                "filename": filename
+                            })  
+                        except Exception as e:
+                            print("error: ")
+                            print(e) 
                     else:                        
                         print("file size exceeded!")
                 message = views.create_message(db, data)
@@ -282,7 +288,8 @@ async def room_chat(websocket: views.WebSocket, room: str, db: Session = Depends
                 "id": message.id,
                 "author": sender_name,
                 "message": message.text,
-                "date": message.created_date.strftime("%H:%M %p"),
+                "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
+                "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",               
                 "room": room.name,
                 "user": user.username
             }
