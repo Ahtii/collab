@@ -30,16 +30,18 @@ $(document).ready(function(){
     var selected_room = "";
     var user = "", socket;
     var uid;    
-  
+    localStorage.removeItem("fullname");
     function genProfile(){
 
       $.get("/api/user", function(response){
-        user = response["user"];
+        user = response["user"];   
         if (user){
+           var name = response['full_name'];
            if ($("#auth").hasClass("hide")){
                $("#auth").removeClass("hide");
                $("#not-auth").addClass("hide");
-               $("#cur_user").text(user);
+               //$("#cur_user").text(user);
+               $("#cur_user").text(name);
            }
            uid = response['id'];
            $.get("/api/user/"+uid+"/rooms", function(response){
@@ -67,19 +69,20 @@ $(document).ready(function(){
                var file = data['file'];
                var file_url = "";
                var parent = $("#messages");               
-               console.log(data);
+               console.log(data["users"]);
                if(sender) {
                    var parent = $("#online-users ul");
                    parent.empty();
-                   var receivers = data['receivers'];
+                   var receivers = data['users'];
                    $.each(receivers, function(index, receiver){
-                       if (sender != receiver){
-                           var child = "<li> <a>"+receiver+"</a></li>";
+                       if (sender != receiver['username']){                           
+                           var username_holder = "<span class='hide username-holder'>"+receiver['username']+"</span>";
+                           var child = "<li>"+username_holder+"<a>"+receiver['fullname']+"</a></li>";
                            parent.append(child);
                        }
                    });
                }
-               if (message || file){
+               if (!room && (message || file)){
                    $("#no-message").addClass("hide");
                    $("#messages").removeClass("hide");
                    if (file){
@@ -87,21 +90,24 @@ $(document).ready(function(){
                         var file_owner = full_path[full_path.length - 3];
                         var file_name = full_path[full_path.length - 1];    
                         file_url = "<br><a href='/preview-file?user="+file_owner+"&file="+file_name+"'>"+data['filename']+"</a>"; 
-                   }                       
-                   var user_tag = author;
-                   if (user == author){
-                       author = "you";
-                       user_tag = receiver;
+                   }                                          
+                   var displayname = author["fullname"];
+                   var user_tag = displayname;
+                   var display_username = author['username'];
+                   if (user == display_username){   
+                       displayname = "you";
+                       display_username = receiver['username'];
+                       user_tag = receiver["fullname"];                       
                    }
                    var messages = $("#messages p");
                    var no_match = true;
                    $.each(messages, function(index, msg){
                        console.log(index);
-                       var user_msg = $(msg).children("strong").text();
-                       if (user_msg == user_tag){
+                       var target_user = $(msg).children(".username-holder").text();
+                       if (target_user == display_username){
                            $(msg).empty();
                            var notifier = "<i class='badge badge-primary notifier'>1</i>";
-                           var content = "<strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span>"+notifier+"<br><span>"+author+"</span>: <span>"+message+"</span>"+file_url;
+                           var content = "<span class='hide username-holder'>"+display_username+"</span><strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span>"+notifier+"<br><span>"+displayname+"</span>: <span>"+message+"</span>"+file_url;
                            $(msg).addClass("highlight");
                            $(msg).append(content);
                            no_match = false;
@@ -109,10 +115,17 @@ $(document).ready(function(){
                        }
                    });
                    if (no_match){
-                       var content = "<p><strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+author+"</span>: <span>"+message+"</span>"+file_url+"</p>";
+                       var username_holder = "<span class='hide username-holder'>"+display_username+"</span>";
+                       var content = "<p>"+username_holder+"<strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+displayname+"</span>: <span>"+message+"</span>"+file_url+"</p>";
                        parent.append(content);
                    }
                }
+            //    console.log(room);
+            //    if (room){
+            //        var room_name_html = "<li>"+room+"</li>";
+            //        $("#rooms ul").append(room_name_html);
+            //        console.log("inside add room code.");
+            //    }
            };
         }
    });
@@ -189,9 +202,7 @@ $(document).ready(function(){
         if (error)
             alert(error);
         else{
-
           genProfile();
-
         } //brace of else
 
     });
@@ -199,7 +210,10 @@ $(document).ready(function(){
 }); //closing of login
 
 $(document).on("click", "#messages p", function(){
-    var user = $(this).children("strong").text();
+    //var user = $(this).children("strong").text();
+    var user = $(this).children(".username-holder").text();
+    var full_name = $(this).children("strong").text();
+    localStorage.setItem("fullname", full_name);
     window.location.href = "/direct?user="+user;
 });
 $(document).on("click", "#rooms li", function(){
@@ -208,9 +222,11 @@ $(document).on("click", "#rooms li", function(){
         window.location.href = "/room?name="+room;
 });
 // direct to personal chat
-$(document).on("click", "#online-users ul a", function(){
-    var user = $(this).text();
+$(document).on("click", "#online-users ul li", function(){
+    var user = $(this).children(".username-holder").text();
     // socket.close();
+    var full_name = $(this).children("a").text();
+    localStorage.setItem("fullname", full_name);
     window.location.href = "/direct?user="+user;
 });
 //send message with websocket

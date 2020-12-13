@@ -98,6 +98,12 @@ def get_all_users(db: Session):
     response["users"] = users_list
     return response
 
+def get_fullname(user: models.User):
+    lastname = user.last_name
+    fullname = user.first_name
+    if lastname:
+        fullname = fullname + " " + lastname
+    return fullname
 
 def get_lastname(data, first_name):
     last_name = ""
@@ -177,14 +183,10 @@ class SocketManager:
         for connection in self.active_connections:
             if found_sender and found_receiver:
                 break
-            if connection[1].username == data['author']:
-                print("data to be send to "+data['author'])
-                print(data)
+            if connection[1].username == data['author']['username']:                
                 await connection[0].send_json(data)
                 found_sender = True
-            elif connection[1].username == data['receiver']:
-                print("data to be send to "+data['receiver'])
-                print(data)
+            elif connection[1].username == data['receiver']['username']:                
                 await connection[0].send_json(data)
                 found_receiver = True
 
@@ -196,11 +198,19 @@ class SocketManager:
                 break
 
     async def get_online_users(self):
-        response = {"receivers": []}
+        response = {
+            "users": []
+        }        
         for connection in self.active_connections:
-            response['receivers'].append(connection[1].username)
+            users = {
+                "username": connection[1].username,
+                "fullname": get_fullname(connection[1])
+            }
+            response['users'].append(users)
+            #response['fullname'].append(get_fullname(connection[1]))
         for connection in self.active_connections:
-            response.update({"sender": connection[1].username})
+            response.update({"sender": connection[1].username})    
+            #response.update({"names": get_fullname(connection[1])})
             await connection[0].send_json(response)
 
     async def to_room_participants(self, data: dict):
@@ -337,15 +347,13 @@ def get_participants(room: str, db: Session):
 def create_message(db: Session, data: dict):
     response = None
     try:
-        sender_id = data['sender_id']
-        username = data['username']
-        if sender_id:
+        sender = data['user']
+        if sender:
             message = models.PersonalMessage()
             message.text = data['message']
-            message.sender_id = sender_id
-            receiver = data['receiver']
+            message.sender_id = sender.id            
             receiver = db.query(models.User).filter(
-                models.User.username == receiver
+                models.User.username == data['receiver']
             ).first()
             message.receiver_id = receiver.id
             print("message in:")
@@ -360,11 +368,17 @@ def create_message(db: Session, data: dict):
             db.commit()
             print("saved message")
             response = {
-                "author": username,
+                "author": {
+                    "username": sender.username,
+                    "fullname": get_fullname(sender)
+                },
                 "message": message.text,
                 "ist_date": get_timezone(message.created_date, "Asia/Kolkata") + " IST",
                 "est_date": get_timezone(message.created_date, "US/Eastern")  + " EST",                
-                "receiver": receiver.username
+                "receiver": {
+                    "username": receiver.username,
+                    "fullname": get_fullname(receiver)
+                }
             }
             if file:
                 response.update({
@@ -402,7 +416,10 @@ def create_room_message(db: Session, data: dict):
                 db.add(message)
                 db.commit()
                 response = {
-                    "author": sender.username,
+                    "author": {
+                        "username": sender.username,
+                        "fullname": get_fullname(sender)
+                    },
                     "message": message.text,
                     "ist_date": get_timezone(message.created_date, "Asia/Kolkata") + " IST",
                     "est_date": get_timezone(message.created_date, "US/Eastern")  + " EST",  

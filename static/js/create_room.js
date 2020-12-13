@@ -2,6 +2,7 @@
 $(document).ready(function(){
     var current_user;
     var uid;
+    var socket;
     // get current user
     $.get("/api/user", function(response){
          current_user = response["user"]
@@ -18,8 +19,42 @@ $(document).ready(function(){
                             parent.append(child);
                         }
                     });
+                    // websockets
+                    // socket = new WebSocket("ws://localhost:8000/api/room-creation");
+                    // socket.onmessage = function(event) {
+                    //     // var data = JSON.parse(event.data);
+                    //     // var mid = data['id'];
+                    //     // var sender = data['sender'];
+                    //     // var author = data['author'];
+                    //     // var message = data['message'];
+                    //     // var ist_date = data['ist_date'];
+                    //     // var est_date = data['est_date'];
+                    //     // var file = data['file'];
+                    //     // var parent = $("#messages");
+                    //     // var file_url = "";
+                    //     // if (message || file){
+                    //     //     if (user == author)
+                    //     //         author = "you";
+                    //     //     if (file){
+                    //     //         var full_path = file.split("/");
+                    //     //         var file_owner = full_path[full_path.length - 3];
+                    //     //         var file_name = full_path[full_path.length - 1];    
+                    //     //         file_url = "<br><a href='/preview-file?user="+file_owner+"&file="+file_name+"'>"+data['filename']+"</a>";
+                    //     //     }                            
+                    //     //     console.log("file name:");
+                    //     //     console.log(data['filename']);
+                    //     //     var mid_html = "<input class='mid' value="+mid+" hidden/>";
+                    //     //     var content = "<p>"+mid_html+"<strong>"+author+": </strong> &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
+                    //     //     parent.append(content);
+                    //     // }
+                    //     var room = data['room'];
+                    //     if (room){
+                    //         var room_name_html = "<li>"+room+"</li>";
+                    //         $("#rooms ul").append(room_name_html);
+                    //     }
+                    // };
                 }
-            });
+            });            
          }
     });
     sel_participants = [];
@@ -54,6 +89,7 @@ $(document).ready(function(){
             if (error){
                 $("#err").text(error);
             } else {
+                //socket.send(JSON.stringify({"room": data['room']}));
                 window.location.href = "/"
             }
         });

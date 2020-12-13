@@ -5,10 +5,12 @@ $(document).ready(function(){
     receiver = receiver.replaceAll("%20", " ");
     var user = "", socket;
     var file = null;
-    $("h3 span").text("chatting with "+receiver);
+    var fullname = localStorage.getItem("fullname");
+    $("h3 span").text("chatting with "+fullname);
     $.get("/api/user", function(response){
          user = response["user"];
          if (user){
+             var name = response['full_name'];
             // create websocket
             socket = new WebSocket("ws://localhost:8000/api/user-chat/"+receiver);
             socket.onmessage = function(event) {
@@ -23,8 +25,9 @@ $(document).ready(function(){
                 var parent = $("#messages");
                 var file_url = "";
                 if (message || file){
-                    if (user == author)
-                        author = "you";
+                    var displayname = author['fullname'];
+                    if (user == author["username"])
+                        displayname = "you";
                     if (file){
                         var full_path = file.split("/");
                         var file_owner = full_path[full_path.length - 3];
@@ -34,7 +37,9 @@ $(document).ready(function(){
                     console.log("file name:");
                     console.log(data['filename']);
                     var mid_html = "<input class='mid' value="+mid+" hidden/>";
-                    var content = "<p>"+mid_html+"<strong>"+author+": </strong> &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
+                    var content = "<p>"+mid_html+"<strong>"+displayname+": </strong> &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
+                    console.log(content);
+                    console.log($("#messages"));
                     parent.append(content);
                 }
             };
