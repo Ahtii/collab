@@ -12,7 +12,11 @@ $(document).ready(function(){
          if (user){
              var name = response['full_name'];
             // create websocket
-            socket = new WebSocket("ws://localhost:8000/api/user-chat/"+receiver);
+            var protocol = window.location.protocol === "http:" ? "ws://" : "wss://";
+            var host = window.location.host;
+            var api_path = "/api/user-chat/"+receiver;
+            var full_address = protocol+host+api_path;
+            socket = new WebSocket(full_address);
             socket.onmessage = function(event) {
                 var data = JSON.parse(event.data);
                 var mid = data['id'];

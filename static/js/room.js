@@ -11,7 +11,11 @@ $(document).ready(function(){
          user = response["user"];
          if (user){
             // create websocket
-            socket = new WebSocket("ws://localhost:8000/api/room-chat/"+room);
+            var protocol = window.location.protocol === "http:" ? "ws://" : "wss://";
+            var host = window.location.host;
+            var api_path = "/api/room-chat/"+room;
+            var full_address = protocol+host+api_path;
+            socket = new WebSocket(full_address);
             socket.onmessage = function(event) {
                 var data = JSON.parse(event.data);
                 var mid = data['id'];

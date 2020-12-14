@@ -55,7 +55,12 @@ $(document).ready(function(){
                }
            });
            // create websocket
-           socket = new WebSocket("ws://localhost:8000/api/user-connect");
+           var protocol = window.location.protocol === "http:" ? "ws://" : "wss://";
+           var host = window.location.host;
+           var api_path = "/api/user-connect";
+           var full_address = protocol+host+api_path;
+           console.log(window.location.protocol);
+           socket = new WebSocket(full_address);
            socket.onmessage = function(event) {
                var data = JSON.parse(event.data);
                var mid = data['id'];
