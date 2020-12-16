@@ -280,6 +280,7 @@ $(document).on("click", "#direct-msg-list li", function(){
     document.getElementById('chatPanel').removeAttribute('style');
     document.getElementById('divStart').setAttribute('style', 'display:none');
     hideChatList();
+    $("#messages").empty();
 
     selected_user = $(this).find("span").eq(0).text();    
     var full_name = $(this).find("span").eq(1).text();        
@@ -348,7 +349,8 @@ $(document).on("click", ".online-users a", function(){
     document.getElementById('chatPanel').removeAttribute('style');
     document.getElementById('divStart').setAttribute('style', 'display:none');
     hideChatList();
-
+    $("#messages").empty();
+    
     selected_user = $(this).find("span").eq(0).text();    
     var full_name = $(this).find("span").eq(1).text();        
     $("#chatPanel .name").text(full_name);
