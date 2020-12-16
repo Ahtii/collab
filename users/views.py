@@ -88,22 +88,25 @@ def get_current_user(db, token):
             user = db.query(models.User).filter(models.User.username == username).first()
     return user
 
-
-def get_all_users(db: Session):
-    response = {"users": ""}
-    users = db.query(models.User).all()
-    users_list = []
-    for user in users:
-        users_list.append(user.username)
-    response["users"] = users_list
-    return response
-
 def get_fullname(user: models.User):
     lastname = user.last_name
     fullname = user.first_name
     if lastname:
         fullname = fullname + " " + lastname
     return fullname
+
+def get_all_users(db: Session):
+    response = {"users": []}
+    users = db.query(models.User).all()    
+    for user in users:
+        user_info = {
+            "username": user.username,
+            "fullname": get_fullname(user)
+        }
+        response["users"].append(user_info)    
+    print(users)    
+    return response
+
 
 def get_lastname(data, first_name):
     last_name = ""
@@ -166,12 +169,31 @@ class SocketManager:
     def __init__(self):
         self.active_connections: List[(WebSocket, models.User)] = []
 
-    async def connect(self, websocket: WebSocket, user: models.User):
+    async def connect(self, websocket: WebSocket, user: models.User):                
         await websocket.accept()
         self.active_connections.append((websocket, user))
 
+        # for connection in self.active_connections:
+        #     data = {"state": {"user": user.username, "connected": True}}
+        #     await connection[0].send_json(data)
+        
+        # print("user values: ")
+        # print(data )
+
     def disconnect(self, websocket: WebSocket, user: models.User):
         self.active_connections.remove((websocket, user))
+
+        # for connection in self.active_connections:
+        #     data = {"state": {"user": user.username, "connected": False}}
+        #     print("user values: ")
+        #     print(data )
+        #     await connection[0].send_json(data)
+
+    def is_connected(self, user: models.User):
+        for connection in self.active_connections:
+            if user.username == connection[1].username:
+                return True
+        return False        
 
     async def broadcast(self,db: Session, data: dict):
         for connection in self.active_connections:
@@ -192,26 +214,45 @@ class SocketManager:
 
     async def delete(self, user: models.User):
         for connection in self.active_connections:
-            if connection[1].username == user.username:
-                self.disconnect(connection[0], connection[1])
+            if connection[1].username == user.username:                
+                await connection[0].close()
+                #self.disconnect(connection[0], connection[1])
                 await self.get_online_users()
                 break
 
     async def get_online_users(self):
         response = {
-            "users": []
-        }        
+            "online_users": []
+        }    
+        try:    
+            for connection in self.active_connections:
+                users = {
+                    "username": connection[1].username,
+                    "fullname": get_fullname(connection[1])
+                }
+                response['online_users'].append(users)
+                #response['fullname'].append(get_fullname(connection[1]))
+            for connection in self.active_connections:
+                response.update({"sender": connection[1].username})    
+                #response.update({"names": get_fullname(connection[1])})
+                await connection[0].send_json(response)
+        except Exception as e:
+            print(e)        
+
+    async def set_user_online(self, user: models.User):
         for connection in self.active_connections:
-            users = {
-                "username": connection[1].username,
-                "fullname": get_fullname(connection[1])
-            }
-            response['users'].append(users)
-            #response['fullname'].append(get_fullname(connection[1]))
+            if connection[1].username != user.username:
+                await connection[0].send_json(
+                    {
+                        "user": user.username,
+                        "online": True
+                    }
+                )
+
+    async def set_user_offline(self, user: models.User):
         for connection in self.active_connections:
-            response.update({"sender": connection[1].username})    
-            #response.update({"names": get_fullname(connection[1])})
-            await connection[0].send_json(response)
+            if connection[1].username != user.username:
+                await connection[0].send_json({"online": False})       
 
     async def to_room_participants(self, data: dict):
         for connection in self.active_connections:

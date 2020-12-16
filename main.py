@@ -35,22 +35,16 @@ templates = Jinja2Templates(directory="templates")
 
 # TEMPLATES
 
-# home template
+# index template
 @app.get("/")
-def home(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request})
+def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
-# register template
-@app.get("/register", include_in_schema=False)
-def register(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request})
-
-
-# login template
-@app.get("/login", include_in_schema=False)
-def login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+# chat template
+@app.get("/chat", include_in_schema=False)
+def chat(request: Request):
+    return templates.TemplateResponse("chat.html", {"request": request})
 
 # render file template
 @app.get("/preview-file/", include_in_schema=False)
@@ -128,8 +122,8 @@ async def authenticate(credentials: OAuth2PasswordRequestForm = Depends(), db: S
 async def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:
-        await socket_manager.delete(user)
-        response.delete_cookie("access_token")
+        await socket_manager.delete(user)        
+        response.delete_cookie("access_token")           
     return user
 
 
@@ -158,9 +152,10 @@ def get_old_conversation(id):
 async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)):
     user = views.get_current_user(db, websocket.cookies.get("access_token"))
     if user:        
-        await socket_manager.connect(websocket, user)
+        await socket_manager.connect(websocket, user)        
         await socket_manager.get_online_users()
         messages = db.execute(get_old_conversation(str(user.id)))
+        friends = []
         for message in messages:
             sender = db.query(models.User).filter(
                 models.User.id == message.sender_id
@@ -169,34 +164,48 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                 models.User.id == message.receiver_id
             ).first()
             msg_data = {
-                "id": message.id, 
-                # "author": sender.username,
+                "id": message.id,                 
                 "author": {
                     "username": sender.username,
                     "fullname": views.get_fullname(sender)
                 },
                 "message": message.text,
                 "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
-                "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",                
-                # "receiver": receiver.username,
+                "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",                                
                 "receiver": {
                     "username": receiver.username,
                     "fullname": views.get_fullname(receiver),
-                },
+                },                
                 "last_message": True,
                 "user": user.username
             }
+            if sender.id != user.id:
+                friends.append(sender)                
+            else:
+                friends.append(receiver)    
             if message.attachment_url:
                 filename = message.attachment_url.split("/")[-1]
                 msg_data.update({
                     "file": str(message.attachment_url),
                     "filename": filename
                 })
+            await socket_manager.populate_old_messages(msg_data)            
+        users = db.query(models.User).all()                
+        strangers = list((set(users) - set(friends)) - set([user]))     
+        for stranger in strangers:                      
+            msg_data = {
+                "stranger": {
+                    "username": stranger.username,
+                    "fullname": views.get_fullname(stranger)
+                },
+                "user": user.username
+            }
             await socket_manager.populate_old_messages(msg_data)
         response = views.get_rooms(user, db)
         rooms = response["rooms"]
         if rooms:
             await socket_manager.populate_rooms(rooms, user)
+        await socket_manager.get_online_users()
         try:
             while True:
                 data = await websocket.receive_json()
@@ -276,8 +285,9 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                             print("file size exceeded!")
                     message = views.create_message(db, data)
                     await socket_manager.to_specific_user(message)
+                #await socket_manager.get_online_users()    
         except WebSocketDisconnect:
-            socket_manager.disconnect(websocket, user)
+            socket_manager.disconnect(websocket, user)                        
 
 
 # for profile
