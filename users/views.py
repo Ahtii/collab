@@ -222,8 +222,8 @@ class SocketManager:
         for connection in self.active_connections:
             if connection[1].username == data['user']:
                 data.pop('user')
-                print("data to be send")
-                print(data)
+                # print("data to be send")
+                # print(data)
                 await connection[0].send_json(data)
                 break
 
@@ -263,6 +263,7 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
             else:
                 return None
         return param
+
 
 # create room
 def create_room(user: models.User, room_data: validators.CreateRoom, db: Session):

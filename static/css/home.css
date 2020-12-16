@@ -13,7 +13,7 @@ input {
   font-family: "Poppins", sans-serif;
 }
 
-.container {
+.auth-container {
   position: relative;
   width: 100%;
   max-width: 100%;
@@ -237,7 +237,7 @@ form.sign-in-form {
   grid-template-columns: repeat(2, 1fr);
 }
 
-.container:before {
+.auth-container:before {
   content: "";
   position: absolute;
   height: 2000px;
@@ -348,7 +348,7 @@ form.sign-in-form {
 }
 
 @media (max-width: 870px) {
-  .container {
+  .auth-container {
     min-height: 800px;
     height: 100vh;
   }
@@ -412,7 +412,7 @@ form.sign-in-form {
     font-size: 0.7rem;
   }
 
-  .container:before {
+  .auth-container:before {
     width: 1500px;
     height: 1500px;
     transform: translateX(-50%);
@@ -461,11 +461,11 @@ form.sign-in-form {
   .panel .content {
     padding: 0.5rem 1rem;
   }
-  .container {
+  .auth-container {
     padding: 1.5rem;
   }
 
-  .container:before {
+  .auth-container:before {
     bottom: 72%;
     left: 50%;
   }
@@ -479,6 +479,27 @@ form.sign-in-form {
 
 
 /* Ahtisham's Code*/
+
+.text-area {
+  position: relative;
+  width: 100%;
+}
+#upload {
+  position: absolute;
+  left: 10px;
+  cursor: pointer;
+  top: 56%;
+  font-size: 20px;
+}
+
+#submit {
+  position: absolute;
+  left: 97%;  
+  cursor: pointer;
+  top: 56%;
+  font-size: 18px;
+}
+
 
 /* .btn {
     background: rgb(230, 230, 230);
@@ -514,11 +535,11 @@ form.sign-in-form {
 #no-messages {
     color: rgb(200, 200, 200);
 }
-#messages {
+/* #messages {
     position: absolute;
     text-align: left;
     left: 20%;
-}
+} */
 #messages p {
     padding: 5px;
 }

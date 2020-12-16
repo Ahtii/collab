@@ -26,7 +26,7 @@ function start() {
 
 /* home jQuery */
 $(document).ready(function(){
-    var selected_user = "";
+    var selected_user, file;
     var selected_room = "";
     var user = "", socket;
     var uid;    
@@ -39,9 +39,8 @@ $(document).ready(function(){
            var name = response['full_name'];
            if ($("#auth").hasClass("hide")){
                $("#auth").removeClass("hide");
-               $("#not-auth").addClass("hide");
-               //$("#cur_user").text(user);
-               $("#cur_user").text(name);
+               $("#not-auth").addClass("hide");               
+               $(".active-user").text(name);
            }
            uid = response['id'];
            $.get("/api/user/"+uid+"/rooms", function(response){
@@ -57,7 +56,7 @@ $(document).ready(function(){
            // create websocket
            var protocol = window.location.protocol === "http:" ? "ws://" : "wss://";
            var host = window.location.host;
-           var api_path = "/api/user-connect";
+           var api_path = "/chat";
            var full_address = protocol+host+api_path;
            console.log(window.location.protocol);
            socket = new WebSocket(full_address);
@@ -70,26 +69,27 @@ $(document).ready(function(){
                var message = data['message'];
                var ist_date = data['ist_date'];
                var est_date = data['est_date'];
+               var last_message = data['last_message'];
                var room = data['room'];
                var file = data['file'];
-               var file_url = "";
-               var parent = $("#messages");               
-               console.log(data["users"]);
-               if(sender) {
-                   var parent = $("#online-users ul");
-                   parent.empty();
+               var file_url = "";               
+               console.log(data);
+               if (sender) {
+                   var online_user_list = $(".online-users .dropdown-menu");
+                   online_user_list.empty();
                    var receivers = data['users'];
                    $.each(receivers, function(index, receiver){
                        if (sender != receiver['username']){                           
                            var username_holder = "<span class='hide username-holder'>"+receiver['username']+"</span>";
-                           var child = "<li>"+username_holder+"<a>"+receiver['fullname']+"</a></li>";
-                           parent.append(child);
+                           //var child = "<li>"+username_holder+"<a>"+receiver['fullname']+"</a></li>";
+                           var child = "<a class='dropdown-item'>"+username_holder+"<span>"+receiver['fullname']+"</span></a>"
+                           online_user_list.append(child);
                        }
-                   });
+                   });                
                }
                if (!room && (message || file)){
-                   $("#no-message").addClass("hide");
-                   $("#messages").removeClass("hide");
+                //    $("#no-message").addClass("hide");
+                //    $("#messages").removeClass("hide");
                    if (file){
                         var full_path = file.split("/");
                         var file_owner = full_path[full_path.length - 3];
@@ -100,37 +100,83 @@ $(document).ready(function(){
                    var user_tag = displayname;
                    var display_username = author['username'];
                    if (user == display_username){   
-                       displayname = "you";
+                       displayname = "You";
                        display_username = receiver['username'];
                        user_tag = receiver["fullname"];                       
                    }
-                   var messages = $("#messages p");
-                   var no_match = true;
-                   $.each(messages, function(index, msg){
-                       console.log(index);
-                       var target_user = $(msg).children(".username-holder").text();
-                       if (target_user == display_username){
-                           $(msg).empty();
-                           var notifier = "<i class='badge badge-primary notifier'>1</i>";
-                           var content = "<span class='hide username-holder'>"+display_username+"</span><strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span>"+notifier+"<br><span>"+displayname+"</span>: <span>"+message+"</span>"+file_url;
-                           $(msg).addClass("highlight");
-                           $(msg).append(content);
-                           no_match = false;
-                           return false;
-                       }
-                   });
-                   if (no_match){
-                       var username_holder = "<span class='hide username-holder'>"+display_username+"</span>";
-                       var content = "<p>"+username_holder+"<strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+displayname+"</span>: <span>"+message+"</span>"+file_url+"</p>";
-                       parent.append(content);
-                   }
+                //    console.log(author["username"]);
+                //    console.log(displayname);
+                //    console.log(display_username);
+                //    console.log(user_tag);                  
+
+                //    var messages = $("#messages p");
+                //    var no_match = true;
+                //    $.each(messages, function(index, msg){
+                //        console.log(index);
+                //        var target_user = $(msg).children(".username-holder").text();
+                //        if (target_user == display_username){
+                //            $(msg).empty();
+                //            var notifier = "<i class='badge badge-primary notifier'>1</i>";
+                //            var content = "<span class='hide username-holder'>"+display_username+"</span><strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span>"+notifier+"<br><span>"+displayname+"</span>: <span>"+message+"</span>"+file_url;
+                //            $(msg).addClass("highlight");
+                //            $(msg).append(content);
+                //            no_match = false;
+                //            return false;
+                //        }
+                //    });
+                //    if (no_match){
+                //        var username_holder = "<span class='hide username-holder'>"+display_username+"</span>";
+                //        var content = "<p>"+username_holder+"<strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+displayname+"</span>: <span>"+message+"</span>"+file_url+"</p>";
+                //        parent.append(content);
+                //    }
+                var username_holder = "<span class='hide username-holder'>"+display_username+"</span>";
+                //var content = "<p>"+username_holder+"<strong>"+user_tag+"</strong> : &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+displayname+"</span>: <span>"+message+"</span>"+file_url+"</p>";
+                //parent.append(content);
+                if (last_message){
+                    var content = "<li class='list-group-item list-group-item-action' onclick='StartChat()'>\
+                                    <div class='row'>\
+                                        <div class='col-2 col-md-2'><img src='/static/media/images/maleuser.png' class='profile-pic'/></div>\
+                                        <div class='col-md-10 col-10' style='cursor: pointer;'>\
+                                            "+username_holder+"\
+                                            <div class='name'><span>"+user_tag+"</span></div>\
+                                            <div class='under-name'> "+displayname+": &nbsp; "+message+"&nbsp;"+file_url+"</div>\
+                                        </div>\
+                                    </div>\
+                                </li>"; 
+                    $("#direct-msg-list").append(content);    
+                } else {
+                    // decide position of message box
+                    var content;
+                    if (user == author["username"]){
+                        content = "<div class='row'>\
+                            <div class='col-1 col-sm-1 col-md-1'>\
+                                <img src='/static/media/images/maleuser.png' class='chat-pic'/>&nbsp;\
+                            </div>\
+                            <div class='col-6 col-sm-7 col-md-7'>\
+                                <p class='received-msg'>\
+                                    <strong>"+displayname+"</strong><span class='timestamp float-right'>"+ist_date+" &nbsp; "+est_date+"</span><br>\
+                                    <span>"+message+"</span>\
+                                    "+file_url+"\
+                                </p>\
+                            </div>\
+                        </div>";
+                    }else {
+                        content = "<div class='row justify-content-end'>\
+                            <div class='col-6 col-sm-7 col-md-7'>\
+                                <p class='sent-msg float-right'>\
+                                    <strong>"+displayname+"</strong><span class='timestamp float-right'>"+ist_date+" &nbsp; "+est_date+"</span><br>\
+                                    <span>"+message+"</span>\
+                                    "+file_url+"\
+                                </p>\
+                            </div>\
+                            <div class='col-1 col-sm-1 col-md-1'>\
+                                <img src='/static/media/images/maleuser.png' class='chat-pic'/>&nbsp;\
+                            </div>\
+                        </div>";
+                    }    
+                    $("#messages").append(content);            
+                }                
                }
-            //    console.log(room);
-            //    if (room){
-            //        var room_name_html = "<li>"+room+"</li>";
-            //        $("#rooms ul").append(room_name_html);
-            //        console.log("inside add room code.");
-            //    }
            };
         }
    });
@@ -221,10 +267,94 @@ $(document).on("click", "#messages p", function(){
     localStorage.setItem("fullname", full_name);
     window.location.href = "/direct?user="+user;
 });
+//send message with websocket
+function load_messages() {
+    data = {
+        "receiver": selected_user,
+        "is_user": true
+    };
+    socket.send(JSON.stringify(data));    
+}
+// show chat section and load user messages
+$(document).on("click", "#direct-msg-list li", function(){
+    document.getElementById('chatPanel').removeAttribute('style');
+    document.getElementById('divStart').setAttribute('style', 'display:none');
+    hideChatList();
+
+    selected_user = $(this).find("span").eq(0).text();    
+    var full_name = $(this).find("span").eq(1).text();        
+    $("#chatPanel .name").text(full_name);
+
+    // load messages
+    load_messages();
+});
+
+function send_message(){
+    var msg = $("#text-message").val();
+    console.log(msg);
+    data = {
+        "message": msg,        
+        "receiver": selected_user
+    };
+    console.log(data);
+    if (file){
+        var file_data = {
+            "filename": file['name'],
+            "type": file['type'],
+            "size": file['size']
+        };
+        console.log("file name");
+        console.log(file['name']);
+        if (file_data['size'] <= 5000000){
+            data["file"] = file_data;
+            console.log(JSON.stringify(data));
+            socket.send(JSON.stringify(data));
+            socket.send(file);
+            $("#selected-file").text("");
+        } else
+            $("#err-msg").text("Only files less than 5MB allowed.");
+    } else if (msg){
+        console.log(JSON.stringify(data));
+        socket.send(JSON.stringify(data));
+    }    
+    $("#text-message").val("");
+}
+
+// send message
+$("#msg-form").on("submit", function(e){
+    e.preventDefault();
+    send_message();
+});
+// open file dialog
+$("#upload").on("click", function(){
+    // code to send file to server
+    $("#file").click();
+});
+// get opened file
+$("#file").on("change", function(e){
+    // code to send file to server
+    $("#err-msg").text("");
+    $("#selected-file").text("");
+    file = e.target.files[0];
+    $("#selected-file").text(file["name"]);
+});
 $(document).on("click", "#rooms li", function(){
     var room = $(this).text();
     if (room)
         window.location.href = "/room?name="+room;
+});
+// onclick of online user
+$(document).on("click", ".online-users a", function(){
+    document.getElementById('chatPanel').removeAttribute('style');
+    document.getElementById('divStart').setAttribute('style', 'display:none');
+    hideChatList();
+
+    selected_user = $(this).find("span").eq(0).text();    
+    var full_name = $(this).find("span").eq(1).text();        
+    $("#chatPanel .name").text(full_name);
+
+    // load messages
+    load_messages();
 });
 // direct to personal chat
 $(document).on("click", "#online-users ul li", function(){
@@ -234,20 +364,9 @@ $(document).on("click", "#online-users ul li", function(){
     localStorage.setItem("fullname", full_name);
     window.location.href = "/direct?user="+user;
 });
-//send message with websocket
-function sendMessage() {
-    var input = document.getElementById("messageText");
-    data = {
-        "message": input.value,
-        "receiver": selected_user,
-        "room": selected_room
-    };
-    socket.send(JSON.stringify(data));
-    input.value = '';
-}
 
 // logout the user
-$(document).on("click", "#logout", function(){
+$(document).on("click", "#linkSignOut", function(){
     $.ajax({
         url: '/api/user',
         type: 'DELETE',
