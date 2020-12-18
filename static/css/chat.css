@@ -213,16 +213,16 @@ body{
 .hide {
     display: none;
 }
-.text-area {
-    position: relative;
-    width: 100%;
-  }
+  #upload {
+      cursor: pointer;   
+      color: #9ca1a3;   
+  }  
   
   #submit {
     background-color: transparent;
-    border: none;
+    border: none;    
+    font-size: 14px;
     color: #9ca1a3;
-    font-size: 15px;
   }
 
   #selected-file {
