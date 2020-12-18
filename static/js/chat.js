@@ -204,10 +204,12 @@ $(document).ready(function(){
                             return;
                         }
                     }); 
-                } 
+                }                 
                 if (loaded){
                     // update right chat panel messages
                     var messages = unseen_messages[selected_user];
+                    console.log("messages");
+                    console.log(messages);
                     $.each(messages, function(index, message){                
                         $("#messages").append(message);
                     });
@@ -325,20 +327,49 @@ $(document).ready(function(){
             window.location.href = "/room?name="+room;
     });
 
-    // onclick of online user
-    // $(document).on("click", ".online-users a", function(){
-    //     document.getElementById('chatPanel').removeAttribute('style');
-    //     document.getElementById('divStart').setAttribute('style', 'display:none');
-    //     hideChatList();
-    //     $("#messages").empty();
-        
-    //     selected_user = $(this).find("span").eq(0).text();    
-    //     var full_name = $(this).find("span").eq(1).text();        
-    //     $("#chatPanel .name").text(full_name);
+      /* ROOM CODE */
+    
+    // on click of create room
+    $("#roomButton").on("click", function(){
+        $("#user-list").empty();
+        $.get("/api/users", function(response){
+            var participants = response["users"];
+            $.each(participants, function(index, participant){ 
+                if (participant['username'] != user){               
+                    var participant_layout = "<li>\
+                                            <span class='hide username-holder'>"+participant["username"]+"</span>\
+                                            <input type='checkbox'>&nbsp;\
+                                            <span class='user-fullname'>"+participant["fullname"]+"</span>\
+                                    </li>";
+                    $("#user-list").append(participant_layout);
+                }    
+            });
+        });
+    });
 
-    //     // load messages
-    //     load_messages();
-    // });
+    $(document).on("submit", "#room_form", function(e){
+        e.preventDefault();        
+        var selected_participants = [];
+        $.each($("#user-list li"), function(index, user){
+            var checked = $(user).find("input").is(":checked");
+            if (checked)
+                selected_participants.push($(user).find(".username-holder").text());
+        }); 
+        var data = {
+            "name": $("#room-name").val(),
+            "description": $("#room-desc").val(),
+            "participants": selected_participants
+        }
+        $.post("/api/user/"+uid+"/room", JSON.stringify(data), function(response){
+            var error = response["error"];
+            if (error){
+                $("#err").text(error);
+            }
+        });
+        // var room = $(this).text();
+        // if (room)
+        //     window.location.href = "/room?name="+room;
+    });
 
     // logout the user
     $(document).on("click", "#linkSignOut", function(e){
