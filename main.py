@@ -102,7 +102,11 @@ def get_all_users(db: Session = Depends(get_db)):
 # create a user
 @app.post("/api/user")
 async def create_user(user: validators.RegisterValidator, db: Session = Depends(get_db)):
-    return views.register(db, user)
+    response = views.register(db, user)
+    if response['user']:
+        await socket_manager.get_stranger(response['user'])
+        response = {}
+    return response    
 
 
 # login the user and generate token for further authentication
@@ -129,9 +133,14 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
 
 # authenticating socail login and generating token
 @app.post("/api/social-login", include_in_schema=False)
-def social_login(request: Request, response: Response, data: validators.SocialLoginValidator,
+async def social_login(request: Request, response: Response, data: validators.SocialLoginValidator,
                  db: Session = Depends(get_db)):
-    return views.social_login(db, request, response, data)
+    response = views.social_login(db, request, response, data)
+    if response['user']:
+        await socket_manager.get_stranger(response['user'])
+        response = {}
+    return response    
+
 
 
 def get_old_conversation(id):
@@ -147,13 +156,15 @@ def get_old_conversation(id):
         WHERE rn = 1;"
 
 
-# for profile
+# for chat
 @app.websocket("/chat")
 async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)):
+    # setup code for each connection
     user = views.get_current_user(db, websocket.cookies.get("access_token"))
     if user:        
         await socket_manager.connect(websocket, user)        
         await socket_manager.get_online_users()
+        users = db.query(models.User).all()        
         messages = db.execute(get_old_conversation(str(user.id)))
         friends = []
         for message in messages:
@@ -190,17 +201,11 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                     "filename": filename
                 })
             await socket_manager.populate_old_messages(msg_data)            
-        users = db.query(models.User).all()                
+        #users = db.query(models.User).all()            
+        #await socket_manager.get_registered_users(users, friends, user)
         strangers = list((set(users) - set(friends)) - set([user]))     
-        for stranger in strangers:                      
-            msg_data = {
-                "stranger": {
-                    "username": stranger.username,
-                    "fullname": views.get_fullname(stranger)
-                },
-                "user": user.username
-            }
-            await socket_manager.populate_old_messages(msg_data)
+        for stranger in strangers:                                  
+            await socket_manager.get_stranger(stranger)
         response = views.get_rooms(user, db)
         rooms = response["rooms"]
         if rooms:
@@ -213,12 +218,13 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                     receiver = db.query(models.User).filter(
                         models.User.username == data['receiver']
                     ).first()
+                    print(db.query(models.PersonalMessage).all())
                     old_messages = db.query(models.PersonalMessage).filter(
                         ((models.PersonalMessage.sender_id == user.id) &
                         (models.PersonalMessage.receiver_id == receiver.id)) |
                         ((models.PersonalMessage.sender_id == receiver.id) &
                         (models.PersonalMessage.receiver_id == user.id))
-                    ).order_by(models.PersonalMessage.created_date).all()
+                    ).order_by(models.PersonalMessage.created_date).all()                    
                     for message in old_messages:
                         # if message.sender_id == user.id:
                         #     sender = user
@@ -258,9 +264,9 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                         print("message receiver is: ")
                         print(receiver.username)
                         print("message text is: ")
-                        print(message.text)  
-                        # await socket_manager.specific(data)
+                        print(message.text)
                         await socket_manager.populate_old_messages(msg_data)
+                    await socket_manager.sent_completed(receiver)
                 else:
                     receiver = data["receiver"]                                
                     #data.update({"sender_id": user.id, "username": user.username})
