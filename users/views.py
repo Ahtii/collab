@@ -36,7 +36,7 @@ def get_timezone(d, timezone):
 
 # register logic
 def register(db: Session, user: validators.RegisterValidator):
-    response = {}
+    response = {"user": None}
     if db.query(models.User).filter(models.User.email == user.email).first():
         response.update({"error": "email already exists"})
     elif db.query(models.User).filter(models.User.username == user.username).first():
@@ -47,6 +47,7 @@ def register(db: Session, user: validators.RegisterValidator):
         db_user = models.User(**user)
         db.add(db_user)
         db.commit()
+        response['user'] = db_user
     return response
 
 
@@ -111,7 +112,7 @@ def get_all_users(db: Session):
 def get_lastname(data, first_name):
     last_name = ""
     if "family_name" in data.keys():
-        last_name = data["family_name"]
+        last_name = data["family_name"].lower()
     else:
         name = data["name"]
         if name.isspace():
@@ -121,14 +122,21 @@ def get_lastname(data, first_name):
                     last_name = name[-1]
     return last_name
 
+def gen_username(db, username):
+    users = db.query(models.User).filter(models.User.username.contains(username)).all()    
+    if users:
+        count = len(users)
+        username = username[:3] + str(count)        
+    return username 
+
 
 # social login
 def social_login(db: Session, request: Request, response: Response, data: validators.SocialLoginValidator):
-    return_response = {}
+    return_response = {"user": None}
     # for protecting from CSRF
     if not request.headers.get("X-Requested-With"):
-        return_response = {"error": "Something went wrong."}
-    else:
+        return_response.update({"error": "Something went wrong."})
+    else :
         data = data.dict()
         type = data['type'].strip().lower()
         auth_code = data['token']
@@ -150,16 +158,38 @@ def social_login(db: Session, request: Request, response: Response, data: valida
                     "password": "",
                     "is_social_account": True
                 }
+                
+                print(token_data)
+                print(user_data)
+                                
                 user = validators.RegisterValidator(**user_data)
-                db_user = db.query(models.User).filter(models.User.username == user.username).first()                
+                db_user = db.query(models.User).filter(models.User.email == user.email).first()
+
+                if db_user:
+                    print("ind")                    
+                    if user.email != db_user.email:   
+                        print("me: ")
+                        print(user.email)
+                        print(db_user.email)                                             
+                        db_user = None                    
+                    # pass
+
                 if db_user is None:
-                    db_user = register(db, user)                    
-                    if "error" in db_user:              
-                        return_response = db_user
+                    user.username = gen_username(db, user.username)
+                    db_user = register(db, user)                                       
+                    if "error" in db_user: 
+                        return_response.update({"error": db_user["error"]})
+                    else:
+                        db_user = db_user["user"]    
+
                 access_token = gen_token(user.username)                
-                response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)                
-            except:
-                return_response = {"error": "Cannot authenticate"}
+                response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)                                
+                return_response["user"] = db_user
+                print("user loged in with email: ")
+                print(db_user.email)
+            except Exception as e:
+                print(e)
+                return_response.update({"error": "Cannot authenticate"})                
     return return_response
 
 # def gen_file_url(user, filename):
@@ -173,31 +203,41 @@ class SocketManager:
         await websocket.accept()
         self.active_connections.append((websocket, user))
 
-        # for connection in self.active_connections:
-        #     data = {"state": {"user": user.username, "connected": True}}
-        #     await connection[0].send_json(data)
-        
-        # print("user values: ")
-        # print(data )
-
     def disconnect(self, websocket: WebSocket, user: models.User):
-        self.active_connections.remove((websocket, user))
+        self.active_connections.remove((websocket, user))           
 
-        # for connection in self.active_connections:
-        #     data = {"state": {"user": user.username, "connected": False}}
-        #     print("user values: ")
-        #     print(data )
-        #     await connection[0].send_json(data)
+    async def get_online_users(self):
+        response = {
+            "online_users": []
+        }    
+        try:    
+            for connection in self.active_connections:
+                users = {
+                    "username": connection[1].username,
+                    "fullname": get_fullname(connection[1])
+                }
+                response['online_users'].append(users)
+                #response['fullname'].append(get_fullname(connection[1]))
+            for connection in self.active_connections:
+                response.update({"sender": connection[1].username})    
+                #response.update({"names": get_fullname(connection[1])})
+                await connection[0].send_json(response)
+        except Exception as e:
+            print(e)  
 
-    def is_connected(self, user: models.User):
+    async def get_registered_users(self, users: list):
+        
+        registered_users = {"registered_users": []}
+        
+        for user in users:
+            user_ifo = {
+                "username": user.username,
+                "fullname": get_fullname(user)
+            }
+            registered_users["registered_users"].append(user_ifo)
+
         for connection in self.active_connections:
-            if user.username == connection[1].username:
-                return True
-        return False        
-
-    async def broadcast(self,db: Session, data: dict):
-        for connection in self.active_connections:
-            await connection[0].send_json(data)
+            await connection[0].send_json(registered_users)
 
     async def to_specific_user(self, data: dict):
         found_sender = False
@@ -220,39 +260,20 @@ class SocketManager:
                 await self.get_online_users()
                 break
 
-    async def get_online_users(self):
-        response = {
-            "online_users": []
-        }    
-        try:    
-            for connection in self.active_connections:
-                users = {
-                    "username": connection[1].username,
-                    "fullname": get_fullname(connection[1])
-                }
-                response['online_users'].append(users)
-                #response['fullname'].append(get_fullname(connection[1]))
-            for connection in self.active_connections:
-                response.update({"sender": connection[1].username})    
-                #response.update({"names": get_fullname(connection[1])})
-                await connection[0].send_json(response)
-        except Exception as e:
-            print(e)        
-
-    async def set_user_online(self, user: models.User):
+    async def get_stranger(self, user: models.User):
+        msg_data = {
+            "stranger": {
+                "username": user.username,
+                "fullname": get_fullname(user)
+            }
+        }
         for connection in self.active_connections:
-            if connection[1].username != user.username:
-                await connection[0].send_json(
-                    {
-                        "user": user.username,
-                        "online": True
-                    }
-                )
+            await connection[0].send_json(msg_data)
 
-    async def set_user_offline(self, user: models.User):
+    async def sent_completed(self, user: models.User):
         for connection in self.active_connections:
-            if connection[1].username != user.username:
-                await connection[0].send_json({"online": False})       
+            if connection[1].username == user.username:
+                await connection[0].send_json({"completed": True})       
 
     async def to_room_participants(self, data: dict):
         for connection in self.active_connections:

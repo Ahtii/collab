@@ -192,6 +192,16 @@ body{
     border-right-color: transparent; */
 }
 
+
+/* Ahtisham Added Following */
+
+.notifier {
+    color: white;    
+    float: right;
+    padding: 5px;
+    font-size: 11px;
+}
+
 .online {
     color: green;
 }
