@@ -229,7 +229,7 @@
                             <!--<div class="col-6 col-sm-7 col-md-7 col-lg-9">
                                 <div class="name"></div>
                                 <div class="under-name"><i class="fa fa-circle offline state"></i> </div>-->
-                            <div class="col-md-5 col-4 col-sm-4 col-lg-7">                                
+                            <div class="col-6 col-sm-7 col-md-7 col-lg-9">                                
                                 <div class="name"><span class="hide username-holder"></span><span class="user-fullname"></span></div>
                                 <div class="under-name"><i class="fa fa-circle state"></i> &nbsp; <span></span> </div>
                             </div>
@@ -270,19 +270,19 @@
 
                     <!--FOOTER-->
                     <div class="card-footer">
-                        <div class="icons">
-                            <form id="msg-form">                                    
-                                <span id="err-msg"></span>
-                                <div id = "file-section">                                        
-                                    <span id="selected-file"></span>
-                                </div>
-                                <input type="file" id="file" class="hide" name="file">
-                                <div class="text-area">
-                                    <i id="upload" class="fa fa-plus"></i> &nbsp;                                    
-                                    <input type="text" id="text-message" placeholder="Message here" class="form-control round-box" style="padding-right: 40px; padding-left: 40px;"/>
-                                    <i id="submit" type="submit" class="fa fa-paper-plane"></i>    
-                                </div>                                    
-                            </form>
+                        <div class="row icons">
+                           <div class="col-md-1 col-2 file-upload">
+                               <label for="file-input">
+                                    <i class="fas fa-plus-circle mt-2 ml-4" style="cursor: pointer;"></i>
+                                </label>
+                                <input type="file" id="file-input"/>
+                            </div>
+                            <div class="col-md-10 col-8">
+                                <input type="text" id="text-message" placeholder="Message here" class="form-control round-box"  onclick="OnKeyDown()"/>
+                            </div>
+                            <div class="col-md-1 col-2 mt-1">
+                                <i class="fas fa-paper-plane" style="cursor: pointer;"></i>
+                            </div>
                         </div> <!--closing of row-->
                     </div><!--closing of card footer-->
 
