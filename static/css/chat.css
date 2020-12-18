@@ -217,21 +217,20 @@ body{
     position: relative;
     width: 100%;
   }
-  #upload {
-    position: absolute;
-    left: 10px;
-    cursor: pointer;
-    top: 75%;
-    transform: translateY(-75%);
-    font-size: 16px;
-  }
   
   #submit {
-    position: absolute;
-    right: 0;  
-    margin-right: 15px;
-    cursor: pointer;
-    top: 75%;
-    transform: translateY(-75%);
-    font-size: 16px;
+    background-color: transparent;
+    border: none;
+    color: #9ca1a3;
+    font-size: 15px;
+  }
+
+  #selected-file {
+      color: rgb(42, 52, 82);
+      font-size: 12px;
+  }
+
+  #err-msg {
+      color: maroon;
+      font-size: 12px;
   }
