@@ -352,3 +352,19 @@ $(document).ready(function(){
         });
     });
 });  //closing of ready
+
+
+//// FOR CREATE ROOM MEMBERS////
+$(document).ready(function(){
+
+    var multipleCancelButton = new Choices('#choices-multiple-remove-button', {
+    removeItemButton: true,
+    maxItemCount:5,
+    searchResultLimit:100,
+    renderChoiceLimit:100
+    });
+   
+   
+});
+
+///////////////////////////
