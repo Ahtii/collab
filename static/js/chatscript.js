@@ -1,5 +1,5 @@
 
-//hiding welcome screen
+//hiding welcome screen (opening chatbox on clicking user)
 // function StartChat(){
 //     document.getElementById('chatPanel').removeAttribute('style');
 //     document.getElementById('divStart').setAttribute('style', 'display:none');

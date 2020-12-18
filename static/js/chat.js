@@ -139,12 +139,20 @@ $(document).ready(function(){
                 var username_holder = "<span class='hide username-holder'>"+display_username+"</span>";                                                
                 if (last_message){                    
                     var content = "<li class='list-group-item list-group-item-action' onclick='StartChat()'>\
-                                    <div class='row'>\
-                                        <div class='col-2 col-md-2'><img src='/static/media/images/maleuser.png' class='profile-pic'/></div>\
-                                        <div class='col-md-10 col-10' style='cursor: pointer;'>\
-                                            "+username_holder+"\
-                                            <div class='name'><i class='fa fa-circle state offline'></i>&nbsp;<span>"+user_tag+"</span></div>\
-                                            <div class='under-name'> "+displayname+": &nbsp; "+message+"&nbsp;"+file_url+"</div>\
+                                    <div class='container'>\
+                                        <div class='row'>\
+                                            <div class='col-3 col-sm-4 col-md-4 col-lg-3'>\
+                                                <img src='/static/media/images/maleuser.png' class='profile-pic'/>\
+                                            </div>\
+                                            <div class='col-9 col-sm-8 col-md-8 col-lg-9' style='cursor: pointer;'>\
+                                                "+username_holder+"\
+                                                <div class='name mt-3'>\
+                                                    <i class='fa fa-circle state offline'></i>&nbsp;<span>"+user_tag+"</span>\
+                                                </div>\
+                                                <!--<div class='under-name'> \
+                                                    "+displayname+": &nbsp; "+message+"&nbsp;"+file_url+"\
+                                                </div>-->\
+                                            </div>\
                                         </div>\
                                     </div>\
                                 </li>"; 
@@ -154,10 +162,10 @@ $(document).ready(function(){
                     var content;
                     if (user == author["username"]){
                         content = "<div class='row'>\
-                            <div class='col-1 col-sm-1 col-md-1'>\
+                            <div class='col-1 col-sm-1 col-md-1 col-lg-1'>\
                                 <img src='/static/media/images/maleuser.png' class='chat-pic'/>&nbsp;\
                             </div>\
-                            <div class='col-6 col-sm-7 col-md-7'>\
+                            <div class='col-10 col-sm-10 col-md-10 col-lg-10'>\
                                 <p class='received-msg'>\
                                     <strong>"+displayname+"</strong><span class='timestamp float-right'>"+ist_date+" &nbsp; "+est_date+"</span><br>\
                                     <span>"+message+"</span>\
@@ -187,7 +195,7 @@ $(document).ready(function(){
                     var content = "<li class='list-group-item list-group-item-action' onclick='StartChat()'>\
                                     <div class='row'>\
                                         <div class='col-2 col-md-2'><img src='/static/media/images/maleuser.png' class='profile-pic'/></div>\
-                                        <div class='col-md-10 col-10' style='cursor: pointer;'>\
+                                        <div class='col-10 col-md-10' style='cursor: pointer;'>\
                                             "+username_holder+"\
                                             <div class='name'><i class='fa fa-circle state offline'></i>&nbsp;<span>"+stranger['fullname']+"</span></div>\
                                         </div>\
@@ -320,3 +328,19 @@ $(document).ready(function(){
         });
     });
 });  //closing of ready
+
+
+//// FOR CREATE ROOM MEMBERS////
+$(document).ready(function(){
+
+    var multipleCancelButton = new Choices('#choices-multiple-remove-button', {
+    removeItemButton: true,
+    maxItemCount:5,
+    searchResultLimit:100,
+    renderChoiceLimit:100
+    });
+   
+   
+});
+
+///////////////////////////
