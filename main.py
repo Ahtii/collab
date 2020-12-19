@@ -42,8 +42,25 @@ def index(request: Request):
 
 
 # chat template
-@app.get("/chat", include_in_schema=False)
-def chat(request: Request):
+@app.get("/chat",  include_in_schema=False)
+def chat(request: Request, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    if user:
+        receiver = db.query(models.User).filter(
+            models.User.id == 36
+        ).first()
+        print(db.query(models.PersonalMessage).all())
+        old_messages = db.query(models.PersonalMessage).filter(
+            ((models.PersonalMessage.sender_id == user.id) &
+            (models.PersonalMessage.receiver_id == receiver.id)) |
+            ((models.PersonalMessage.sender_id == receiver.id) &
+            (models.PersonalMessage.receiver_id == user.id))
+        ).order_by(models.PersonalMessage.created_date).all()
+
+        for message in old_messages:
+            print("--> message is: ")
+            print(message.text)
+
     return templates.TemplateResponse("chat.html", {"request": request})
 
 # render file template
@@ -73,9 +90,9 @@ def room(request: Request):
     return templates.TemplateResponse("room.html", {"request": request})
 
 # room template
-@app.get("/create_room", include_in_schema=False)
-def create_room(request: Request):
-    return templates.TemplateResponse("create_room.html", {"request": request})
+# @app.get("/create_room", include_in_schema=False)
+# def create_room(request: Request):
+#     return templates.TemplateResponse("create_room.html", {"request": request})
 
     # API ENDPOINTS
 
@@ -213,18 +230,20 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
         await socket_manager.get_online_users()
         try:
             while True:
-                data = await websocket.receive_json()
-                if data.get('is_user'):
+                data = await websocket.receive_json()                                          
+                if data.get('is_user'):                                  
+                    db = database.SessionLocal()
                     receiver = db.query(models.User).filter(
                         models.User.username == data['receiver']
                     ).first()
-                    print(db.query(models.PersonalMessage).all())
+                    #print(db.query(models.PersonalMessage).all())
                     old_messages = db.query(models.PersonalMessage).filter(
                         ((models.PersonalMessage.sender_id == user.id) &
                         (models.PersonalMessage.receiver_id == receiver.id)) |
                         ((models.PersonalMessage.sender_id == receiver.id) &
                         (models.PersonalMessage.receiver_id == user.id))
-                    ).order_by(models.PersonalMessage.created_date).all()                    
+                    ).order_by(models.PersonalMessage.created_date).all()
+                    #old_messages = db.execute("select * from personal_message where sender_id = "+str(user.id)+" and receiver_id = "+str(receiver.id)+" or sender_id = "+str(receiver.id)+" and receiver_id = "+str(user.id)+";")
                     for message in old_messages:
                         # if message.sender_id == user.id:
                         #     sender = user
@@ -265,8 +284,7 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                         print(receiver.username)
                         print("message text is: ")
                         print(message.text)
-                        await socket_manager.populate_old_messages(msg_data)
-                    await socket_manager.sent_completed(receiver)
+                        await socket_manager.populate_old_messages(msg_data)                    
                 else:
                     receiver = data["receiver"]                                
                     #data.update({"sender_id": user.id, "username": user.username})
@@ -290,8 +308,7 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                         else:                        
                             print("file size exceeded!")
                     message = views.create_message(db, data)
-                    await socket_manager.to_specific_user(message)
-                #await socket_manager.get_online_users()    
+                    await socket_manager.to_specific_user(message)                                                          
         except WebSocketDisconnect:
             socket_manager.disconnect(websocket, user)                        
 
@@ -483,8 +500,7 @@ async def room_chat(websocket: views.WebSocket, room: str, db: Session = Depends
 
             # ROOM ENDPOINTS
 
-
-@app.post("/api/user/{id}/rooms")
+@app.post("/api/user/{id}/room")
 async def create_room(request: Request, id: int, room_data: validators.CreateRoom, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:
@@ -497,7 +513,7 @@ async def create_room(request: Request, id: int, room_data: validators.CreateRoo
     return response
 
 
-@app.get("/api/user/{id}/rooms")
+@app.get("/api/user/{id}/room")
 def get_rooms(request: Request, id: int, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:

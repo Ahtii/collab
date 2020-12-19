@@ -100,14 +100,14 @@
                         <div class="modal fade" id="createRoom">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <div class="card">
-                                        <div class="card-header">
+                                    <div>
+                                        <div class="modal-header">
                                             Create Room
                                             <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
                                         </div> <!--closing of card header-->
 
-                                        <div class="card-body">
-                                            <form class="createRoomForm text-center">
+                                        <div class="modal-body">
+                                            <form id="room-form" class="createRoomForm text-center">
                                                 <div class="form-group">
                                                     <label for="formRoomName">Room Name</label>
                                                     <input type="text" class="form-control inputStyle" id="roomName" placeholder="Write name here">
@@ -120,7 +120,7 @@
                                                     <label for="formMembers">Room Members</label>
                                                     <!-- <div class="row"> -->
                                                         <!-- <div class="col-md-12"> -->
-                                                            <select id="choices-multiple-remove-button" placeholder="Select upto 5 members" multiple>
+                                                            <!-- <select id="choices-multiple-remove-button" placeholder="Select upto 5 members" multiple>
                                                                 <option value="person1">Person A</option>
                                                                 <option value="person2">Person B</option>
                                                                 <option value="person3">Person C</option>
@@ -131,13 +131,15 @@
                                                                 <option value="person8">Person H</option>
                                                                 <option value="person9">Person I</option>
                                                                 <option value="person10">Person J</option>
-                                                            </select>
+                                                            </select> -->
+                                                            <ul id="user-list" class="list-group">                                                                
+                                                            </ul>
                                                         <!-- </div> -->
                                                     <!-- </div> -->
                                                     <!-- <input type="text" class="form-control inputStyle" id="roomMembers" placeholder=""> -->
                                                   </div>
                                                   <div class="form-group">
-                                                    <button type="submit" class="btn  formButton">Create</button>
+                                                    <button type="submit" class="btn formButton">Create</button>
                                                   </div>
                                             </form>
                                         </div> <!--closing of card body-->
@@ -152,13 +154,13 @@
                         <div class="tab-header">
                             <ul class="nav nav-pills" role="tablist">
                                 <li class="nav-item">
-                                <a class="nav-link active" data-toggle="pill" href="#directMsg">
+                                <a id="tab-direct-message" class="nav-link active" data-toggle="pill" href="#directMsg">
                                     <i class="fa fa-user"></i>
                                         Direct Messages
                                 </a>
                                 </li>
                                 <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#roomMsg">
+                                <a id="tab-room-message" class="nav-link" data-toggle="pill" href="#roomMsg">
                                     <i class="fa fa-users"></i>  
                                         Room Messages
                                 </a>
@@ -176,13 +178,10 @@
 
                             <!--ROOM MESSAGES-->
                             <div id="roomMsg" class="container tab-pane fade"><br>
-                                <ul class="list-group list-group-flush" id="chats">
-                                    <li class="list-group-item list-group-item-action">
+                                <ul class="list-group list-group-flush" id="room-msg-list">
+                                    <!-- <li class="list-group-item list-group-item-action">
                                         <div class="row">
-                                            <div class=" col-2 col-md-2">
-                                                <!-- <div class="wrapper">
-                                                    <h1 id = "inner">A</h1>		
-                                                </div> -->
+                                            <div class=" col-2 col-md-2">                                                
                                                 <img src="/static/media/images/groups.png" class="profile-pic"/>
                                             </div>
                                             <div class="col-md-10 col-10" style="cursor: pointer;">
@@ -190,21 +189,7 @@
                                                 <div class="under-name"> This is some message here</div>
                                             </div>
                                         </div>
-                                    </li>
-                                    <li class="list-group-item list-group-item-action" onclick="StartChat()">
-                                        <div class="row">
-                                            <div class=" col-2 col-md-2">
-                                                <!-- <div class="wrapper">
-                                                    <h1 id = "inner">L</h1>		
-                                                </div> -->
-                                                <img src="/static/media/images/groups.png" class="profile-pic"/>
-                                            </div>
-                                            <div class="col-md-10 col-10" style="cursor: pointer;">
-                                                <div class="name">Work Group</div>
-                                                <div class="under-name"> This is some message here</div>
-                                            </div>
-                                        </div>
-                                    </li>
+                                    </li> -->
                                 </ul>
                             </div> <!--div of Room Message-->
                     </div> <!--closing of tabs content-->
@@ -223,8 +208,8 @@
                             <div class="col-1 col-sm-1 col-md-1 col-lg-1">
                                 <i class="fa fa-angle-left mt-3 icons d-md-none" style="cursor: pointer;" onclick="showChatList()"></i>
                             </div>
-                            <div class="col-2 col-sm-2 col-md-2 col-lg-1">
-                                <img src="/static/media/images/maleuser.png" class="profile-pic" />
+                            <div class="col-2 col-sm-2 col-md-2 col-lg-1">                      
+                                <img src="" class="panel-pic" />
                             </div>
                             <!--<div class="col-6 col-sm-7 col-md-7 col-lg-9">
                                 <div class="name"></div>

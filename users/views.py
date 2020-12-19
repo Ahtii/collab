@@ -268,12 +268,7 @@ class SocketManager:
             }
         }
         for connection in self.active_connections:
-            await connection[0].send_json(msg_data)
-
-    async def sent_completed(self, user: models.User):
-        for connection in self.active_connections:
-            if connection[1].username == user.username:
-                await connection[0].send_json({"completed": True})       
+            await connection[0].send_json(msg_data)    
 
     async def to_room_participants(self, data: dict):
         for connection in self.active_connections:

@@ -13,16 +13,27 @@ $(document).ready(function(){
            var name = response['full_name'];
            $(".active-user").text(name);
            uid = response['id'];
-           $.get("/api/user/"+uid+"/rooms", function(response){
-                var rooms_list = response["rooms"]
-                if (!jQuery.isEmptyObject(rooms_list)){
-                    var parent = $("#rooms ul");
-                    $.each(rooms_list, function(key, value){
-                        child = "<li>"+value["name"]+"</li>";
-                        parent.append(child);
+           $.get("/api/user/"+uid+"/room", function(response){
+                var room_list = response["rooms"];
+                if (!jQuery.isEmptyObject(room_list)){
+                    //$("#roomMsg ul")
+                    $.each(room_list, function(key, room){
+                        //var room_layout = "<li>"+room["name"]+"</li>";
+                        var room_layout = "<li class='list-group-item list-group-item-action'>\
+                                            <div class='row'>\
+                                                <div class='col-2 col-md-2'>\
+                                                    <img src='/static/media/images/groups.png' class='profile-pic'/>\
+                                                </div>\
+                                                <div class='col-md-10 col-10' style='cursor: pointer;'>\
+                                                    <div class='name'>"+room["name"]+"</div>\
+                                                    <div class='under-name'>"+room["description"]+"</div>\
+                                                </div>\
+                                            </div>\
+                                        </li>";
+                        $("#roomMsg ul").append(room_layout);
                     });
-                }   
-           });
+                }
+            });  
            // create websocket
            var protocol = window.location.protocol === "http:" ? "ws://" : "wss://";
            var host = window.location.host;
@@ -32,8 +43,7 @@ $(document).ready(function(){
            socket = new WebSocket(full_address);
            socket.onmessage = function(event) {
                var data = JSON.parse(event.data);
-               var user_state = data['state'];
-               var loaded = data['completed']
+               var user_state = data['state'];               
                var mid = data['id'];
                var online_users = data["online_users"];
                var receiver = data['receiver'];
@@ -45,7 +55,9 @@ $(document).ready(function(){
                var last_message = data['last_message'];
                var room = data['room'];
                var file = data['file'];
-               var file_url = "";                 
+               var file_url = "";     
+               console.log("load message in websockets");            
+               console.log(data);
                 if (online_users) {
                     var direct_msg_list = $("#direct-msg-list li");                                                            
                     $.each(direct_msg_list, function(index, msg){                                                                        
@@ -204,16 +216,7 @@ $(document).ready(function(){
                             return;
                         }
                     }); 
-                }                 
-                if (loaded){
-                    // update right chat panel messages
-                    var messages = unseen_messages[selected_user];
-                    console.log("messages");
-                    console.log(messages);
-                    $.each(messages, function(index, message){                
-                        $("#messages").append(message);
-                    });
-                } 
+                }
                 document.getElementById('messages').scrollTo(0, document.getElementById('messages').scrollHeight);
             };
         }
@@ -229,12 +232,14 @@ $(document).ready(function(){
 
     //send message with websocket
     function load_messages() {
+        console.log("load message");
         data = {
             "receiver": selected_user,
             "is_user": true
         };
         socket.send(JSON.stringify(data));                        
     }
+
     // show chat section and load user messages
     $(document).on("click", "#direct-msg-list li", function(){
         document.getElementById('chatPanel').removeAttribute('style');
@@ -242,6 +247,8 @@ $(document).ready(function(){
         hideChatList();
 
         $("#messages").empty();
+
+        $(".panel-pic").attr("src", "/static/media/images/maleuser.png");        
         
         selected_user = $(this).find("span").eq(0).text();        
         
@@ -260,6 +267,7 @@ $(document).ready(function(){
 
         // load messages
         load_messages();
+        //$.get("/api/user/"+uid+"/messages");
 
         // remove notifier and show messages
         var notifier = $(this).find(".notifier");
@@ -327,7 +335,52 @@ $(document).ready(function(){
             window.location.href = "/room?name="+room;
     });
 
-      /* ROOM CODE */
+    /* ROOM CODE */
+
+    $(".tab-header .nav-item").on("click", function(){
+        var tab = $(this).find("a").attr("id");        
+        // if (tab == "tab-room-message"){
+
+        // }else{
+
+        // }
+    });
+
+    $(document).on("click", "#room-msg-list li", function(){
+        document.getElementById('chatPanel').removeAttribute('style');
+        document.getElementById('divStart').setAttribute('style', 'display:none');
+        hideChatList();
+
+        $("#messages").empty();        
+        $(".panel-pic").attr("src", "/static/media/images/groups.png");
+        
+        // $();
+
+        // selected_user = $(this).find("span").eq(0).text();        
+        
+        // var full_name = $(this).find("span").eq(1).text();
+        // var state = "offline";
+        // if ($(this).find(".state").hasClass("online"))
+        //     state = "online";
+
+        // var classes = $(this).find(".state").attr("class");
+        // $("#chatPanel .under-name").find("i").removeClass();
+        // $("#chatPanel .under-name").find("i").addClass(classes);
+        
+        // $("#chatPanel .name").find(".user-fullname").text(full_name);
+        // $("#chatPanel .name").find(".username-holder").text(selected_user);               
+        // $("#chatPanel .under-name").children("span").text(state);
+
+        // load messages
+        // load_messages();
+        //$.get("/api/user/"+uid+"/messages");
+
+        // remove notifier and show messages
+        // var notifier = $(this).find(".notifier");
+        // if (notifier){
+        //     $(notifier).remove();                              
+        // }                                
+    });
     
     // on click of create room
     $("#roomButton").on("click", function(){
@@ -336,7 +389,7 @@ $(document).ready(function(){
             var participants = response["users"];
             $.each(participants, function(index, participant){ 
                 if (participant['username'] != user){               
-                    var participant_layout = "<li>\
+                    var participant_layout = "<li class='list-group-item' style='text-align: left;'>\
                                             <span class='hide username-holder'>"+participant["username"]+"</span>\
                                             <input type='checkbox'>&nbsp;\
                                             <span class='user-fullname'>"+participant["fullname"]+"</span>\
@@ -345,9 +398,26 @@ $(document).ready(function(){
                 }    
             });
         });
+        // $("#userList").empty;
+        // console.log($("#userList"));
+        // $.get("/api/users", function(response){
+        //     var participants = response["users"];
+        //     $.each(participants, function(index, participant){ 
+        //         if (participant['username'] != user){  
+        //             console.log(participant["fullname"]); 
+        //             // $('#userList').append($('<option/>', { 
+        //             //     value: participant['username'],
+        //             //     text : participant['fullname'] 
+        //             // }));            
+        //             var participant_layout = "<option value="+participant["username"]+">"+participant["fullname"]+"</option>";
+        //             console.log(participant_layout);
+        //             $("#userList").append(participant_layout);
+        //         }
+        //     });
+        // });
     });
 
-    $(document).on("submit", "#room_form", function(e){
+    $(document).on("submit", "#room-form", function(e){
         e.preventDefault();        
         var selected_participants = [];
         $.each($("#user-list li"), function(index, user){
@@ -356,15 +426,16 @@ $(document).ready(function(){
                 selected_participants.push($(user).find(".username-holder").text());
         }); 
         var data = {
-            "name": $("#room-name").val(),
-            "description": $("#room-desc").val(),
+            "name": $("#roomName").val(),
+            "description": $("#roomDesc").val(),
             "participants": selected_participants
         }
         $.post("/api/user/"+uid+"/room", JSON.stringify(data), function(response){
             var error = response["error"];
             if (error){
                 $("#err").text(error);
-            }
+            } else
+                $("#createRoom").modal("toggle");
         });
         // var room = $(this).text();
         // if (room)
@@ -382,20 +453,15 @@ $(document).ready(function(){
             }
         });
     });
-});  //closing of ready
 
-
-//// FOR CREATE ROOM MEMBERS////
-$(document).ready(function(){
-
-    var multipleCancelButton = new Choices('#choices-multiple-remove-button', {
-    removeItemButton: true,
-    maxItemCount:5,
-    searchResultLimit:100,
-    renderChoiceLimit:100
+    //// FOR CREATE ROOM MEMBERS////
+    var multipleCancelButton = new Choices("#userList", {
+        removeItemButton: true,
+        maxItemCount: 5,
+        searchResultLimit: 100,
+        renderChoiceLimit: 100
     });
-   
-   
-});
+    
+    ///////////////////////////
 
-///////////////////////////
+});  //closing of ready
