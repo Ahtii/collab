@@ -271,8 +271,11 @@ class SocketManager:
             await connection[0].send_json(msg_data)    
 
     async def to_room_participants(self, data: dict):
-        for connection in self.active_connections:
+        for connection in self.active_connections:            
             if connection[1].username in data['participants']:
+                print("data for room participant:")
+                print(connection[1].username)
+                print(data)
                 await connection[0].send_json(data)
 
     async def populate_old_messages(self, data: dict):
@@ -454,13 +457,17 @@ def create_message(db: Session, data: dict):
 def create_room_message(db: Session, data: dict):
     response = None
     try:
+        print("inside room message")
         room = db.query(models.Room).filter(
             models.Room.name == data['room']
-        ).first()
+        ).first()        
         if room:
+            print("room data not found")
             sender = db.query(models.User).filter(
                models.User.username == data['user']
             ).first()
+            print("sender is")
+            print(sender)
             if sender:
                 message = models.RoomMessage()
                 message.text = data['message']

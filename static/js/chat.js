@@ -3,7 +3,7 @@
 /* chat jQuery */
 $(document).ready(function(){
     var selected_user, file;
-    var selected_room = "", unseen_messages = [];
+    var selected_room, unseen_messages = [];
     var user = "", socket;
     var uid;    
 
@@ -18,19 +18,20 @@ $(document).ready(function(){
                 if (!jQuery.isEmptyObject(room_list)){
                     //$("#roomMsg ul")
                     $.each(room_list, function(key, room){
-                        //var room_layout = "<li>"+room["name"]+"</li>";
+                        var room_id_holder = "<span class='hide room-id-holder'>"+room["id"]+"</span>";
                         var room_layout = "<li class='list-group-item list-group-item-action'>\
                                             <div class='row'>\
                                                 <div class='col-2 col-md-2'>\
                                                     <img src='/static/media/images/groups.png' class='profile-pic'/>\
                                                 </div>\
                                                 <div class='col-md-10 col-10' style='cursor: pointer;'>\
+                                                    "+room_id_holder+"\
                                                     <div class='name'>"+room["name"]+"</div>\
                                                     <div class='under-name'>"+room["description"]+"</div>\
                                                 </div>\
                                             </div>\
                                         </li>";
-                        $("#roomMsg ul").append(room_layout);
+                        $("#room-msg-list").append(room_layout);
                     });
                 }
             });  
@@ -55,9 +56,7 @@ $(document).ready(function(){
                var last_message = data['last_message'];
                var room = data['room'];
                var file = data['file'];
-               var file_url = "";     
-               console.log("load message in websockets");            
-               console.log(data);
+               var file_url = "";                                  
                 if (online_users) {
                     var direct_msg_list = $("#direct-msg-list li");                                                            
                     $.each(direct_msg_list, function(index, msg){                                                                        
@@ -79,7 +78,7 @@ $(document).ready(function(){
                         });  
                         var panel_username = $("#chatPanel .name").find(".username-holder").text();                        
                         if (username == panel_username){
-                            console.log(panel_username);
+                            //console.log(panel_username);
                             var state = "offline";
                             if ($(msg).find(".state").hasClass("online"))
                                 state = "online";
@@ -91,22 +90,26 @@ $(document).ready(function(){
                     });                                  
                 }  
                 var show_notification = false;
+                //console.log(room);
                 // code to show message
-                if (!room && (message || file)){                    
+                if (message || file){  
                     if (file){
-                            var full_path = file.split("/");
-                            var file_owner = full_path[full_path.length - 3];
-                            var file_name = full_path[full_path.length - 1];    
-                            file_url = "<br><a href='/preview-file?user="+file_owner+"&file="+file_name+"'>"+data['filename']+"</a>"; 
+                        var full_path = file.split("/");
+                        var file_owner = full_path[full_path.length - 3];
+                        var file_name = full_path[full_path.length - 1];    
+                        file_url = "<br><a href='/preview-file?user="+file_owner+"&file="+file_name+"'>"+data['filename']+"</a>";
                     }                                          
                     var displayname = author["fullname"];
                     var user_tag = displayname;
-                    var display_username = author['username'];
+                    var display_username = author['username'];                    
                     if (user == display_username){   
                         displayname = "You";
-                        display_username = receiver['username'];
-                        user_tag = receiver["fullname"];                       
-                    }                    
+                        if (receiver){
+                            display_username = receiver['username'];
+                            user_tag = receiver["fullname"];                       
+                        }
+                    }    
+                    console.log(data);    
                     var username_holder = "<span class='hide username-holder'>"+display_username+"</span>";                                                
                     if (last_message){                    
                         var content = "<li class='list-group-item list-group-item-action'>\
@@ -119,9 +122,10 @@ $(document).ready(function(){
                                             </div>\
                                         </div>\
                                     </li>"; 
-                        $("#direct-msg-list").append(content);    
+                        $("#direct-msg-list").append(content);
                     } else {
                         var panel_selected_user = $("#chatPanel .name").find(".username-holder").text();
+                        console.log(panel_selected_user);
                         // decide position of message box
                         var content;
                         if (user == author["username"]){
@@ -137,7 +141,7 @@ $(document).ready(function(){
                                     </p>\
                                 </div>\
                             </div>";
-                        } else if (panel_selected_user == author['username']) {
+                        } else if (panel_selected_user == author['username'] || room) {
                             content = "<div class='row justify-content-end'>\
                                 <div class='col-6 col-sm-7 col-md-7'>\
                                     <p class='sent-msg float-right'>\
@@ -203,8 +207,8 @@ $(document).ready(function(){
                                 unseen_messages[author["username"]] = [content];
                             
                             var target = $(this).find(".name").children(".notifier");                            
-                            console.log($(target));
-                            console.log(unseen_messages);
+                            //console.log($(target));
+                            //console.log(unseen_messages);
                             
                             if ($(target).length > 0)
                                 $(target).text(unseen_messages[author["username"]].length);
@@ -235,6 +239,7 @@ $(document).ready(function(){
         console.log("load message");
         data = {
             "receiver": selected_user,
+            "room": selected_room,
             "is_user": true
         };
         socket.send(JSON.stringify(data));                        
@@ -256,6 +261,9 @@ $(document).ready(function(){
         var state = "offline";
         if ($(this).find(".state").hasClass("online"))
             state = "online";
+
+        if ($("#chatPanel .under-name").hasClass("hide"))
+            $("#chatPanel .under-name").removeClass("hide");
 
         var classes = $(this).find(".state").attr("class");
         $("#chatPanel .under-name").find("i").removeClass();
@@ -281,7 +289,8 @@ $(document).ready(function(){
         console.log(msg);
         data = {
             "message": msg,        
-            "receiver": selected_user
+            "receiver": selected_user,
+            "room": selected_room
         };
         console.log(data);
         if (file){
@@ -352,12 +361,14 @@ $(document).ready(function(){
         hideChatList();
 
         $("#messages").empty();        
-        $(".panel-pic").attr("src", "/static/media/images/groups.png");
-        
-        // $();
+        $(".panel-pic").attr("src", "/static/media/images/groups.png");                
 
-        // selected_user = $(this).find("span").eq(0).text();        
+        room_id = $(this).find(".room-id-holder").text();
+        selected_room = $(this).find(".name").text();
         
+        console.log(room_id);
+        console.log(selected_room);       
+
         // var full_name = $(this).find("span").eq(1).text();
         // var state = "offline";
         // if ($(this).find(".state").hasClass("online"))
@@ -367,19 +378,18 @@ $(document).ready(function(){
         // $("#chatPanel .under-name").find("i").removeClass();
         // $("#chatPanel .under-name").find("i").addClass(classes);
         
-        // $("#chatPanel .name").find(".user-fullname").text(full_name);
-        // $("#chatPanel .name").find(".username-holder").text(selected_user);               
-        // $("#chatPanel .under-name").children("span").text(state);
+        $("#chatPanel .name").find(".user-fullname").text(selected_room);
+        $("#chatPanel .name").find(".username-holder").text(room_id);               
+        $("#chatPanel .under-name").addClass("hide");
 
-        // load messages
-        // load_messages();
-        //$.get("/api/user/"+uid+"/messages");
+         // load messages
+         load_messages();
 
         // remove notifier and show messages
-        // var notifier = $(this).find(".notifier");
-        // if (notifier){
-        //     $(notifier).remove();                              
-        // }                                
+        var notifier = $(this).find(".notifier");
+        if (notifier){
+            $(notifier).remove();                              
+        }                                
     });
     
     // on click of create room

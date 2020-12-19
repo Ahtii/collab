@@ -43,7 +43,7 @@ def index(request: Request):
 
 # chat template
 @app.get("/chat",  include_in_schema=False)
-def chat(request: Request, db: Session = Depends(get_db)):    
+def chat(request: Request):    
     return templates.TemplateResponse("chat.html", {"request": request})
 
 # render file template
@@ -213,85 +213,137 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
         await socket_manager.get_online_users()
         try:
             while True:
-                data = await websocket.receive_json()                                          
+                data = await websocket.receive_json()
+                receiver = data.get('receiver')
+                room = data.get('room')                                          
                 if data.get('is_user'):                                  
-                    db = database.SessionLocal()
-                    receiver = db.query(models.User).filter(
-                        models.User.username == data['receiver']
-                    ).first()
-                    #print(db.query(models.PersonalMessage).all())
-                    old_messages = db.query(models.PersonalMessage).filter(
-                        ((models.PersonalMessage.sender_id == user.id) &
-                        (models.PersonalMessage.receiver_id == receiver.id)) |
-                        ((models.PersonalMessage.sender_id == receiver.id) &
-                        (models.PersonalMessage.receiver_id == user.id))
-                    ).order_by(models.PersonalMessage.created_date).all()
-                    #old_messages = db.execute("select * from personal_message where sender_id = "+str(user.id)+" and receiver_id = "+str(receiver.id)+" or sender_id = "+str(receiver.id)+" and receiver_id = "+str(user.id)+";")
-                    for message in old_messages:
-                        # if message.sender_id == user.id:
-                        #     sender = user
-                        #     receiver = receiver
-                        # else:
-                        #     sender = receiver
-                        #     receiver = user
-                        sender = db.query(models.User).filter(
-                            models.User.id == message.sender_id
-                        ).first()
+                    db = database.SessionLocal()                                        
+                    if receiver:                        
                         receiver = db.query(models.User).filter(
-                            models.User.id == message.receiver_id
+                            models.User.username == receiver
                         ).first()
-                        msg_data = {
-                            "id": message.id,
-                            "author": {
-                                "username": sender.username,
-                                "fullname": views.get_fullname(sender)
-                            },
-                            "message": message.text,
-                            "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
-                            "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",
-                            "receiver": {
-                                "username": receiver.username,
-                                "fullname": views.get_fullname(receiver)
-                            },
-                            "user": user.username
-                        }
-                        if message.attachment_url:
-                            filename = message.attachment_url.split("/")[-1]
-                            msg_data.update({
-                                "file": str(message.attachment_url),
-                                "filename": filename
-                            })
-                        print("message sender is: ")
-                        print(sender.username) 
-                        print("message receiver is: ")
-                        print(receiver.username)
-                        print("message text is: ")
-                        print(message.text)
-                        await socket_manager.populate_old_messages(msg_data)                    
+                        #print(db.query(models.PersonalMessage).all())
+                        old_messages = db.query(models.PersonalMessage).filter(
+                            ((models.PersonalMessage.sender_id == user.id) &
+                            (models.PersonalMessage.receiver_id == receiver.id)) |
+                            ((models.PersonalMessage.sender_id == receiver.id) &
+                            (models.PersonalMessage.receiver_id == user.id))
+                        ).order_by(models.PersonalMessage.created_date).all()
+                        #old_messages = db.execute("select * from personal_message where sender_id = "+str(user.id)+" and receiver_id = "+str(receiver.id)+" or sender_id = "+str(receiver.id)+" and receiver_id = "+str(user.id)+";")
+                        for message in old_messages:
+                            # if message.sender_id == user.id:
+                            #     sender = user
+                            #     receiver = receiver
+                            # else:
+                            #     sender = receiver
+                            #     receiver = user
+                            sender = db.query(models.User).filter(
+                                models.User.id == message.sender_id
+                            ).first()
+                            receiver = db.query(models.User).filter(
+                                models.User.id == message.receiver_id
+                            ).first()
+                            msg_data = {
+                                "id": message.id,
+                                "author": {
+                                    "username": sender.username,
+                                    "fullname": views.get_fullname(sender)
+                                },
+                                "message": message.text,
+                                "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
+                                "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",
+                                "receiver": {
+                                    "username": receiver.username,
+                                    "fullname": views.get_fullname(receiver)
+                                },
+                                "user": user.username
+                            }
+                            if message.attachment_url:
+                                filename = message.attachment_url.split("/")[-1]
+                                msg_data.update({
+                                    "file": str(message.attachment_url),
+                                    "filename": filename
+                                })
+                            print("message sender is: ")
+                            print(sender.username) 
+                            print("message receiver is: ")
+                            print(receiver.username)
+                            print("message text is: ")
+                            print(message.text)
+                            await socket_manager.populate_old_messages(msg_data)                    
+                    else:
+                        room = db.query(models.Room).filter(models.Room.name == room).first()
+                        RoomMessage = models.RoomMessage
+                        old_messages = db.query(RoomMessage).filter(
+                            RoomMessage.room_id == room.id
+                        ).order_by(RoomMessage.created_date).all()
+                        for message in old_messages:
+                            if message.sender_id == user.id:
+                                sender = user
+                            else:
+                                sender = db.query(models.User).filter(
+                                    models.User.id == message.sender_id
+                                ).first()
+                                sender = sender
+                            msg_data = {
+                                "id": message.id,
+                                "author": {
+                                    "username": sender.username,
+                                    "fullname": views.get_fullname(sender)
+                                },
+                                "message": message.text,
+                                "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
+                                "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",               
+                                "room": room.name,
+                                "user": user.username
+                            }
+                            if message.attachment_url:
+                                filename = message.attachment_url.split("/")[-1]
+                                msg_data.update({
+                                    "file": str(message.attachment_url),
+                                    "filename": filename
+                                })
+                            await socket_manager.populate_old_messages(msg_data)
                 else:
-                    receiver = data["receiver"]                                
-                    #data.update({"sender_id": user.id, "username": user.username})
-                    data.update({"user": user})
-                    file_data = data.get('file')
-                    if file_data:
-                        file_size = file_data['size']
-                        if file_size <= FILE_SIZE:                        
-                            try:                    
+                    if receiver:                              
+                        #data.update({"sender_id": user.id, "username": user.username})
+                        data.update({"user": user})
+                        file_data = data.get('file')
+                        if file_data:
+                            file_size = file_data['size']
+                            if file_size <= FILE_SIZE:                        
+                                try:                    
+                                    file = await websocket.receive_bytes()
+                                    filename = file_data['filename']
+                                    file_dir = views.gen_file_dir(user.username, __file__)
+                                    file_url = views.create_file(file_dir, filename, file)
+                                    data.update({
+                                        "file": file_url,
+                                        "filename": filename
+                                    })  
+                                except Exception as e:
+                                    print("error: ")
+                                    print(e) 
+                            else:                        
+                                print("file size exceeded!")
+                        message = views.create_message(db, data)
+                        await socket_manager.to_specific_user(message)                                                          
+                    else:
+                        file_data = data.get('file')
+                        if file_data:
+                            file_size = file_data['size']
+                            if file_size <= FILE_SIZE:
                                 file = await websocket.receive_bytes()
                                 filename = file_data['filename']
-                                file_dir = views.gen_file_dir(user.username, __file__)
+                                file_dir = views.gen_file_dir(room.name, __file__)
                                 file_url = views.create_file(file_dir, filename, file)
                                 data.update({
                                     "file": file_url,
                                     "filename": filename
-                                })  
-                            except Exception as e:
-                                print("error: ")
-                                print(e) 
-                        else:                        
-                            print("file size exceeded!")
-                    message = views.create_message(db, data)
-                    await socket_manager.to_specific_user(message)                                                          
+                                })
+                        data['user'] = user.username        
+                        message = views.create_room_message(db, data)
+                        await socket_manager.to_room_participants(message)
         except WebSocketDisconnect:
             socket_manager.disconnect(websocket, user)                        
 
