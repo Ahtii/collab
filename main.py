@@ -43,24 +43,7 @@ def index(request: Request):
 
 # chat template
 @app.get("/chat",  include_in_schema=False)
-def chat(request: Request, db: Session = Depends(get_db)):
-    user = views.get_current_user(db, request.cookies.get("access_token"))
-    if user:
-        receiver = db.query(models.User).filter(
-            models.User.id == 36
-        ).first()
-        print(db.query(models.PersonalMessage).all())
-        old_messages = db.query(models.PersonalMessage).filter(
-            ((models.PersonalMessage.sender_id == user.id) &
-            (models.PersonalMessage.receiver_id == receiver.id)) |
-            ((models.PersonalMessage.sender_id == receiver.id) &
-            (models.PersonalMessage.receiver_id == user.id))
-        ).order_by(models.PersonalMessage.created_date).all()
-
-        for message in old_messages:
-            print("--> message is: ")
-            print(message.text)
-
+def chat(request: Request, db: Session = Depends(get_db)):    
     return templates.TemplateResponse("chat.html", {"request": request})
 
 # render file template
