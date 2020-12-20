@@ -224,6 +224,12 @@ $(document).ready(function(){
                                             <div class='col-2 col-md-2'><img src='/static/media/images/maleuser.png' class='profile-pic'/></div>\
                                             <div class='col-md-10 col-10' style='cursor: pointer;'>\
                                                 "+username_holder+"\
+                                                //<div class='name mt-2'>\
+                                                //    <i class='fa fa-circle state offline'></i>&nbsp;<span>"+user_tag+"</span>\
+                                                //</div>\
+                                                //<div class='under-name'> \
+                                                //    "+displayname+": &nbsp; "+message+"&nbsp;"+file_url+"\
+                                                //</div>\
                                                 <div class='name'><i class='fa fa-circle state offline'></i>&nbsp;<span>"+stranger['fullname']+"</span></div>\
                                             </div>\
                                         </div>\
@@ -580,5 +586,59 @@ $(document).ready(function(){
     });
     
     ///////////////////////////
+  
+///////////////////////////
 
+//// FOR PROFILE PAGE /////////
+function test()
+    {
+      var myWindow;
+
+    document.getElementById('probio').removeAttribute('disabled');
+    document.getElementById('proname').removeAttribute('disabled');
+    document.getElementById('prodesig').removeAttribute('disabled');
+    document.getElementById('proimage').style.display="block";
+    document.getElementById('prosave').style.display="block";
+    document.getElementById('proname').style.border="thin solid black";
+    document.getElementById('prodesig').style.border="thin solid black";
+    document.getElementById('probio').style.border="thin solid";
+    }
+    var proName = document.getElementById("proname");
+    proName.style.color = 'Crimson';
+    proName.style.fontSize='medium';
+    proName.style.fontWeight='bold';
+    var prodesig = document.getElementById("prodesig");
+    prodesig.style.color = 'seagreen';
+    prodesig.style.fontSize='medium';
+    prodesig.style.fontWeight='bold';
+    var probio = document.getElementById("probio");
+    probio.style.textAlign='center';
+    
+   
+    function save()
+    {
+    //   event.target.getElementById= 'prosave';
+    //   var proname = document.getElementById("proname");
+    //   var save= document.getElementById("proname");
+    //   var proname=save;
+      console.log("testing");            
+    }
+    $("#profile-form").on("submit", function(e){
+        e.preventDefault();
+        var data = {
+            "name": $("#proname").val(),
+            "designation": $("#prodesig").val(),
+            "bio": $("#probio").val()
+        };
+        console.log(data);
+        $.post("/api/profile-save", JSON.stringify(data), function(response){
+            // close modal here
+        });
+    });
+    // function closeWin()
+    // {
+    //    myWindow.close();
+    // }
+
+    ////////////////////////////////////////////////
 });  //closing of ready
