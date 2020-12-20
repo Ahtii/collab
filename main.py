@@ -566,6 +566,7 @@ def get_rooms(request: Request, id: int, db: Session = Depends(get_db)):
     BISMA's CODE
 '''
 
+# delete personal message
 @app.delete("/api/user/personal-message/{id}")
 async def del_msg(request: Request, id: int, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
@@ -573,7 +574,7 @@ async def del_msg(request: Request, id: int, db: Session = Depends(get_db)):
         db.query(models.PersonalMessage).filter(models.PersonalMessage.id == id).delete()
         db.commit()
         
-
+# delete room message
 @app.delete("/api/user/room-message/{id}")
 async def del_msg(request: Request, id: int, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
@@ -583,31 +584,62 @@ async def del_msg(request: Request, id: int, db: Session = Depends(get_db)):
 
 
 # get user profile
-@app.get("/api/profile/{id}")
-def get_profile(id: int, db: Session = Depends(get_db)):
-    print("show id")
+@app.get("/api/profile/{user}")
+def get_profile(user: str, db: Session = Depends(get_db)):    
     response = {
         "profile": {}        
-    }
-    user = db.query(models.User).filter(models.User.id == id).first()
+    }    
+    user = db.query(models.User).filter(models.User.username == user).first()    
     if user:
-        full_name = user.first_name + " " + user.last_name
         username = user.username
         email = user.email
-        join_date = user.created_date + " (UTC)"        
+        join_date = user.created_date.strftime("%m-%b-%Y")
 
-        profile = db.query(models.Profile).filter(models.Profile.id == id).first()
-        
+        profile = db.query(models.Profile).filter(models.Profile.user == user).first()        
+        designation = profile.designation
+        avatar = profile.avatar        
+        bio = profile.bio
 
         response["profile"] = {
-            "fullname": full_name,
+            "fullname": views.get_fullname(user),
             "username": username,
             "email": email,
-            "join_date": join_date
-        }
+            "join_date": join_date,
+            "designation": designation,            
+            "bio": bio
+        }        
+        if avatar:
+            response['profile'].update({"avatar": avatar})
     else:
-        response["error"] = "something went wrong."
+        response["error"] = "something went wrong."     
     return response    
+
+# get user profile
+@app.post("/api/profile/{user}")
+def save_profile(user: str, profile_data: validators.ProfileUpdateForm, db: Session = Depends(get_db)):    
+    response = {}    
+    user = db.query(models.User).filter(models.User.username == user).first()    
+    if user:
+        profile = db.query(models.Profile).filter(models.Profile.user == user).first()
+        if profile_data.fullname:
+            fullname = profile_data.fullname.split(" ", 1)
+            user.first_name = fullname[0]
+            if len(fullname) > 1:
+                user.last_name = fullname[1]
+            else:
+                user.last_name = ""    
+        if profile_data.designation:    
+            profile.designation = profile_data.designation
+        if profile_data.bio:    
+            profile.bio = profile_data.bio
+        if profile_data.avatar:
+            print("code to store image.") 
+        db.commit()       
+    else:
+        response["error"] = "something went wrong."     
+    return response    
+
+
 #  #   profile= await profile.get_user_by_email(db: Session =Depends(get), emai=profile.email)
 #   #   if not profile:
 #    	    raise HTTPException(

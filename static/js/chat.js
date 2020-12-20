@@ -12,39 +12,18 @@
         document.getElementById('proname').style.border="thin solid black";
         document.getElementById('prodesig').style.border="thin solid black";
         document.getElementById('probio').style.border="thin solid";
-        }
-        var proName = document.getElementById("proname");
-        proName.style.color = 'Crimson';
-        proName.style.fontSize='medium';
-        proName.style.fontWeight='bold';
-        var prodesig = document.getElementById("prodesig");
-        prodesig.style.color = 'seagreen';
-        prodesig.style.fontSize='medium';
-        prodesig.style.fontWeight='bold';
-        var probio = document.getElementById("probio");
-        probio.style.textAlign='center';
-        
+    }
+    var proName = document.getElementById("proname");
+    proName.style.color = 'Crimson';
+    proName.style.fontSize='medium';
+    proName.style.fontWeight='bold';
+    var prodesig = document.getElementById("prodesig");
+    prodesig.style.color = 'seagreen';
+    prodesig.style.fontSize='medium';
+    prodesig.style.fontWeight='bold';
+    var probio = document.getElementById("probio");
+    probio.style.textAlign='center';
 
-        function save()
-        {
-        //   event.target.getElementById= 'prosave';
-        //   var proname = document.getElementById("proname");
-        //   var save= document.getElementById("proname");
-        //   var proname=save;
-        console.log("testing");            
-        }
-        $("#profile-form").on("submit", function(e){
-            e.preventDefault();
-            var data = {
-                "name": $("#proname").val(),
-                "designation": $("#prodesig").val(),
-                "bio": $("#probio").val()
-            };
-            console.log(data);
-            $.post("/api/profile-save", JSON.stringify(data), function(response){
-                console.log("working");
-            });
-    });
     // function closeWin()
     // {
     //    myWindow.close();
@@ -68,8 +47,37 @@ $(document).ready(function(){
 
             /* BISMA's CODE */
 
-            $.get("/api/profile/"+uid, function(response){
-                console.log(response);
+            function populate_profile(profile_type, profile_data){
+                console.log(profile_type + " .profileName");
+                $(profile_type + " .profileName").val(profile_data["fullname"]);
+                $(profile_type + " .profileDesig").val(profile_data["designation"]);
+                $(profile_type + " .profileUsername").text("@"+profile_data["username"]);
+                $(profile_type + " .profileBio").val(profile_data["bio"]);
+                $(profile_type + " .profileEmail").text(profile_data["email"]);
+                $(profile_type + " .profileJoinDate").html("&nbsp;&nbsp;"+profile_data["join_date"]); 
+            }
+
+            $("#linkProfile, #linkUserProfile").on("click", function(){
+                var selected_profile = $(this).attr("id");
+                var profile_for = user;
+                console.log("user is: ");
+                console.log(profile_for);
+                var profile_type = "#myProfile"; 
+                if (selected_profile == "linkUserProfile"){
+                    var target = $("#chatPanel").find(".username-holder").text();
+                    if (target){
+                        profile_for = target;
+                        profile_type = "#userProfile";
+                    }    
+                }    
+                console.log(selected_profile);
+                console.log(profile_for);
+                $.get("/api/profile/"+profile_for, function(response){
+                    var profile = response["profile"];
+                    // populate user profiel
+                    if (profile)
+                        populate_profile(profile_type, profile);                                             
+                });
             });
 
             /* BISMA's CODE END */
@@ -97,6 +105,29 @@ $(document).ready(function(){
                     });
                 }
             });  
+
+            // profile edit code
+            var profile = "";        
+            // open file to upload
+            $("#proimage").on("change", function(e){
+                // code to send file to server        
+                profile = e.target.files[0];        
+            });
+            
+            $("#profile-form").on("submit", function(e){
+                e.preventDefault();        
+                var data = {
+                    "fullname": $("#proname").val(),
+                    "designation": $("#prodesig").val(),
+                    "bio": $("#probio").val()
+                };
+                if (profile)
+                    data['avatar'] = profile
+                console.log(data);
+                $.post("/api/profile/"+user, JSON.stringify(data), function(response){
+                    console.log("working");
+                });
+            });
            // create websocket
            var protocol = window.location.protocol === "http:" ? "ws://" : "wss://";
            var host = window.location.host;
@@ -413,6 +444,7 @@ $(document).ready(function(){
 
         $("#messages").empty();
         selected_room = "";
+        $(".dropleft .dropdown-toggle").removeClass("hide");
 
         $(".panel-pic").attr("src", "/static/media/images/maleuser.png");        
         
@@ -510,22 +542,16 @@ $(document).ready(function(){
 
     /* ROOM CODE */
 
-    $(".tab-header .nav-item").on("click", function(){
-        var tab = $(this).find("a").attr("id");        
-        // if (tab == "tab-room-message"){
-
-        // }else{
-
-        // }
-    });
-
     $(document).on("click", "#room-msg-list li", function(){
         document.getElementById('chatPanel').removeAttribute('style');
         document.getElementById('divStart').setAttribute('style', 'display:none');
         hideChatList();
 
         $("#messages").empty();  
-        selected_user = "";      
+        selected_user = "";  
+        
+        $(".dropleft .dropdown-toggle").addClass("hide");    
+        
         $(".panel-pic").attr("src", "/static/media/images/groups.png");                
 
         room_id = $(this).find(".room-id-holder").text();

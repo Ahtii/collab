@@ -25,3 +25,10 @@ class CreateRoom(BaseModel):
     description: str = None
     participants: list
 
+# create room validator
+class ProfileUpdateForm(BaseModel):
+    fullname: str = None
+    designation: str = None
+    bio: str = None
+    avatar: str = None    
+

@@ -44,8 +44,14 @@ def register(db: Session, user: validators.RegisterValidator):
     else:
         user = user.dict()
         user['password'] = gen_hash(user['password'])
+        # create user
         db_user = models.User(**user)
         db.add(db_user)
+        db.commit()
+        #create profile
+        db_profile = models.Profile()
+        db_profile.user = db_user
+        db.add(db_profile)
         db.commit()
         response['user'] = db_user
     return response
@@ -94,7 +100,7 @@ def get_fullname(user: models.User):
     fullname = user.first_name
     if lastname:
         fullname = fullname + " " + lastname
-    return fullname
+    return fullname.title()
 
 def get_all_users(db: Session):
     response = {"users": []}
