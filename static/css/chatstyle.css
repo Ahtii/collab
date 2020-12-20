@@ -1,0 +1,247 @@
+body, html{
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+body{
+    /* background-image: linear-gradient(180deg, #be0032, pink); */
+    /* background-image: linear-gradient(180deg, #dddbd1, #d2dbdc); */
+    background-image: url(/static/media/images/bg_blur.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    /* backdrop-filter: blur(5px); */
+}
+
+/* .top{
+    height: 100px;
+    width: 100%;
+    background-color: seagreen;
+    position: fixed;
+    z-index: -1;
+} */
+
+/* .chatBox{
+    height: 90%;
+    width: 95%;
+    margin-top: 30px;
+    padding: 0;
+    /* margin-bottom: 30px; */
+    /* -webkit-box-shadow: 0 0 40px #000;
+    box-shadow: 0 0 40px #000;
+} */
+
+/* .leftPanel{
+    height: 100%;
+    width: 95%;
+    margin-top: 30px;
+    padding: 0; */
+    /* margin-bottom: 30px; */
+    /* -webkit-box-shadow: 0 0 40px #000;
+    box-shadow: 0 0 40px #000;
+} */
+
+.header-pic{
+    height: 50px;
+    width: 50px;
+}
+
+.round-box{
+    border-radius: 1rem;
+}
+
+.panel-pic{
+    height: 50px;
+    width: 50px;
+}
+
+.name{
+    font-weight: 400;
+    color: #000;
+}
+
+.under-name{
+    font-size: 12px;
+    line-height: 15px;
+    max-height: 15px;
+}
+
+.icons{
+    font-size: 20px;
+    color: #9ca1a3;
+}
+
+.welcome-text{
+    color: crimson;
+}
+.welcome-text strong{
+    color: seagreen;
+}
+
+.dropdown-toggle::before{
+    display: none !important;
+}
+
+
+
+/* /////////////////////////// */
+/* For chat Bubbles */
+
+/* .chatBody{
+    width: 100%;
+    height: 100%;
+} */
+
+.chat-pic{
+    height: 30px;
+    width: 30px;
+}
+
+.received-msg{
+    background-color: whitesmoke;
+    border-radius: 10px;
+    padding: 10px 15px;
+    display: inline-block;
+    font-size: 13px;
+    /* box-shadow: 3px 4px 5px #000; */
+    box-shadow: rgba(0, 0, 0, 0.12) 3px 3px 3px, rgba(0, 0, 0, 0.24) 2px 2px 3px;
+}
+
+.sent-msg{
+    background-color: whitesmoke;
+    border-radius: 10px;
+    padding: 10px 15px;
+    display: inline-block;
+    font-size: 13px;
+    /* box-shadow: 0px 4px 5px #000; */
+    box-shadow: rgba(0, 0, 0, 0.12) -3px 3px 3px, rgba(0, 0, 0, 0.24) -2px 2px 3px;
+}
+
+.timestamp{
+    font-size: 10px;
+    color: #9ca1a3;
+    /* margin-top: 12px; */
+    margin-left: 20px;
+}
+/* ///////////////////////////////// */
+
+
+/* ///////////////////////////////// */
+/* For Scrolling */
+
+.card{
+    height: 100vh;
+}
+#messages{
+    overflow: auto;
+    /* overflow-y: scroll;
+    overflow-x: hidden; */
+}
+
+/* #chats{
+    overflow: auto;
+    overflow-y: scroll;
+    overflow-x: hidden;
+} */
+/* /////////////////////////////////// */
+
+
+/* /////////////////////////////////// */
+/* For Alphabetical Profile Pictures */
+.wrapper {
+
+	border: 1px solid white;			
+	border-radius: 50px;
+	height: 45px;
+	width: 45px;
+	box-shadow: 0 0 0 2px rgb(60, 100, 80);
+	/* position: absolute;
+    left: 50%; */
+	/* transform: translateX(-50%); */
+	/* top: 2%; */
+	/* transform: translateY(-20%); */
+	background-image: linear-gradient(-45deg, seagreen 0%, crimson 100%);
+}
+#inner {
+
+	text-align: center;		
+	padding-top: 2px;	
+	font-size: 30px;
+	color: rgb(240, 240, 240);
+}
+/* ////////////////////////////////// */
+
+/* ///////////////TABS //////////////*/
+
+.tab-header{
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.tab-header .nav-item{
+    margin-left: 3px;
+}
+.tab-header .nav-pills li a:hover,
+.tab-header .nav-pills li.active a{
+    background: #fff;
+    color: #079fc9;
+    /* border: 1px solid #079fc9; */
+    transition: 0.3s ease-in;
+    /* border-left-color: transparent;
+    border-right-color: transparent; */
+}
+
+.tab-pane{
+    height: 400px;
+    overflow-y:auto;
+}
+
+/* ////////////////////////////////// */
+
+/* ///////////Create Room Style/////////// */
+
+.list-group .list-group-item .btn:hover{
+    background: #fff;
+    color: #079fc9;
+    border: 1px solid #079fc9;
+    /* border-left-color: transparent;
+    border-right-color: transparent; */
+}
+
+.createRoomForm{
+    color: #990000;
+    
+}
+.inputStyle{
+    margin-bottom: 20px; 
+    border-bottom-width: 1px; 
+    border-bottom-style: solid; 
+    border-bottom-color: seagreen; 
+    border-top-style: none; 
+    border-right-style: none; 
+    border-left-style: none; 
+    font-size: 15px;
+    font-weight: 400;
+    color: lightseagreen;
+}
+.formButton{
+    float: right;
+	border: 1px solid seagreen;
+	/* display:inline-block; */
+	color:#990000;
+	font-weight: 400;
+}
+.formButton:hover {
+	background-color: lightseagreen;
+    color:#ffffff;
+}
+/* /////////////////////////////// */
+
+.list-group .list-group-item .btn:hover{
+    background: #fff;
+    color: #079fc9;
+    border: 1px solid #079fc9;
+    /* border-left-color: transparent;
+    border-right-color: transparent; */
+}

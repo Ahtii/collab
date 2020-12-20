@@ -36,7 +36,7 @@ def get_timezone(d, timezone):
 
 # register logic
 def register(db: Session, user: validators.RegisterValidator):
-    response = {}
+    response = {"user": None}
     if db.query(models.User).filter(models.User.email == user.email).first():
         response.update({"error": "email already exists"})
     elif db.query(models.User).filter(models.User.username == user.username).first():
@@ -47,6 +47,7 @@ def register(db: Session, user: validators.RegisterValidator):
         db_user = models.User(**user)
         db.add(db_user)
         db.commit()
+        response['user'] = db_user
     return response
 
 
@@ -88,21 +89,30 @@ def get_current_user(db, token):
             user = db.query(models.User).filter(models.User.username == username).first()
     return user
 
+def get_fullname(user: models.User):
+    lastname = user.last_name
+    fullname = user.first_name
+    if lastname:
+        fullname = fullname + " " + lastname
+    return fullname
 
 def get_all_users(db: Session):
-    response = {"users": ""}
-    users = db.query(models.User).all()
-    users_list = []
+    response = {"users": []}
+    users = db.query(models.User).all()    
     for user in users:
-        users_list.append(user.username)
-    response["users"] = users_list
+        user_info = {
+            "username": user.username,
+            "fullname": get_fullname(user)
+        }
+        response["users"].append(user_info)    
+    print(users)    
     return response
 
 
 def get_lastname(data, first_name):
     last_name = ""
     if "family_name" in data.keys():
-        last_name = data["family_name"]
+        last_name = data["family_name"].lower()
     else:
         name = data["name"]
         if name.isspace():
@@ -112,14 +122,21 @@ def get_lastname(data, first_name):
                     last_name = name[-1]
     return last_name
 
+def gen_username(db, username):
+    users = db.query(models.User).filter(models.User.username.contains(username)).all()    
+    if users:
+        count = len(users)
+        username = username[:3] + str(count)        
+    return username 
+
 
 # social login
 def social_login(db: Session, request: Request, response: Response, data: validators.SocialLoginValidator):
-    return_response = {}
+    return_response = {"user": None}
     # for protecting from CSRF
     if not request.headers.get("X-Requested-With"):
-        return_response = {"error": "Something went wrong."}
-    else:
+        return_response.update({"error": "Something went wrong."})
+    else :
         data = data.dict()
         type = data['type'].strip().lower()
         auth_code = data['token']
@@ -141,16 +158,38 @@ def social_login(db: Session, request: Request, response: Response, data: valida
                     "password": "",
                     "is_social_account": True
                 }
+                
+                print(token_data)
+                print(user_data)
+                                
                 user = validators.RegisterValidator(**user_data)
-                db_user = db.query(models.User).filter(models.User.username == user.username).first()                
+                db_user = db.query(models.User).filter(models.User.email == user.email).first()
+
+                if db_user:
+                    print("ind")                    
+                    if user.email != db_user.email:   
+                        print("me: ")
+                        print(user.email)
+                        print(db_user.email)                                             
+                        db_user = None                    
+                    # pass
+
                 if db_user is None:
-                    db_user = register(db, user)                    
-                    if "error" in db_user:              
-                        return_response = db_user
+                    user.username = gen_username(db, user.username)
+                    db_user = register(db, user)                                       
+                    if "error" in db_user: 
+                        return_response.update({"error": db_user["error"]})
+                    else:
+                        db_user = db_user["user"]    
+
                 access_token = gen_token(user.username)                
-                response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)                
-            except:
-                return_response = {"error": "Cannot authenticate"}
+                response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)                                
+                return_response["user"] = db_user
+                print("user loged in with email: ")
+                print(db_user.email)
+            except Exception as e:
+                print(e)
+                return_response.update({"error": "Cannot authenticate"})                
     return return_response
 
 # def gen_file_url(user, filename):
@@ -160,16 +199,45 @@ class SocketManager:
     def __init__(self):
         self.active_connections: List[(WebSocket, models.User)] = []
 
-    async def connect(self, websocket: WebSocket, user: models.User):
+    async def connect(self, websocket: WebSocket, user: models.User):                
         await websocket.accept()
         self.active_connections.append((websocket, user))
 
     def disconnect(self, websocket: WebSocket, user: models.User):
-        self.active_connections.remove((websocket, user))
+        self.active_connections.remove((websocket, user))           
 
-    async def broadcast(self,db: Session, data: dict):
+    async def get_online_users(self):
+        response = {
+            "online_users": []
+        }    
+        try:    
+            for connection in self.active_connections:
+                users = {
+                    "username": connection[1].username,
+                    "fullname": get_fullname(connection[1])
+                }
+                response['online_users'].append(users)
+                #response['fullname'].append(get_fullname(connection[1]))
+            for connection in self.active_connections:
+                response.update({"sender": connection[1].username})    
+                #response.update({"names": get_fullname(connection[1])})
+                await connection[0].send_json(response)
+        except Exception as e:
+            print(e)  
+
+    async def get_registered_users(self, users: list):
+        
+        registered_users = {"registered_users": []}
+        
+        for user in users:
+            user_ifo = {
+                "username": user.username,
+                "fullname": get_fullname(user)
+            }
+            registered_users["registered_users"].append(user_ifo)
+
         for connection in self.active_connections:
-            await connection[0].send_json(data)
+            await connection[0].send_json(registered_users)
 
     async def to_specific_user(self, data: dict):
         found_sender = False
@@ -177,43 +245,45 @@ class SocketManager:
         for connection in self.active_connections:
             if found_sender and found_receiver:
                 break
-            if connection[1].username == data['author']:
-                print("data to be send to "+data['author'])
-                print(data)
+            if connection[1].username == data['author']['username']:                
                 await connection[0].send_json(data)
                 found_sender = True
-            elif connection[1].username == data['receiver']:
-                print("data to be send to "+data['receiver'])
-                print(data)
+            elif connection[1].username == data['receiver']['username']:                
                 await connection[0].send_json(data)
                 found_receiver = True
 
     async def delete(self, user: models.User):
         for connection in self.active_connections:
-            if connection[1].username == user.username:
-                self.disconnect(connection[0], connection[1])
+            if connection[1].username == user.username:                
+                await connection[0].close()
+                #self.disconnect(connection[0], connection[1])
                 await self.get_online_users()
                 break
 
-    async def get_online_users(self):
-        response = {"receivers": []}
+    async def get_stranger(self, user: models.User):
+        msg_data = {
+            "stranger": {
+                "username": user.username,
+                "fullname": get_fullname(user)
+            }
+        }
         for connection in self.active_connections:
-            response['receivers'].append(connection[1].username)
-        for connection in self.active_connections:
-            response.update({"sender": connection[1].username})
-            await connection[0].send_json(response)
+            await connection[0].send_json(msg_data)    
 
     async def to_room_participants(self, data: dict):
-        for connection in self.active_connections:
+        for connection in self.active_connections:            
             if connection[1].username in data['participants']:
+                print("data for room participant:")
+                print(connection[1].username)
+                print(data)
                 await connection[0].send_json(data)
 
     async def populate_old_messages(self, data: dict):
         for connection in self.active_connections:
             if connection[1].username == data['user']:
                 data.pop('user')
-                print("data to be send")
-                print(data)
+                # print("data to be send")
+                # print(data)
                 await connection[0].send_json(data)
                 break
 
@@ -253,6 +323,7 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
             else:
                 return None
         return param
+
 
 # create room
 def create_room(user: models.User, room_data: validators.CreateRoom, db: Session):
@@ -337,15 +408,13 @@ def get_participants(room: str, db: Session):
 def create_message(db: Session, data: dict):
     response = None
     try:
-        sender_id = data['sender_id']
-        username = data['username']
-        if sender_id:
+        sender = data['user']
+        if sender:
             message = models.PersonalMessage()
             message.text = data['message']
-            message.sender_id = sender_id
-            receiver = data['receiver']
+            message.sender_id = sender.id            
             receiver = db.query(models.User).filter(
-                models.User.username == receiver
+                models.User.username == data['receiver']
             ).first()
             message.receiver_id = receiver.id
             print("message in:")
@@ -361,11 +430,17 @@ def create_message(db: Session, data: dict):
             print("saved message")
             response = {
                 "id": message.id,
-                "author": username,
+                "author": {
+                    "username": sender.username,
+                    "fullname": get_fullname(sender)
+                },
                 "message": message.text,
                 "ist_date": get_timezone(message.created_date, "Asia/Kolkata") + " IST",
                 "est_date": get_timezone(message.created_date, "US/Eastern")  + " EST",                
-                "receiver": receiver.username
+                "receiver": {
+                    "username": receiver.username,
+                    "fullname": get_fullname(receiver)
+                }
             }
             if file:
                 response.update({
@@ -383,13 +458,17 @@ def create_message(db: Session, data: dict):
 def create_room_message(db: Session, data: dict):
     response = None
     try:
+        print("inside room message")
         room = db.query(models.Room).filter(
             models.Room.name == data['room']
-        ).first()
+        ).first()        
         if room:
+            print("room data not found")
             sender = db.query(models.User).filter(
                models.User.username == data['user']
             ).first()
+            print("sender is")
+            print(sender)
             if sender:
                 message = models.RoomMessage()
                 message.text = data['message']
@@ -404,7 +483,10 @@ def create_room_message(db: Session, data: dict):
                 db.commit()
                 response = {
                     "id": message.id,
-                    "author": sender.username,
+                    "author": {
+                        "username": sender.username,
+                        "fullname": get_fullname(sender)
+                    },
                     "message": message.text,
                     "ist_date": get_timezone(message.created_date, "Asia/Kolkata") + " IST",
                     "est_date": get_timezone(message.created_date, "US/Eastern")  + " EST",  

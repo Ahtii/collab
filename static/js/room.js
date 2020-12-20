@@ -11,7 +11,11 @@ $(document).ready(function(){
          user = response["user"];
          if (user){
             // create websocket
-            socket = new WebSocket("ws://localhost:8000/api/room-chat/"+room);
+            var protocol = window.location.protocol === "http:" ? "ws://" : "wss://";
+            var host = window.location.host;
+            var api_path = "/api/room-chat/"+room;
+            var full_address = protocol+host+api_path;
+            socket = new WebSocket(full_address);
             socket.onmessage = function(event) {
                 var data = JSON.parse(event.data);
                 var mid = data['id'];
@@ -24,8 +28,9 @@ $(document).ready(function(){
                 var file_url = "";
                 var parent = $("#messages");
                 if (message || file){
-                    if (user == author)
-                        author = "you";
+                    var displayname = author['fullname'];
+                    if (user == author['username'])
+                        displayname = "you";
                     if (file){
                         var full_path = file.split("/");
                         var file_owner = full_path[full_path.length - 3];
@@ -33,7 +38,7 @@ $(document).ready(function(){
                         file_url = "<br><a href='/preview-file?user="+file_owner+"&file="+file_name+"'>"+data['filename']+"</a>";
                     } 
                     var mid_html = "<input class='mid' value="+mid+" hidden/>";                           
-                    var content = "<p>"+mid_html+"<strong>"+author+": </strong> &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
+                    var content = "<p>"+mid_html+"<strong>"+displayname+": </strong> &nbsp; <span class='date'>"+ist_date+" &nbsp; "+est_date+"</span><br><span>"+message+"</span>"+file_url+"</p>";
                     parent.append(content);
                 }
             };

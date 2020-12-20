@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006288/BBBootstrap/choices.min.css?version=7.0.0">
+    <script src="https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0"></script>
+    
+    <!-- Compiled and minified CSS-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome-->
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <!--CSS Stylesheet-->
+    <link rel="stylesheet" href="/static/css/chat.css" />
+
+    <!--Chat CSS-->
+    <link rel="stylesheet" href="/static/css/chatstyle.css">
+    
+    <!--jQuery library-->
+    <script src="/static/js/jquery.min.js"></script>
+    
+    <!--Popper JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Compiled JavaScript-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <title>Collab</title>
+</head>
+<body>
+    <div class="container-fluid chatBox">
+        <div class="row">
+
+            <!--LEFT PANEL-->
+            <div class="col-sm-4 col-md-5 col-lg-4 p-0 d-none d-md-block leftPanel" id="left-panel">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1">
+                                <i class="fa fa-angle-left icons mt-3 d-md-none" style="cursor: pointer;" onclick="hideChatList()"></i>
+                            </div>
+                            <div class="col-2 col-sm-2 col-md-2 col-lg-2">
+                                <img src="/static/media/images/maleuser.png" class="header-pic"/> 
+                            </div>
+                            <div class="col-7 col-sm-7 col-md-7 col-lg-7 mt-3">
+                                <i class="fa fa-circle online"></i> <strong class="active-user"></strong>
+                            </div>
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1">
+                                <div class="dropleft">
+                                    <span class="dropdown-toggle" data-toggle="dropdown" style="float: right;">
+                                        <i class="fa fa-bars icons mt-3" style="cursor: pointer;" onclick=""></i>
+                                    </span>
+                                    <div class="dropdown-menu">
+                                        <a href="#" class="dropdown-item" id="linkProfile" data-toggle="modal" data-target="#myProfile" onclick="">Profile</a>
+                                        <a href="" id="linkSignOut" class="dropdown-item">Sign Out</a>
+                                    </div>
+
+                                    <!--My Profile Modal-->
+                                    <div class="modal fade" id="myProfile">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <!-- <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">My Profile</h5>
+                                                    <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
+                                                </div>
+                                                <div class="modal-body">
+                                                    ...
+                                                </div> -->
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        My Profile
+                                                        <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
+                                                    </div> <!--closing of card header-->
+                                                </div> <!--closing of card -->
+                                            </div> <!--closing of modal content-->
+                                        </div> <!--closing of modal dialog-->
+                                    </div> <!--closing of modal-->
+                                </div> <!--closing of class dropleft-->
+                            </div>
+                        </div><!--closing of row-->
+                    </div> <!--closing of card header-->
+
+                    <!--SEARCH BAR-->
+                    <!-- <div class="list-group">
+                        <li class="list-group-item" style="background-color: #f8f8f8;">
+                            <input type="text" placeholder="Search" class="form-control round-box">
+                        </li>
+                    </div> -->
+
+                    <!--CREATE ROOM-->
+                    <div class="list-group">
+                        <li class="list-group-item" style="background-color: #f8f8f8;">
+                            <button id="roomButton" class="btn btn-primary" data-toggle="modal" data-target="#createRoom" onclick="">Create Room</button>
+                        </li>
+                        <!--Create Room Modal-->
+                        <div class="modal fade" id="createRoom">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div>
+                                        <div class="modal-header">
+                                            Create Room
+                                            <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
+                                        </div> <!--closing of card header-->
+
+                                        <div class="modal-body">
+                                            <form id="room-form" class="createRoomForm text-center">
+                                                <div class="form-group">
+                                                    <label for="formRoomName">Room Name</label>
+                                                    <input type="text" class="form-control inputStyle" id="roomName" placeholder="Write name here">
+                                                  </div>
+                                                  <div class="form-group">
+                                                    <label for="formRoomDesc">Room Description</label>
+                                                    <input type="text" class="form-control inputStyle" id="roomDesc" placeholder="Write description here">
+                                                  </div>
+                                                  <div class="form-group">
+                                                    <label for="formMembers">Room Members</label>
+                                                    <!-- <div class="row"> -->
+                                                        <!-- <div class="col-md-12"> -->
+                                                            <!-- <select id="choices-multiple-remove-button" placeholder="Select upto 5 members" multiple>
+                                                                <option value="person1">Person A</option>
+                                                                <option value="person2">Person B</option>
+                                                                <option value="person3">Person C</option>
+                                                                <option value="person4">Person D</option>
+                                                                <option value="person5">Person E</option>
+                                                                <option value="person6">Person F</option>
+                                                                <option value="person7">Person G</option>
+                                                                <option value="person8">Person H</option>
+                                                                <option value="person9">Person I</option>
+                                                                <option value="person10">Person J</option>
+                                                            </select> -->
+                                                            <ul id="user-list" class="list-group">                                                                
+                                                            </ul>
+                                                        <!-- </div> -->
+                                                    <!-- </div> -->
+                                                    <!-- <input type="text" class="form-control inputStyle" id="roomMembers" placeholder=""> -->
+                                                  </div>
+                                                  <div class="form-group">
+                                                    <button type="submit" class="btn formButton">Create</button>
+                                                  </div>
+                                            </form>
+                                        </div> <!--closing of card body-->
+                                    </div> <!--closing of card-->
+                                </div> <!--closing of modal content-->
+                            </div> <!--closing of modal dialog-->
+                        </div> <!--closing of modal-->
+                    </div>
+
+                    <!--TABS-->
+                    <div class="container">
+                        <div class="tab-header">
+                            <ul class="nav nav-pills" role="tablist">
+                                <li class="nav-item">
+                                <a id="tab-direct-message" class="nav-link active" data-toggle="pill" href="#directMsg">
+                                    <i class="fa fa-user"></i>
+                                        Direct Messages
+                                </a>
+                                </li>
+                                <li class="nav-item">
+                                <a id="tab-room-message" class="nav-link" data-toggle="pill" href="#roomMsg">
+                                    <i class="fa fa-users"></i>  
+                                        Room Messages
+                                </a>
+                                </li>
+                            </ul>
+                        </div><!--closing of tab header-->
+
+                    <!--TAB CONTENTS-->
+                    <div class="tab-content">
+                            <!--DIRECT MESSAGES-->
+                            <div id="directMsg" class="container tab-pane active"><br>
+                                <ul class="list-group list-group-flush" id="direct-msg-list">
+                                </ul>
+                            </div> <!--div of Direct Message-->
+
+                            <!--ROOM MESSAGES-->
+                            <div id="roomMsg" class="container tab-pane fade"><br>
+                                <ul class="list-group list-group-flush" id="room-msg-list">
+                                    <!-- <li class="list-group-item list-group-item-action">
+                                        <div class="row">
+                                            <div class=" col-2 col-md-2">                                                
+                                                <img src="/static/media/images/groups.png" class="profile-pic"/>
+                                            </div>
+                                            <div class="col-md-10 col-10" style="cursor: pointer;">
+                                                <div class="name">Intern's Group</div>
+                                                <div class="under-name"> This is some message here</div>
+                                            </div>
+                                        </div>
+                                    </li> -->
+                                </ul>
+                            </div> <!--div of Room Message-->
+                    </div> <!--closing of tabs content-->
+                </div> <!--closing of tabs container-->
+
+
+                    
+                </div> <!--closing of left card-->
+            </div> <!--closing of md4-->
+
+            <!--RIGHT PANEL-->
+            <div class="col-sm-8 col-md-7 col-lg-8 p-0 rightPanel" id="right-panel">
+                <div id="chatPanel" class="card" style="display: none;">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1">
+                                <i class="fa fa-angle-left mt-3 icons d-md-none" style="cursor: pointer;" onclick="showChatList()"></i>
+                            </div>
+                            <div class="col-2 col-sm-2 col-md-2 col-lg-1">                      
+                                <img src="" class="panel-pic" />
+                            </div>
+                            <!--<div class="col-6 col-sm-7 col-md-7 col-lg-9">
+                                <div class="name"></div>
+                                <div class="under-name"><i class="fa fa-circle offline state"></i> </div>-->
+                            <div class="col-6 col-sm-7 col-md-7 col-lg-9">                                
+                                <div class="name"><span class="hide username-holder"></span><span class="user-fullname"></span></div>
+                                <div class="under-name"><i class="fa fa-circle state"></i> &nbsp; <span></span> </div>
+                            </div>
+                            <div class="col-1 col-sm-2 col-md-1 col-lg-1 icons">
+                                <div class="dropleft">
+                                    <!-- <i class="fa fa-search" style="cursor: pointer;"></i>
+                                    <i class="fa fa-paperclip ml-4" style="cursor: pointer;"></i> -->
+                                    <span class="dropdown-toggle" data-toggle="dropdown">
+                                        <i class="fa fa-ellipsis-v ml-4" style="cursor: pointer;"></i>
+                                    </span>
+                                    <div class="dropdown-menu">
+                                        <a href="" class="dropdown-item" id="linkUserProfile" data-toggle="modal" data-target="#userProfile" onclick="">Profile</a>
+                                        <a href="" id="clearChat" onclick="clearChat()" class="dropdown-item">Clear Chat</a>
+                                    </div>
+
+                                    <!--Profile Modal-->
+                                    <div class="modal fade" id="userProfile">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        Profile
+                                                        <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
+                                                    </div> <!--closing of card header-->
+                                                </div> <!--closing of card-->
+                                            </div> <!--closing of modal content-->
+                                        </div> <!--closing of modal dialog-->
+                                    </div> <!--closing of modal-->
+                                </div>
+                                <!-- <i class="fas fa-ellipsis-v ml-4" style="cursor: pointer;"></i> -->
+                            </div>
+                        </div>
+                    </div><!--closing of card header-->
+
+                    <!--CHAT BODY SPEECH BUBBLES-->
+                    <div class="card-body chatBody" id="messages">
+                    </div>
+
+                    <!--FOOTER-->
+                    <div class="card-footer">
+                        <form id="msg-form">
+                            <div class="row">                            
+                                <div class="col-md-1 col-2 file-upload">
+                                    <i id="upload" class="fa fa-plus mt-2 ml-4"></i>                                    
+                                </div>
+                                <div class="col-md-10 col-8">
+                                    <span id="selected-file"></span>
+                                    <span id="err-msg"></span> 
+                                    <input type="file" class="hide" id="file"/>
+                                    <input type="text" id="text-message" placeholder="Message here" class="form-control round-box"/>
+                                </div>
+                                <div class="col-md-1 col-2 mt-1">
+                                    <button id="submit" type="submit"><i class="fa fa-paper-plane"></i> </button>
+                                </div>                                
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!--WELCOME SCREEN-->
+                <div class="container">
+                    <div id="divStart" class="text-center">
+                        <img src="/static/media/images/ai-logo.png" style="height: 240px; width: 200px;" class="welcome-logo mt-5">
+                        <!-- <i class="fa fa-comments mt-5" style="font-size: 250px;"></i> -->
+                        <div class="welcome-text">
+                            <h3 class="mt-5">Welcome to the chat room of <strong>Applied Informatics</strong></h3>
+                            <h4 class="mt-3">Start sharing your ideas!</h4>
+                        </div>
+                        <!-- <a href="#" class="d-md-none" onclick="showChatList()">Select Chat</a> -->
+                        <button class="btn btn-primary d-md-none" onclick="showChatList()">Select Chat></button>
+                    </div>
+                </div>
+
+            </div> <!--closing of md8-->
+
+        </div> <!--closing of main row-->
+    </div> <!--closing of chatbox-->
+    <script type="text/javascript" src="/static/js/chat.js"></script>
+    <script type="text/javascript" src="/static/js/chatscript.js"></script>    
+</body>
+</html>

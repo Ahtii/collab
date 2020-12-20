@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Compiled and minified CSS-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome-->
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <!--CSS Stylesheet-->
+    <link rel="stylesheet" href="/static/css/index.css"/>    
+  <title>Welcome to Collab</title>
+</head>
+<body>
+    <div class="container auth-container">
+        <div class="forms-container">
+            <div class="signin-signup">
+            <form id="login-form" class="sign-in-form">
+            <div>
+                <h2 class="title">Log in</h2>
+            </div>
+            <div class="fields">
+                <div class="input-field">
+                <i class="fa fa-user-circle-o"></i>
+                <input type="text" name="username" placeholder="Username or Email" required/>
+                </div>
+                <div class="input-field">
+                <i class="fa fa-lock"></i>
+                <input type="password" name="password" placeholder="Password" required/>
+                </div>
+            </div>
+            <div>
+                <button type="submit" class="btn btnl solid" >Login</button>
+            </div>
+                <div>
+                <div class="social-media">                         
+                <a id="google-signin" class="social-iconl">
+                    <i class="fa fa-google"></i>
+                    </a>
+                    <span class="gmail">or sign in with your Gmail</span>
+                </div>
+            </div>
+            </form>
+            <form id="register-form" class="sign-up-form">
+                <div>
+                <h2 class="title">Sign up</h2>
+                </div>
+                <div class="fields">
+                <div class="input-field">
+                <i class="fa fa-user"></i>
+                <input id="first_name" type="text" placeholder="First Name (Required)" required/>
+                </div>
+                <div class="input-field">
+                <i class="fa fa-user"></i>
+                <input id="last_name" type="text" placeholder="Last Name (Optional)"/>
+                </div>
+                <div class="input-field">
+                <i class="fa fa-envelope"></i>
+                <input id="email" type="email" placeholder="Email (Required)" required/>
+                </div>
+                <div class="input-field">
+                <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                <input id="username" type="text" placeholder="Username (Required)"  required/>
+                </div>
+                <div class="input-field">
+                <i class="fa fa-lock"></i>
+                <input id="password" type="password" placeholder="Password (Required)" required/>
+                </div>
+                <div class="input-field">
+                <i class="fa fa-lock"></i>
+                <input type="password" placeholder="Confirm Password (Required)" required/>
+                </div>
+            </div>
+            <div>
+                <input type="submit" class="btn btnu" value="Sign up" />
+            </div>
+            </form>
+            </div>
+        </div>
+
+        <div class="panels-container">
+            <div class="panel left-panel">
+            <div class="content">
+                <img src="/static/media/images/ai-logo.png" style="height: 60px; width: 50px;">
+                <h3>New here ?</h3>
+                <p>
+                Don't worry! Sign Up now and join us. It's free!
+                </p>
+                <button class="btn btns transparent" id="sign-up-btn">
+                Sign up
+                </button>
+            </div>
+            <img src="/static/media/images/signup.svg" class="image" alt="" />
+            </div>
+            <div class="panel right-panel">
+            <div class="content">
+                <img src="/static/media/images/ai-logo.png" style="height: 60px; width: 50px;">
+                <h3>One of us ?</h3>
+                <p>
+                If you already have an account then login here.
+                </p>
+                <button class="btn btns transparent" id="sign-in-btn">
+                Log in
+                </button>
+            </div>
+            <img src="/static/media/images/login.svg" class="image" alt="" />
+            </div>
+        </div>
+    </div> <!--div of main container-->        
+    
+    <!--jQuery library-->
+    <script src="/static/js/jquery.min.js"></script>
+
+    <!-- Google API -->
+    <script src="https://apis.google.com/js/client:platform.js" type="text/javascript"></script>
+
+    <!-- Custome CSS -->
+    <script type="text/javascript" src="/static/js/index.js"></script>    
+
+    <!--Popper JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Compiled JavaScript-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>    
+</body>
+</html>

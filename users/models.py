@@ -26,17 +26,15 @@ class utcnow(expression.FunctionElement):
 def my_utcnow(element, compiler, **kw):
     return "UTC_TIMESTAMP()"                      
 
-#class Profile(Base):
+class Profile(Base):
 
- #    __tablename__ = "profile"
+    __tablename__ = "profile"
     
-  #   name= Column(Integer, primary_key=True)
-   #  designation = Column(String(50), default="intern")
-    # avatar = Column(String(500), nullable=True)
-   #  bio = Column(String(500), nullable=True)
-     
-    # location = Column(String(50))
-     #user = relationship("User", uselist=False, backref="profile")
+    id = Column(Integer, primary_key=True)
+    designation = Column(String(50), default="intern")
+    avatar = Column(String(500), nullable=True)
+    bio = Column(String(500), nullable=True)         
+    user = relationship("User", uselist=False, backref="profile")
 
 class User(Base):
 
@@ -54,7 +52,7 @@ class User(Base):
     modified_date = Column(TIMESTAMP, default=utcnow())
     is_social_account = Column(Boolean, default=False)
     room = relationship("Room", secondary=user_room, backref='participants', lazy='dynamic')
-    #profile = Column(Integer, ForeignKey("profile.id"))
+    profile = Column(Integer, ForeignKey("profile.id"))
 
 class Room(Base):
 
