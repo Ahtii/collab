@@ -192,6 +192,16 @@ body{
     border-right-color: transparent; */
 }
 
+
+/* Ahtisham Added Following */
+
+.notifier {
+    color: white;    
+    float: right;
+    padding: 5px;
+    font-size: 11px;
+}
+
 .online {
     color: green;
 }
@@ -200,28 +210,32 @@ body{
     color: gray;
 }
 
+#user-list {
+    max-height: 200px;
+    overflow: auto;
+}
+
 .hide {
     display: none;
 }
-.text-area {
-    position: relative;
-    width: 100%;
-  }
   #upload {
-    position: absolute;
-    left: 10px;
-    cursor: pointer;
-    top: 75%;
-    transform: translateY(-75%);
-    font-size: 16px;
-  }
+      cursor: pointer;   
+      color: #9ca1a3;   
+  }  
   
   #submit {
-    position: absolute;
-    right: 0;  
-    margin-right: 15px;
-    cursor: pointer;
-    top: 75%;
-    transform: translateY(-75%);
-    font-size: 16px;
+    background-color: transparent;
+    border: none;    
+    font-size: 14px;
+    color: #9ca1a3;
+  }
+
+  #selected-file {
+      color: rgb(42, 52, 82);
+      font-size: 12px;
+  }
+
+  #err-msg {
+      color: maroon;
+      font-size: 12px;
   }
