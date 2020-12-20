@@ -429,6 +429,7 @@ def create_message(db: Session, data: dict):
             db.commit()
             print("saved message")
             response = {
+                "id": message.id,
                 "author": {
                     "username": sender.username,
                     "fullname": get_fullname(sender)
@@ -481,6 +482,7 @@ def create_room_message(db: Session, data: dict):
                 db.add(message)
                 db.commit()
                 response = {
+                    "id": message.id,
                     "author": {
                         "username": sender.username,
                         "fullname": get_fullname(sender)

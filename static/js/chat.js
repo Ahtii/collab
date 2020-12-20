@@ -57,7 +57,7 @@ $(document).ready(function(){
     var selected_user, file;
     var selected_room, unseen_messages = [];
     var user = "", socket;
-    var uid;    
+    var uid; 
 
     $.get("/api/user", function(response){
         user = response["user"];     
@@ -65,6 +65,15 @@ $(document).ready(function(){
            var name = response['full_name'];
            $(".active-user").text(name);
            uid = response['id'];
+
+            /* BISMA's CODE */
+
+            $.get("/api/profile/"+uid, function(response){
+                console.log(response);
+            });
+
+            /* BISMA's CODE END */
+
            $.get("/api/user/"+uid+"/room", function(response){
                 var room_list = response["rooms"];
                 console.log(room_list);
