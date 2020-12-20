@@ -25,7 +25,7 @@ $(document).ready(function(){
                                                 <div class='col-2 col-md-2'>\
                                                     <img src='/static/media/images/groups.png' class='profile-pic'/>\
                                                 </div>\
-                                                <div class='col-md-10 col-10' style='cursor: pointer;'>\
+                                                <div class='col-9 col-sm-8 col-md-8 col-lg-9' style='cursor: pointer;'>\
                                                     "+room_id_holder+"\
                                                     <div class='name'><span class='room-name'>"+room["name"]+"</span></div>\
                                                     <div class='under-name'>"+room["description"]+"</div>\
@@ -224,12 +224,12 @@ $(document).ready(function(){
                                             <div class='col-2 col-md-2'><img src='/static/media/images/maleuser.png' class='profile-pic'/></div>\
                                             <div class='col-md-10 col-10' style='cursor: pointer;'>\
                                                 "+username_holder+"\
-                                                //<div class='name mt-2'>\
-                                                //    <i class='fa fa-circle state offline'></i>&nbsp;<span>"+user_tag+"</span>\
-                                                //</div>\
-                                                //<div class='under-name'> \
-                                                //    "+displayname+": &nbsp; "+message+"&nbsp;"+file_url+"\
-                                                //</div>\
+                                                <!--<div class='name mt-2'>\
+                                                    <i class='fa fa-circle state offline'></i>&nbsp;<span>"+user_tag+"</span>\
+                                                </div>\
+                                                <div class='under-name'> \
+                                                    "+displayname+": &nbsp; "+message+"&nbsp;"+file_url+"\
+                                                </div>-->\
                                                 <div class='name'><i class='fa fa-circle state offline'></i>&nbsp;<span>"+stranger['fullname']+"</span></div>\
                                             </div>\
                                         </div>\

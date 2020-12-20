@@ -335,7 +335,7 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                             if file_size <= FILE_SIZE:
                                 file = await websocket.receive_bytes()
                                 filename = file_data['filename']
-                                file_dir = views.gen_file_dir(room.name, __file__)
+                                file_dir = views.gen_file_dir(room, __file__)
                                 file_url = views.create_file(file_dir, filename, file)
                                 data.update({
                                     "file": file_url,
