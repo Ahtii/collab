@@ -215,9 +215,9 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
             while True:
                 data = await websocket.receive_json()
                 receiver = data.get('receiver')
-                room = data.get('room')                                          
+                room = data.get('room')                                                      
                 if data.get('is_user'):                                  
-                    db = database.SessionLocal()                                        
+                    db = database.SessionLocal()                                                           
                     if receiver:                        
                         receiver = db.query(models.User).filter(
                             models.User.username == receiver

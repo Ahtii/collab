@@ -15,6 +15,7 @@ $(document).ready(function(){
            uid = response['id'];
            $.get("/api/user/"+uid+"/room", function(response){
                 var room_list = response["rooms"];
+                console.log(room_list);
                 if (!jQuery.isEmptyObject(room_list)){
                     //$("#roomMsg ul")
                     $.each(room_list, function(key, room){
@@ -26,7 +27,7 @@ $(document).ready(function(){
                                                 </div>\
                                                 <div class='col-md-10 col-10' style='cursor: pointer;'>\
                                                     "+room_id_holder+"\
-                                                    <div class='name'>"+room["name"]+"</div>\
+                                                    <div class='name'><span class='room-name'>"+room["name"]+"</span></div>\
                                                     <div class='under-name'>"+room["description"]+"</div>\
                                                 </div>\
                                             </div>\
@@ -89,7 +90,8 @@ $(document).ready(function(){
                         }                                               
                     });                                  
                 }  
-                var show_notification = false;
+                var show_direct_notification = false;
+                var show_room_notification = false;
                 //console.log(room);
                 // code to show message
                 if (message || file){  
@@ -101,65 +103,111 @@ $(document).ready(function(){
                     }                                          
                     var displayname = author["fullname"];
                     var user_tag = displayname;
-                    var display_username = author['username'];                    
-                    if (user == display_username){   
-                        displayname = "You";
-                        if (receiver){
+                    var display_username = author['username']; 
+                    if (receiver){
+                        if (user == display_username){   
+                            displayname = "You";
                             display_username = receiver['username'];
                             user_tag = receiver["fullname"];                       
-                        }
-                    }    
-                    console.log(data);    
-                    var username_holder = "<span class='hide username-holder'>"+display_username+"</span>";                                                
-                    if (last_message){                    
-                        var content = "<li class='list-group-item list-group-item-action'>\
-                                        <div class='row'>\
-                                            <div class='col-2 col-md-2'><img src='/static/media/images/maleuser.png' class='profile-pic'/></div>\
-                                            <div class='col-md-10 col-10' style='cursor: pointer;'>\
-                                                "+username_holder+"\
-                                                <div class='name'><i class='fa fa-circle state offline'></i>&nbsp;<span>"+user_tag+"</span></div>\
-                                                <div class='under-name'> "+displayname+": &nbsp; "+message+"&nbsp;"+file_url+"</div>\
+                        }  
+                        console.log(data);    
+                        var username_holder = "<span class='hide username-holder'>"+display_username+"</span>";                                                
+                        if (last_message){                    
+                            var content = "<li class='list-group-item list-group-item-action'>\
+                                            <div class='row'>\
+                                                <div class='col-2 col-md-2'><img src='/static/media/images/maleuser.png' class='profile-pic'/></div>\
+                                                <div class='col-md-10 col-10' style='cursor: pointer;'>\
+                                                    "+username_holder+"\
+                                                    <div class='name'><i class='fa fa-circle state offline'></i>&nbsp;<span>"+user_tag+"</span></div>\
+                                                    <div class='under-name'> "+displayname+": &nbsp; "+message+"&nbsp;"+file_url+"</div>\
+                                                </div>\
                                             </div>\
-                                        </div>\
-                                    </li>"; 
-                        $("#direct-msg-list").append(content);
-                    } else {
-                        var panel_selected_user = $("#chatPanel .name").find(".username-holder").text();
-                        console.log(panel_selected_user);
-                        // decide position of message box
-                        var content;
-                        if (user == author["username"]){
-                            content = "<div class='row'>\
-                                <div class='col-1 col-sm-1 col-md-1'>\
-                                    <img src='/static/media/images/maleuser.png' class='chat-pic'/>&nbsp;\
-                                </div>\
-                                <div class='col-6 col-sm-7 col-md-7'>\
-                                    <p class='received-msg'>\
-                                        <strong>"+displayname+"</strong><span class='timestamp float-right'>"+ist_date+" &nbsp; "+est_date+"</span><br>\
-                                        <span>"+message+"</span>\
-                                        "+file_url+"\
-                                    </p>\
-                                </div>\
-                            </div>";
-                        } else if (panel_selected_user == author['username'] || room) {
-                            content = "<div class='row justify-content-end'>\
-                                <div class='col-6 col-sm-7 col-md-7'>\
-                                    <p class='sent-msg float-right'>\
-                                        <strong>"+displayname+"</strong><span class='timestamp float-right'>"+ist_date+" &nbsp; "+est_date+"</span><br>\
-                                        <span>"+message+"</span>\
-                                        "+file_url+"\
-                                    </p>\
-                                </div>\
-                                <div class='col-1 col-sm-1 col-md-1'>\
-                                    <img src='/static/media/images/maleuser.png' class='chat-pic'/>&nbsp;\
-                                </div>\
-                            </div>";
+                                        </li>"; 
+                            $("#direct-msg-list").append(content);
                         } else {
-                             show_notification = true;                              
-                        }   
+                            var panel_selected_user = $("#chatPanel .name").find(".username-holder").text();                            
+                            console.log(panel_selected_user);
+                            console.log(room);
+                            var content;
+                            // decide position of message box
+                            if (user == author["username"]){
+                                content = "<div class='row'>\
+                                    <div class='col-1 col-sm-1 col-md-1'>\
+                                        <img src='/static/media/images/maleuser.png' class='chat-pic'/>&nbsp;\
+                                    </div>\
+                                    <div class='col-6 col-sm-7 col-md-7'>\
+                                        <p class='received-msg'>\
+                                            <strong>"+displayname+"</strong><span class='timestamp float-right'>"+ist_date+" &nbsp; "+est_date+"</span><br>\
+                                            <span>"+message+"</span>\
+                                            "+file_url+"\
+                                        </p>\
+                                    </div>\
+                                </div>";
+                            } else if (panel_selected_user == author['username']) {
+                                content = "<div class='row justify-content-end'>\
+                                    <div class='col-6 col-sm-7 col-md-7'>\
+                                        <p class='sent-msg float-right'>\
+                                            <strong>"+displayname+"</strong><span class='timestamp float-right'>"+ist_date+" &nbsp; "+est_date+"</span><br>\
+                                            <span>"+message+"</span>\
+                                            "+file_url+"\
+                                        </p>\
+                                    </div>\
+                                    <div class='col-1 col-sm-1 col-md-1'>\
+                                        <img src='/static/media/images/maleuser.png' class='chat-pic'/>&nbsp;\
+                                    </div>\
+                                </div>";
+                            } else {
+                                show_direct_notification = true;                              
+                            }       
+                            if (content)
+                                $("#messages").append(content);            
+                        }    
+                    } else if (room) {
+                        if (user == display_username){   
+                            displayname = "You";
+                        } 
+                        console.log(data);    
+                        var username_holder = "<span class='hide username-holder'>"+display_username+"</span>";                                                
+                        var panel_selected_user = $("#chatPanel .name").find(".user-fullname").text();
+                        console.log(panel_selected_user);
+                        console.log(room);
+                        var content;
+                        // decide position of message box                                                       
+                        if (panel_selected_user == room){
+                            if (user == author["username"]){
+                                content = "<div class='row'>\
+                                    <div class='col-1 col-sm-1 col-md-1'>\
+                                        <img src='/static/media/images/maleuser.png' class='chat-pic'/>&nbsp;\
+                                    </div>\
+                                    <div class='col-6 col-sm-7 col-md-7'>\
+                                        <p class='received-msg'>\
+                                            <strong>"+displayname+"</strong><span class='timestamp float-right'>"+ist_date+" &nbsp; "+est_date+"</span><br>\
+                                            <span>"+message+"</span>\
+                                            "+file_url+"\
+                                        </p>\
+                                    </div>\
+                                </div>";
+                            } else {
+                                content = "<div class='row justify-content-end'>\
+                                    <div class='col-6 col-sm-7 col-md-7'>\
+                                        <p class='sent-msg float-right'>\
+                                            <strong>"+displayname+"</strong><span class='timestamp float-right'>"+ist_date+" &nbsp; "+est_date+"</span><br>\
+                                            <span>"+message+"</span>\
+                                            "+file_url+"\
+                                        </p>\
+                                    </div>\
+                                    <div class='col-1 col-sm-1 col-md-1'>\
+                                        <img src='/static/media/images/maleuser.png' class='chat-pic'/>&nbsp;\
+                                    </div>\
+                                </div>";    
+                            }    
+                        } else {
+                            show_room_notification = true;   
+                            console.log("show room notification");                           
+                        }       
                         if (content)
-                            $("#messages").append(content);            
-                    }                               
+                            $("#messages").append(content);                        
+                    }                                                                                         
                 }
                 if (stranger){  
                     var match = false;                     
@@ -183,8 +231,8 @@ $(document).ready(function(){
                         $("#direct-msg-list").append(content);
                     }
                 }
-                if (show_notification){
-                    show_notification = false;
+                if (show_direct_notification){
+                    show_direct_notification = false;
                     $.each($("#direct-msg-list li"), function(index, value){
                         if ($(this).find(".username-holder").text() == author["username"]){                             
 
@@ -220,6 +268,48 @@ $(document).ready(function(){
                             return;
                         }
                     }); 
+                }else if (show_room_notification){
+                    show_room_notification = false; 
+                    console.log("setup room notification"); 
+                    $.each($("#room-msg-list li"), function(index, value){
+                        console.log("inside room list");
+                        console.log($(this).find(".room-name").text());
+                        console.log(room);
+                        if ($(this).find(".room-name").text() == room){                             
+                            console.log("found room match");
+                            var content = "<div class='row justify-content-end'>\
+                                        <div class='col-6 col-sm-7 col-md-7'>\
+                                            <p class='sent-msg float-right'>\
+                                                <strong>"+displayname+"</strong><span class='timestamp float-right'>"+ist_date+" &nbsp; "+est_date+"</span><br>\
+                                                <span>"+message+"</span>\
+                                                "+file_url+"\
+                                            </p>\
+                                        </div>\
+                                        <div class='col-1 col-sm-1 col-md-1'>\
+                                            <img src='/static/media/images/maleuser.png' class='chat-pic'/>&nbsp;\
+                                        </div>\
+                                    </div>";
+
+                            if (room in unseen_messages)
+                                unseen_messages[room].push(content);                             
+                            else
+                                unseen_messages[room] = [content];
+                            
+                            var target = $(this).find(".name").children(".notifier");                            
+                            console.log($(target));
+                            console.log(unseen_messages);
+                            
+                            if ($(target).length > 0)
+                                $(target).text(unseen_messages[room].length);
+                            else {
+                                var notifier = "<span class='badge badge-primary notifier'>1</span>";
+                                $(this).find(".name").append(notifier);
+                                console.log($(target));
+                                console.log(unseen_messages);
+                            }    
+                            return;
+                        }
+                    });
                 }
                 document.getElementById('messages').scrollTo(0, document.getElementById('messages').scrollHeight);
             };
@@ -236,12 +326,15 @@ $(document).ready(function(){
 
     //send message with websocket
     function load_messages() {
-        console.log("load message");
-        data = {
-            "receiver": selected_user,
-            "room": selected_room,
+        console.log("load message");        
+        data = {            
             "is_user": true
         };
+        if (selected_user)
+            data['receiver'] = selected_user;
+        else if (selected_room)    
+            data['room'] = selected_room;
+        console.log(data);
         socket.send(JSON.stringify(data));                        
     }
 
@@ -252,6 +345,7 @@ $(document).ready(function(){
         hideChatList();
 
         $("#messages").empty();
+        selected_room = "";
 
         $(".panel-pic").attr("src", "/static/media/images/maleuser.png");        
         
@@ -281,7 +375,10 @@ $(document).ready(function(){
         var notifier = $(this).find(".notifier");
         if (notifier){
             $(notifier).remove();                              
-        }                                
+        }  
+        
+        var index = unseen_messages.indexOf(selected_user);
+        unseen_messages.splice(index, 1);
     });
 
     function send_message(){
@@ -338,11 +435,11 @@ $(document).ready(function(){
         $("#selected-file").text(file["name"]);
     });
 
-    $(document).on("click", "#rooms li", function(){
-        var room = $(this).text();
-        if (room)
-            window.location.href = "/room?name="+room;
-    });
+    // $(document).on("click", "#rooms li", function(){
+    //     var room = $(this).text();
+    //     if (room)
+    //         window.location.href = "/room?name="+room;
+    // });
 
     /* ROOM CODE */
 
@@ -360,11 +457,12 @@ $(document).ready(function(){
         document.getElementById('divStart').setAttribute('style', 'display:none');
         hideChatList();
 
-        $("#messages").empty();        
+        $("#messages").empty();  
+        selected_user = "";      
         $(".panel-pic").attr("src", "/static/media/images/groups.png");                
 
         room_id = $(this).find(".room-id-holder").text();
-        selected_room = $(this).find(".name").text();
+        selected_room = $(this).find(".room-name").text();
         
         console.log(room_id);
         console.log(selected_room);       
@@ -382,14 +480,23 @@ $(document).ready(function(){
         $("#chatPanel .name").find(".username-holder").text(room_id);               
         $("#chatPanel .under-name").addClass("hide");
 
+        // console.log("before load of messages");
+        // console.log($("#messages"));
+
          // load messages
          load_messages();
+
+        // console.log("after load of messages");
+        // console.log($("#messages"));
 
         // remove notifier and show messages
         var notifier = $(this).find(".notifier");
         if (notifier){
             $(notifier).remove();                              
-        }                                
+        }         
+        
+        // var index = unseen_messages.indexOf(selected_room);
+        // unseen_messages.splice(index, 1);
     });
     
     // on click of create room
