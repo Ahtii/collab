@@ -132,8 +132,8 @@ form.sign-in-form {
 }
 
 .social-iconl:hover {
-  color: seagreen;
-  border-color: seagreen;
+  color: #81a3a7;
+  border-color: #81a3a7;
   transition: 0.4s ease-in;
   text-decoration: none;
   cursor: pointer;
@@ -168,7 +168,7 @@ form.sign-in-form {
 .btnl {
   width: 120px;
   height: 40px;
-  background-color: seagreen;
+  background-color: #81a3a7;
   border: none;
   outline: none;
   border-radius: 49px;
@@ -182,14 +182,13 @@ form.sign-in-form {
 }
 
 .btnl:hover {
-  background-color: seagreen;
-  color: goldenrod;
+  color: #272424;
 }
 
 .btnu {
   width: 120px;
   height: 40px;
-  background-color: crimson;
+  background-color: #81a3a7;
   border: none;
   outline: none;
   border-radius: 49px;
@@ -203,14 +202,12 @@ form.sign-in-form {
 }
 
 .btnu:hover {
-  background-color: crimson;
-  color: goldenrod;
+  color: #272424;
 }
 
 .btns {
   width: 120px;
   height: 40px;
-  background-color: #5995fd;
   border: none;
   outline: none;
   border-radius: 49px;
@@ -223,8 +220,7 @@ form.sign-in-form {
 }
 
 .btns:hover {
-  background-color: #4d84e2;
-  color: goldenrod;
+  color: #272424;
 }
 
 .panels-container {
@@ -245,8 +241,8 @@ form.sign-in-form {
   top: -10%;
   right: 48%;
   transform: translateY(-50%);
-  background-image: linear-gradient(-45deg, seagreen 0%, crimson 100%);
-  transition: 2.5s ease-in-out;
+  background-image: linear-gradient(-45deg, #585a56 0%, #81a3a7 100%);
+  transition: 1.5s ease-in-out;
   border-radius: 50%;
   z-index: 6;
 }

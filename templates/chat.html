@@ -5,14 +5,15 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006288/BBBootstrap/choices.min.css?version=7.0.0">
-    <script src="https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0"></script>
-    
     <!-- Compiled and minified CSS-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Font Awesome-->
     <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!--For Selecting Room Members-->
+    <link rel="stylesheet" href="https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006288/BBBootstrap/choices.min.css?version=7.0.0">
+    <script src="https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0"></script>
     
     <!--CSS Stylesheet-->
     <link rel="stylesheet" href="/static/css/chat.css" />
@@ -38,7 +39,7 @@
             <!--LEFT PANEL-->
             <div class="col-sm-4 col-md-5 col-lg-4 p-0 d-none d-md-block leftPanel" id="left-panel">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" style="background-color: #c2d3da;">
                         <div class="row">
                             <div class="col-1 col-sm-1 col-md-1 col-lg-1">
                                 <i class="fa fa-angle-left icons mt-3 d-md-none" style="cursor: pointer;" onclick="hideChatList()"></i>
@@ -61,21 +62,73 @@
 
                                     <!--My Profile Modal-->
                                     <div class="modal fade" id="myProfile">
-                                        <div class="modal-dialog">
+                                        <div class="modal-dialog modal-dialog-scrollable">
                                             <div class="modal-content">
-                                                <!-- <div class="modal-header">
+                                                <div class="modal-header" style="background-color: #c2d3da;">
                                                     <h5 class="modal-title" id="exampleModalLabel">My Profile</h5>
                                                     <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
                                                 </div>
+                                                
                                                 <div class="modal-body">
-                                                    ...
-                                                </div> -->
-                                                <div class="card">
+                                                    <form id='profile-form'>
+                                                    <a class="proEdit" style="float: right; cursor: pointer;">
+                                                        <i class="fa fa-edit icon" onclick="test()"></i>
+                                                    </a>                                                                                                          
+                                                    <div class="container">
+                                                        
+                                                        <div class="row">
+                                                          <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                                                <div class="container d-flex flex-column align-items-center">
+                                                                        <div class="row">
+                                                                        <div class="profile-nav col-12 col-sm-12 col-md-12 col-lg-12 headd">
+                                                                            <div class="user-heading round">                                                                    
+                                                                                <img src="/static/media/images/femaleuser.png"><br>                                                                              
+                                                                                <input type="file" id="proimage" class="form-control-file border proimg" style="display: none;">                                                            
+                                                                            </div>
+                                                                                <div class="user-heading">
+                                                                                <textarea id="proname" class="profileName text-center" rows="1" cols="30" disabled>Lubna Ashraf</textarea>
+                                                                                <h6>@lubna</h6>
+                                                                                <textarea id="prodesig" class="profileDesig text-center" rows="1" cols="30" disabled>Intern</textarea>
+                                                                                    
+                                                                                </div>                                                                   
+                                                                        </div><!--end profile-nav-->
+                                                                        </div><!--end row-->
+                                                                        <div class="h-divider"></div>
+                                                                        <div>
+                                                                            <textarea id="probio" class="profileBio" rows="3" cols="40" disabled>Computer student. Loves teaching and cooking.
+                                                                            </textarea>
+                                                                        </div>
+                                                                        
+                                                                        <div>
+                                                                           <i class="fa fa-envelope mr-3"></i>
+                                                                           <i class="link-mail">lubnaashraf@gmail.com</i>
+                                                                        </div><br>
+                                                                        
+                                                                        <div>
+                                                                           <i class="fa fa-globe mr-3"></i>
+                                                                           08:30 PM(IST)   10:00 AM(EST)
+                                                                        </div>
+                                                                        <div>         
+                                                                            <i class="fa fa-calendar mr-3" > </i>
+                                                                            21-Sep-2020
+                                                                        </div><br><br>
+                                                                </div><!--end d-flex-->
+                                                            </div>
+                                                        </div><!--end row-->                                                        
+                                                    </div><!--end of container-->
+                                                    <button id="prosave" class="btn" style="float: right; background-color: #c2d3da; color: #272424; display: none;" type="submit" onclick="save()">Save</button>
+                                                </form>
+                                                </div><!--closing of modal body-->
+                                                <div class="modal-footer" style="background-color: #c2d3da;">
+                                                    
+                                                </div><!--footer-->
+                                                
+                                                <!-- <div class="card">
                                                     <div class="card-header">
                                                         My Profile
-                                                        <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
-                                                    </div> <!--closing of card header-->
-                                                </div> <!--closing of card -->
+                                                        <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span> -->
+                                                    <!--</div>--> <!--closing of card header-->
+                                                <!--</div>--> <!--closing of card -->
                                             </div> <!--closing of modal content-->
                                         </div> <!--closing of modal dialog-->
                                     </div> <!--closing of modal-->
@@ -93,74 +146,66 @@
 
                     <!--CREATE ROOM-->
                     <div class="list-group">
-                        <li class="list-group-item" style="background-color: #f8f8f8;">
-                            <button id="roomButton" class="btn btn-primary" data-toggle="modal" data-target="#createRoom" onclick="">Create Room</button>
+                        <li class="list-group-item" style="background-color: #c2d3da;">
+                            <button id="roomButton" class="btn" data-toggle="modal" data-target="#createRoom" onclick="">Create Room</button>
                         </li>
                         <!--Create Room Modal-->
                         <div class="modal fade" id="createRoom">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            Create Room
-                                            <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
-                                        </div> <!--closing of card header-->
-
-                                        <div class="card-body">
-                                            <form class="createRoomForm text-center">
-                                                <div class="form-group">
-                                                    <label for="formRoomName">Room Name</label>
-                                                    <input type="text" class="form-control inputStyle" id="roomName" placeholder="Write name here">
-                                                  </div>
-                                                  <div class="form-group">
-                                                    <label for="formRoomDesc">Room Description</label>
-                                                    <input type="text" class="form-control inputStyle" id="roomDesc" placeholder="Write description here">
-                                                  </div>
-                                                  <div class="form-group">
-                                                    <label for="formMembers">Room Members</label>
-                                                    <!-- <div class="row"> -->
-                                                        <!-- <div class="col-md-12"> -->
-                                                            <select id="choices-multiple-remove-button" placeholder="Select upto 5 members" multiple>
-                                                                <option value="person1">Person A</option>
-                                                                <option value="person2">Person B</option>
-                                                                <option value="person3">Person C</option>
-                                                                <option value="person4">Person D</option>
-                                                                <option value="person5">Person E</option>
-                                                                <option value="person6">Person F</option>
-                                                                <option value="person7">Person G</option>
-                                                                <option value="person8">Person H</option>
-                                                                <option value="person9">Person I</option>
-                                                                <option value="person10">Person J</option>
-                                                            </select>
-                                                        <!-- </div> -->
-                                                    <!-- </div> -->
-                                                    <!-- <input type="text" class="form-control inputStyle" id="roomMembers" placeholder=""> -->
-                                                  </div>
-                                                  <div class="form-group">
-                                                    <button type="submit" class="btn  formButton">Create</button>
-                                                  </div>
-                                            </form>
-                                        </div> <!--closing of card body-->
-                                    </div> <!--closing of card-->
+                                    <div class="modal-header" style="background-color: #c2d3da;">
+                                        <h6 class="modal-title" id="exampleModalLabel">Create Room</h6>
+                                        <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form class="createRoomForm text-center">
+                                            <div class="form-group">
+                                                <label for="formRoomName">Room Name</label>
+                                                <input type="text" class="form-control inputStyle" id="roomName" placeholder="Write name here">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="formRoomDesc">Room Description</label>
+                                                <input type="text" class="form-control inputStyle" id="roomDesc" placeholder="Write description here">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="formMembers">Room Members</label>
+                                                    <select id="choices-multiple-remove-button" placeholder="Select upto 5 members" multiple>
+                                                        <option value="person1">Person A</option>
+                                                        <option value="person2">Person B</option>
+                                                        <option value="person3">Person C</option>
+                                                        <option value="person4">Person D</option>
+                                                        <option value="person5">Person E</option>
+                                                        <option value="person6">Person F</option>
+                                                        <option value="person7">Person G</option>
+                                                        <option value="person8">Person H</option>
+                                                        <option value="person9">Person I</option>
+                                                        <option value="person10">Person J</option>
+                                                    </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="submit" class="btn  formButton">Create</button>
+                                            </div>
+                                        </form>
+                                    </div> <!--closing of modal body-->
                                 </div> <!--closing of modal content-->
                             </div> <!--closing of modal dialog-->
                         </div> <!--closing of modal-->
                     </div>
-
+                    <div class="card-body">
                     <!--TABS-->
                     <div class="container">
                         <div class="tab-header">
-                            <ul class="nav nav-pills" role="tablist">
+                            <ul class="nav nav-tabs nav-justified" role="tablist">
                                 <li class="nav-item">
-                                <a class="nav-link active" data-toggle="pill" href="#directMsg">
+                                <a class="nav-link active" data-toggle="tab" href="#directMsg">
                                     <i class="fa fa-user"></i>
-                                        Direct Messages
+                                        Direct
                                 </a>
                                 </li>
                                 <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#roomMsg">
+                                <a class="nav-link" data-toggle="tab" href="#roomMsg">
                                     <i class="fa fa-users"></i>  
-                                        Room Messages
+                                        Rooms
                                 </a>
                                 </li>
                             </ul>
@@ -179,27 +224,27 @@
                                 <ul class="list-group list-group-flush" id="chats">
                                     <li class="list-group-item list-group-item-action">
                                         <div class="row">
-                                            <div class=" col-2 col-md-2">
+                                            <div class="col-3 col-sm-4 col-md-4 col-lg-3">
                                                 <!-- <div class="wrapper">
                                                     <h1 id = "inner">A</h1>		
                                                 </div> -->
                                                 <img src="/static/media/images/groups.png" class="profile-pic"/>
                                             </div>
-                                            <div class="col-md-10 col-10" style="cursor: pointer;">
+                                            <div class="col-9 col-sm-8 col-md-8 col-lg-9" style="cursor: pointer;">
                                                 <div class="name">Intern's Group</div>
                                                 <div class="under-name"> This is some message here</div>
                                             </div>
                                         </div>
                                     </li>
-                                    <li class="list-group-item list-group-item-action" onclick="StartChat()">
+                                    <li class="list-group-item list-group-item-action">
                                         <div class="row">
-                                            <div class=" col-2 col-md-2">
+                                            <div class="col-3 col-sm-4 col-md-4 col-lg-3">
                                                 <!-- <div class="wrapper">
                                                     <h1 id = "inner">L</h1>		
                                                 </div> -->
                                                 <img src="/static/media/images/groups.png" class="profile-pic"/>
                                             </div>
-                                            <div class="col-md-10 col-10" style="cursor: pointer;">
+                                            <div class="col-9 col-sm-8 col-md-8 col-lg-9" style="cursor: pointer;">
                                                 <div class="name">Work Group</div>
                                                 <div class="under-name"> This is some message here</div>
                                             </div>
@@ -209,16 +254,20 @@
                             </div> <!--div of Room Message-->
                     </div> <!--closing of tabs content-->
                 </div> <!--closing of tabs container-->
+            </div> <!--closing of card body-->
+            <div class="card-footer">
+
+            </div>
 
 
                     
                 </div> <!--closing of left card-->
-            </div> <!--closing of md4-->
+            </div> <!--closing of md4 left panel-->
 
             <!--RIGHT PANEL-->
             <div class="col-sm-8 col-md-7 col-lg-8 p-0 rightPanel" id="right-panel">
                 <div id="chatPanel" class="card" style="display: none;">
-                    <div class="card-header">
+                    <div class="card-header" style="background-color: #c2d3da;">
                         <div class="row">
                             <div class="col-1 col-sm-1 col-md-1 col-lg-1">
                                 <i class="fa fa-angle-left mt-3 icons d-md-none" style="cursor: pointer;" onclick="showChatList()"></i>
@@ -239,24 +288,83 @@
                                     </span>
                                     <div class="dropdown-menu">
                                         <a href="" class="dropdown-item" id="linkUserProfile" data-toggle="modal" data-target="#userProfile" onclick="">Profile</a>
-                                        <a href="" id="clearChat" onclick="clearChat()" class="dropdown-item">Clear Chat</a>
+                                        <!-- <a href="" id="clearChat" onclick="clearChat()" class="dropdown-item">Clear Chat</a> -->
                                     </div>
 
-                                    <!--Profile Modal-->
+                                    <!-- User Profile Modal-->
                                     <div class="modal fade" id="userProfile">
-                                        <div class="modal-dialog">
+                                        <div class="modal-dialog modal-dialog-scrollable">
                                             <div class="modal-content">
-                                                <div class="card">
+                                                <div class="modal-header" style="background-color: #c2d3da;">
+                                                    <h5 class="modal-title" id="exampleModalLabel" style="color: #272424;">My Profile</h5>
+                                                    <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
+                                                </div>
+                                                
+                                                <div class="modal-body">
+                                                    <form id='profile-form'>
+                                                    <!-- <a class="proEdit" style="float: right; cursor: pointer;">
+                                                        <i class="fa fa-edit icon" onclick="test()"></i>
+                                                    </a>                                                                                                           -->
+                                                    <div class="container">
+                                                        
+                                                        <div class="row">
+                                                          <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                                                <div class="container d-flex flex-column align-items-center">
+                                                                        <div class="row">
+                                                                        <div class="profile-nav col-12 col-sm-12 col-md-12 col-lg-12 headd">
+                                                                            <div class="user-heading round">                                                                    
+                                                                                <img src="/static/media/images/femaleuser.png"><br>                                                                              
+                                                                                <input type="file" id="proimage" class="form-control-file border proimg" style="display: none;">                                                            
+                                                                            </div>
+                                                                                <div class="user-heading">
+                                                                                <textarea id="proname" class="profileName text-center" rows="1" cols="30" disabled>Lubna Ashraf</textarea>
+                                                                                <h6>@lubna</h6>
+                                                                                <textarea id="prodesig" class="profileDesig text-center" rows="1" cols="30" disabled>Intern</textarea>
+                                                                                    
+                                                                                </div>                                                                   
+                                                                        </div><!--end profile-nav-->
+                                                                        </div><!--end row-->
+                                                                        <div class="h-divider"></div>
+                                                                        <div>
+                                                                            <textarea id="probio" class="profileBio" style="text-align: center;" rows="3" cols="40" disabled>Computer student. Loves teaching and cooking.
+                                                                            </textarea>
+                                                                        </div>
+                                                                        
+                                                                        <div>
+                                                                           <i class="fa fa-envelope mr-3" style="color: black;"></i>
+                                                                           <i class="link-mail">lubnaashraf@gmail.com</i>
+                                                                        </div><br>
+                                                                        
+                                                                        <div style="color: black;">
+                                                                           <i class="fa fa-globe mr-3"></i>
+                                                                           08:30 PM(IST)   10:00 AM(EST)
+                                                                        </div>
+                                                                        <div style="color: black;">         
+                                                                            <i class="fa fa-calendar mr-3" > </i>
+                                                                            21-Sep-2020
+                                                                        </div><br><br>
+                                                                </div><!--end d-flex-->
+                                                            </div>
+                                                        </div><!--end row-->                                                        
+                                                    </div><!--end of container-->
+                                                    <button id="prosave" class="btn" style="float: right; background-color: #c2d3da; color: #272424; display: none;" type="submit" onclick="save()">Save</button>
+                                                </form>
+                                                </div><!--closing of modal body-->
+                                                <div class="modal-footer" style="background-color: #c2d3da;">
+                                                    
+                                                </div><!--footer-->
+                                                
+                                                <!-- <div class="card">
                                                     <div class="card-header">
-                                                        Profile
-                                                        <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
-                                                    </div> <!--closing of card header-->
-                                                </div> <!--closing of card-->
+                                                        My Profile
+                                                        <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span> -->
+                                                    <!--</div>--> <!--closing of card header-->
+                                                <!--</div>--> <!--closing of card -->
                                             </div> <!--closing of modal content-->
                                         </div> <!--closing of modal dialog-->
                                     </div> <!--closing of modal-->
+                                    
                                 </div>
-                                <!-- <i class="fas fa-ellipsis-v ml-4" style="cursor: pointer;"></i> -->
                             </div>
                         </div>
                     </div><!--closing of card header-->
@@ -266,9 +374,9 @@
                     </div>
 
                     <!--FOOTER-->
-                    <div class="card-footer">
+                    <div class="card-footer" style="background-color: #c2d3da;">
                         <div class="icons">
-                            <form id="msg-form">                                    
+                            <form id="msg-form">                            
                                 <span id="err-msg"></span>
                                 <div id = "file-section">                                        
                                     <span id="selected-file"></span>
@@ -288,11 +396,11 @@
                 <!--WELCOME SCREEN-->
                 <div class="container">
                     <div id="divStart" class="text-center">
-                        <img src="/static/media/images/ai-logo.png" style="height: 240px; width: 200px;" class="welcome-logo mt-5">
+                        <img src="/static/media/images/ai-logo.png" class="welcome-logo">
                         <!-- <i class="fa fa-comments mt-5" style="font-size: 250px;"></i> -->
                         <div class="welcome-text">
-                            <h3 class="mt-5">Welcome to the chat room of <strong>Applied Informatics</strong></h3>
-                            <h4 class="mt-3">Start sharing your ideas!</h4>
+                            <h3 class="">Welcome to the chat room of <strong>Applied Informatics</strong></h3>
+                            <h4 class="mt-5">Start sharing your ideas!</h4>
                         </div>
                         <!-- <a href="#" class="d-md-none" onclick="showChatList()">Select Chat</a> -->
                         <button class="btn btn-primary d-md-none" onclick="showChatList()">Select Chat></button>
