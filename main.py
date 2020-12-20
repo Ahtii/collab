@@ -12,6 +12,10 @@ from starlette.responses import FileResponse
 from fastapi.responses import StreamingResponse
 import random, magic
 
+# Create the database tables
+models.Base.metadata.create_all(bind=engine)
+
+
 app = FastAPI()
 # authentication
 TOKEN_MANAGER = OAuth2PasswordBearerWithCookie(tokenUrl="/api/users/token")
@@ -192,6 +196,22 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
         except WebSocketDisconnect:
             socket_manager.disconnect(websocket, user)
 
+@app.delete("/api/user/personal-message/{id}")
+async def del_msg(request: Request, id: int, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    if user:
+        db.query(models.PersonalMessage).filter(models.PersonalMessage.id == id).delete()
+        db.commit()
+        
+
+@app.delete("/api/user/room-message/{id}")
+async def del_msg(request: Request, id: int, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    if user:
+        db.query(models.RoomMessage).filter(models.RoomMessage.id == id).delete()
+        db.commit()
+        
+
 # for direct chat
 @app.websocket("/api/user-chat/{receiver}")
 async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = Depends(get_db)):
@@ -346,3 +366,32 @@ def get_rooms(request: Request, id: int, db: Session = Depends(get_db)):
         response = {"error": "Unauthorized user"}
     return response
 
+
+
+
+#newcode
+#@app.get("/api/profile/{id})
+#def profile_page(db,email:str):
+ #   profile= await profile.get_user_by_email(db: Session =Depends(get), emai=profile.email)
+  #   if not profile:
+   	    raise HTTPException(
+       	status_code=HTTP_401_UNAUTHORIZED,
+       	detail="Incorrect email ,
+     )
+     else:
+         profile=profile.get_user_by_email(db)
+    return profile
+
+
+#@app.get("/api/profile")
+#def profile_update(db,email:str):
+ #   up_profile= await profile.get_user_by_email(email =profile.email db: Session = Depends(get_db))
+  #  if up_profile:
+    #    return up_profile
+    #else 
+    #name = name
+    #designation= designation
+    #avatar= avatar
+    #bio= bio
+
+    #return profile
