@@ -12,10 +12,6 @@ from starlette.responses import FileResponse
 from fastapi.responses import StreamingResponse
 import random, magic
 
-# Create the database tables
-#models.Base.metadata.create_all(bind=engine)
-
-
 app = FastAPI()
 # authentication
 TOKEN_MANAGER = OAuth2PasswordBearerWithCookie(tokenUrl="/api/users/token")
@@ -47,14 +43,6 @@ def index(request: Request, db: Session = Depends(get_db)):
         return templates.TemplateResponse("chat.html", {"request": request})
     return templates.TemplateResponse("index.html", {"request": request})
 
-
-# chat template
-# @app.get("/chat",  include_in_schema=False)
-# def chat(request: Request, db: Session = Depends(get_db)):   
-#     user = views.get_current_user(db, request.cookies.get("access_token"))
-#     if user:
-#         return templates.TemplateResponse("chat.html", {"request": request})
-#     return templates.TemplateResponse("index.html", {"request": request})    
 
 # render file template
 @app.get("/preview-file/", include_in_schema=False)
@@ -224,13 +212,7 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                             (models.PersonalMessage.receiver_id == user.id))
                         ).order_by(models.PersonalMessage.created_date).all()
                         #old_messages = db.execute("select * from personal_message where sender_id = "+str(user.id)+" and receiver_id = "+str(receiver.id)+" or sender_id = "+str(receiver.id)+" and receiver_id = "+str(user.id)+";")
-                        for message in old_messages:
-                            # if message.sender_id == user.id:
-                            #     sender = user
-                            #     receiver = receiver
-                            # else:
-                            #     sender = receiver
-                            #     receiver = user
+                        for message in old_messages:                            
                             sender = db.query(models.User).filter(
                                 models.User.id == message.sender_id
                             ).first()
@@ -257,13 +239,7 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                                 msg_data.update({
                                     "file": str(message.attachment_url),
                                     "filename": filename
-                                })
-                            print("message sender is: ")
-                            print(sender.username) 
-                            print("message receiver is: ")
-                            print(receiver.username)
-                            print("message text is: ")
-                            print(message.text)
+                                })                            
                             await socket_manager.populate_old_messages(msg_data)                    
                     else:
                         room = db.query(models.Room).filter(models.Room.name == room).first()
@@ -299,8 +275,7 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                                 })
                             await socket_manager.populate_old_messages(msg_data)
                 else:
-                    if receiver:                              
-                        #data.update({"sender_id": user.id, "username": user.username})
+                    if receiver:                                                      
                         data.update({"user": user})
                         file_data = data.get('file')
                         if file_data:
@@ -340,56 +315,6 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                         await socket_manager.to_room_participants(message)
         except WebSocketDisconnect:
             socket_manager.disconnect(websocket, user)                        
-
-
-# for profile
-'''@app.websocket("/api/user-connect")
-async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)):
-    user = views.get_current_user(db, websocket.cookies.get("access_token"))
-    if user:        
-        await socket_manager.connect(websocket, user)
-        await socket_manager.get_online_users()
-        messages = db.execute(get_old_conversation(str(user.id)))
-        for message in messages:
-            sender = db.query(models.User).filter(
-                models.User.id == message.sender_id
-            ).first()
-            receiver = db.query(models.User).filter(
-                models.User.id == message.receiver_id
-            ).first()
-            msg_data = {
-                "id": message.id, 
-                # "author": sender.username,
-                "author": {
-                    "username": sender.username,
-                    "fullname": views.get_fullname(sender)
-                },
-                "message": message.text,
-                "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
-                "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",                
-                # "receiver": receiver.username,
-                "receiver": {
-                    "username": receiver.username,
-                    "fullname": views.get_fullname(receiver),
-                },
-                "user": user.username
-            }
-            if message.attachment_url:
-                filename = message.attachment_url.split("/")[-1]
-                msg_data.update({
-                    "file": str(message.attachment_url),
-                    "filename": filename
-                })
-            await socket_manager.populate_old_messages(msg_data)
-        response = views.get_rooms(user, db)
-        rooms = response["rooms"]
-        if rooms:
-            await socket_manager.populate_rooms(rooms, user)
-        try:
-            while True:
-                await websocket.receive_json()
-        except WebSocketDisconnect:
-            socket_manager.disconnect(websocket, user)'''        
 
 # for direct chat
 @app.websocket("/api/user-chat/{receiver}")
@@ -558,7 +483,7 @@ def get_rooms(request: Request, id: int, db: Session = Depends(get_db)):
 
 # delete personal message
 @app.delete("/api/user/personal-message/{id}")
-async def del_msg(request: Request, id: int, db: Session = Depends(get_db)):
+async def del_personal_msg(request: Request, id: int, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:
         db.query(models.PersonalMessage).filter(models.PersonalMessage.id == id).delete()
@@ -566,7 +491,7 @@ async def del_msg(request: Request, id: int, db: Session = Depends(get_db)):
         
 # delete room message
 @app.delete("/api/user/room-message/{id}")
-async def del_msg(request: Request, id: int, db: Session = Depends(get_db)):
+async def del_room_msg(request: Request, id: int, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:
         db.query(models.RoomMessage).filter(models.RoomMessage.id == id).delete()
@@ -628,28 +553,3 @@ def save_profile(user: str, profile_data: validators.ProfileUpdateForm, db: Sess
     else:
         response["error"] = "something went wrong."     
     return response    
-
-
-#  #   profile= await profile.get_user_by_email(db: Session =Depends(get), emai=profile.email)
-#   #   if not profile:
-#    	    raise HTTPException(
-#        	status_code=HTTP_401_UNAUTHORIZED,
-#        	detail="Incorrect email ,
-#      )
-#      else:
-#          profile=profile.get_user_by_email(db)
-#     return profile
-
-
-#@app.get("/api/profile")
-#def profile_update(db,email:str):
- #   up_profile= await profile.get_user_by_email(email =profile.email db: Session = Depends(get_db))
-  #  if up_profile:
-    #    return up_profile
-    #else 
-    #name = name
-    #designation= designation
-    #avatar= avatar
-    #bio= bio
-
-    #return profile
