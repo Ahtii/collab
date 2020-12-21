@@ -42,13 +42,7 @@ templates = Jinja2Templates(directory="templates")
 # index template
 @app.get("/")
 def index(request: Request, db: Session = Depends(get_db)):
-    user = views.get_current_user(db, request.cookies.get("access_token"))
-    registered_users = db.query(models.User).all()
-    for registered_user in registered_users:
-        if registered_user.profile_id is None:
-            profile = models.Profile()
-            profile.user = registered_user
-            db.commit()        
+    user = views.get_current_user(db, request.cookies.get("access_token"))       
     if user:
         return templates.TemplateResponse("chat.html", {"request": request})
     return templates.TemplateResponse("index.html", {"request": request})
