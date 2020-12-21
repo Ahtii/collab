@@ -444,7 +444,7 @@ $(document).ready(function(){
 
         $("#messages").empty();
         selected_room = "";
-        $(".dropleft .dropdown-toggle").removeClass("hide");
+        $("#chatPanel .dropleft").find(".dropdown-toggle").removeClass("hide");
 
         $(".panel-pic").attr("src", "/static/media/images/maleuser.png");        
         
@@ -548,9 +548,9 @@ $(document).ready(function(){
         hideChatList();
 
         $("#messages").empty();  
-        selected_user = "";  
+        selected_user = "";
         
-        $(".dropleft .dropdown-toggle").addClass("hide");    
+        $("#chatPanel .dropleft").find(".dropdown-toggle").addClass("hide");   
         
         $(".panel-pic").attr("src", "/static/media/images/groups.png");                
 

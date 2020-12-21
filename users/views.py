@@ -20,7 +20,6 @@ import pytz
 # hashing password algorithm (BCRYPT for new hash) with support for old algorithm
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
 # generate hashed password
 def gen_hash(password):
     return pwd_context.hash(password)

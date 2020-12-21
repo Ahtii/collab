@@ -41,14 +41,26 @@ templates = Jinja2Templates(directory="templates")
 
 # index template
 @app.get("/")
-def index(request: Request):
+def index(request: Request, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    registered_users = db.query(models.User).all()
+    for registered_user in registered_users:
+        if registered_user.profile_id is None:
+            profile = models.Profile()
+            profile.user = registered_user
+            db.commit()        
+    if user:
+        return templates.TemplateResponse("chat.html", {"request": request})
     return templates.TemplateResponse("index.html", {"request": request})
 
 
 # chat template
-@app.get("/chat",  include_in_schema=False)
-def chat(request: Request):    
-    return templates.TemplateResponse("chat.html", {"request": request})
+# @app.get("/chat",  include_in_schema=False)
+# def chat(request: Request, db: Session = Depends(get_db)):   
+#     user = views.get_current_user(db, request.cookies.get("access_token"))
+#     if user:
+#         return templates.TemplateResponse("chat.html", {"request": request})
+#     return templates.TemplateResponse("index.html", {"request": request})    
 
 # render file template
 @app.get("/preview-file/", include_in_schema=False)
@@ -64,22 +76,6 @@ def preview_file(request: Request):
         return FileResponse(absolute_path, filename=filename)            
     # file = open(absolute_path, mode="rb")
     # return StreamingResponse(file, media_type=mtype)
-
-
-# direct chat template
-@app.get("/direct", include_in_schema=False)
-def direct(request: Request):
-    return templates.TemplateResponse("direct.html", {"request": request})
-
-# room chat template
-@app.get("/room", include_in_schema=False)
-def room(request: Request):
-    return templates.TemplateResponse("room.html", {"request": request})
-
-# room template
-# @app.get("/create_room", include_in_schema=False)
-# def create_room(request: Request):
-#     return templates.TemplateResponse("create_room.html", {"request": request})
 
     # API ENDPOINTS
 
@@ -546,7 +542,7 @@ async def create_room(request: Request, id: int, room_data: validators.CreateRoo
         response = views.create_room(user, room_data, db)
         room = response['room']
         if room:
-            response['participants'] = views.get_participants(room, db)
+            response['participants'] = views.get_participants(room, db)            
     else:
         response = {"error": "Unauthorized user"}
     return response

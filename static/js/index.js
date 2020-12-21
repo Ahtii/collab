@@ -67,7 +67,8 @@ $(document).ready(function(){
                     else{
                         //genProfile();
                         console.log("show profile");
-                        window.location.href = "/chat";
+                        window.location.reload()
+                        //window.location.href = "/chat";
                     }    
                 }
             });
@@ -99,7 +100,8 @@ $(document).ready(function(){
         else{
           //genProfile();
           console.log("show profile");
-          window.location.href = "/chat";
+         // window.location.href = "/chat";
+         window.location.reload()
         } //brace of else
 
     });
