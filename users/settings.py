@@ -4,7 +4,7 @@ import os, pathlib
 
 SECRET_KEY = os.urandom(24).hex()
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 10080
 TOKEN_URL = "/api/auth/token"
 
 # google login
