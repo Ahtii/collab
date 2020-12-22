@@ -27,12 +27,12 @@ input {
   line-height: 9px;
 } */
 #fmessage, #umessage, #emessage, #pmessage, #cpmessage{
-  color: orange;
+  color: purple;
   width: 60%;
   margin-left: 280px;
   position: absolute;
   line-height: 9px;
-  font-size: 10px;
+  font-size: 10px;  
 }
 /* .first-name-field:focus:required:valid {
   box-shadow: 0 0 3pt 2pt seagreen;
@@ -160,7 +160,7 @@ form.sign-in-form {
   display: grid;
   grid-template-columns: 15% 85%;
   padding: 0 0.4rem;
-  position: relative;
+  position: relative;  
 }
 
 .input-field i {

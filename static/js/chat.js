@@ -225,7 +225,7 @@ $(document).ready(function(){
                                                 <div class='col-md-10 col-10' style='cursor: pointer;'>\
                                                     "+username_holder+"\
                                                     <div class='name'><i class='fa fa-circle state offline'></i>&nbsp;<span>"+user_tag+"</span></div>\
-                                                    <div class='under-name'> "+displayname+": &nbsp; "+message+"&nbsp;"+file_url+"</div>\
+                                                    <!--<div class='under-name'> "+displayname+": &nbsp; "+message+"&nbsp;"+file_url+"</div>-->\
                                                 </div>\
                                             </div>\
                                         </li>"; 

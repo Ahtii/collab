@@ -279,14 +279,13 @@ $(document).ready(function(){
         console.log(ispError);
         console.log(iscpError);
         if(isfError == false && isuError == false && iseError == false && ispError == false && iscpError == false){
-            console.log("Signup Successfull");
-            // $.post("/api/user", JSON.stringify(form_data),function(response){
-            //     var error = response["error"];
-            //     if (error)
-            //         alert(error);
-            //     else
-            //         $("#sign-in-btn").trigger("click");
-            // });
+            $.post("/api/user", JSON.stringify(form_data),function(response){
+                var error = response["error"];
+                if (error)
+                    alert(error);
+                else
+                    $("#sign-in-btn").trigger("click");
+            });
         }        
     });    
     // google login entrypoint
