@@ -478,7 +478,11 @@ form.sign-in-form {
 
 
 
-/* Ahtisham's Code*/
+/* Ahtisham Added*/
+
+.notifier {
+  background-color: rgb(230, 230, 230);
+}
 
 .text-area {
   position: relative;
