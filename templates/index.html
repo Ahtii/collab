@@ -44,40 +44,60 @@
                 </div>
             </div>
             </form>
-            <form id="register-form" class="sign-up-form">
+            <form id="register-form" name="signupForm" class="sign-up-form">
                 <div>
                 <h2 class="title">Sign up</h2>
                 </div>
                 <div class="fields">
+
                 <div class="input-field">
                 <i class="fa fa-user"></i>
-                <input id="first_name" type="text" placeholder="First Name (Required)" required/>
+                <input id="first_name" name="fname" type="text" placeholder="First Name *" class="first-name-field" onkeyup="return fnameFunc()" required/>
+                <!-- <span class="message" id="message"></span> -->
+                <span class="fmessage" id="fmessage"></span>
                 </div>
+
                 <div class="input-field">
                 <i class="fa fa-user"></i>
-                <input id="last_name" type="text" placeholder="Last Name (Optional)"/>
+                <input id="last_name" type="text" placeholder="Last Name"/>
                 </div>
+
                 <div class="input-field">
                 <i class="fa fa-envelope"></i>
-                <input id="email" type="email" placeholder="Email (Required)" required/>
+                <input id="email" type="email" placeholder="Email *" class="email-field" onkeyup="emailFunc()" required/>
+                <span class="emessage" id="emessage"></span>
                 </div>
+
                 <div class="input-field">
                 <i class="fa fa-user-circle-o" aria-hidden="true"></i>
-                <input id="username" type="text" placeholder="Username (Required)"  required/>
+                <input id="username" type="text" placeholder="Username *" class="username-field" onkeyup="return unameFunc()" required/>
+                <span class="umessage" id="umessage"></span>
                 </div>
+
                 <div class="input-field">
                 <i class="fa fa-lock"></i>
-                <input id="password" type="password" placeholder="Password (Required)" required/>
+                <input id="password" name="pass" type="password" placeholder="Password *" class="password-field" onkeyup= "return passFunc()" required/> <!--pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"-->
+                <span class="pmessage" id="pmessage"></span>
                 </div>
+
                 <div class="input-field">
                 <i class="fa fa-lock"></i>
-                <input type="password" placeholder="Confirm Password (Required)" required/>
+                <input id="cpassword" name="cpass" type="password" placeholder="Confirm Password *" class="password-field" onkeyup= "return cpassFunc()" required/> <!--pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"-->
+                <span class="cpmessage" id="cpmessage"></span>
                 </div>
+
             </div>
             <div>
-                <input type="submit" class="btn btnu" value="Sign up" />
+                <input type="submit"  id="submitbtn" class="btn btnu " value="Sign up"/>
             </div>
+            <p class="helper-text">* denotes a required field</p>
             </form>
+            <!-- <div id="checksField" style="display: none;">
+                <h3>Password must contain the following:</h3>
+                <p id="letter" class="wrong">A <b>lowercase</b> letter</p>
+                <p id="capital" class="wrong">A <b>capital (uppercase)</b>letter</p>
+                <p id="number" class="wrong">A <b>number</b></p>
+            </div> -->
             </div>
         </div>
 

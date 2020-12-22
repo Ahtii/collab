@@ -186,13 +186,11 @@ body{
 
 .tab-header{
     padding-top: 2px;
-    padding-bottom: 2px;
 }
 /* .tab-header .nav-item{
     margin-left: 3px;
 } */
 .tab-header .nav-tabs li a:hover{
-    
     color: #272424 !important;
     border: 1px solid #81a3a7;
     transition: 0.3s ease-in;

@@ -13,6 +13,86 @@ input {
   font-family: "Poppins", sans-serif;
 }
 
+
+/* //////////For Validation////////// */
+
+.helper-text {
+  font-size: 12px;
+  color: #333;
+}
+/* .message, .umessage {
+  width: 60%;
+  margin-left: 280px;
+  position: absolute;
+  line-height: 9px;
+} */
+#fmessage, #umessage, #emessage, #pmessage, #cpmessage{
+  color: orange;
+  width: 60%;
+  margin-left: 280px;
+  position: absolute;
+  line-height: 9px;
+  font-size: 10px;
+}
+/* .first-name-field:focus:required:valid {
+  box-shadow: 0 0 3pt 2pt seagreen;
+  border-radius: 55px;
+}
+.first-name-field:focus:required:invalid {
+  box-shadow: 0 0 3pt 2pt orange;
+  border-radius: 55px;
+} */
+/* .first-name-field:focus:invalid + .message::after {
+  color: orange;
+  content: "First Name required";
+  font-size: 10px;
+} */
+
+/* .email-field:focus:required:valid {
+  box-shadow: 0 0 3pt 2pt seagreen;
+  border-radius: 55px;
+}
+.email-field:focus:required:invalid {
+  box-shadow: 0 0 3pt 2pt orange;
+  border-radius: 55px;
+} */
+/* .email-field:focus:invalid + .message::after {
+  color: orange;
+  content: "Enter valid email id";
+  font-size: 10px;
+} */
+
+/* .username-field:focus:required:valid {
+  box-shadow: 0 0 3pt 2pt seagreen;
+  border-radius: 55px;
+}
+.username-field:focus:required:invalid {
+  box-shadow: 0 0 3pt 2pt orange;
+  border-radius: 55px;
+} */
+/* .username-field:focus:invalid + .message::after {
+  color: orange;
+  content: "Username must be  4 to 10 characters without space";
+  font-size: 10px;
+} */
+
+/* .password-field:focus:required:valid {
+  box-shadow: 0 0 3pt 2pt seagreen;
+  border-radius: 55px;
+}
+.password-field:focus:required:invalid {
+  box-shadow: 0 0 3pt 2pt orange;
+  border-radius: 55px;
+} */
+/* .password-field:focus:invalid + .message::after {
+  color: orange;
+  content: "Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters";
+  font-size: 10px;
+} */
+/* ///////////////////////////////////////////////////// */
+
+
+/* ///////////////////////////////// */
 .auth-container {
   position: relative;
   width: 100%;
@@ -104,6 +184,7 @@ form.sign-in-form {
 .input-field input::placeholder {
   color: #aaa;
   font-weight: 450;
+  /* text-align: center; */
 }
 
 .social-text {
