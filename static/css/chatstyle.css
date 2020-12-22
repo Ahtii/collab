@@ -74,11 +74,11 @@ body{
 }
 
 .welcome-text{
-    color: #585a56;
+    color: #272424;
     margin-top: 50px;
 }
 .welcome-text strong{
-    color: #272424;
+    color: purple;
 }
 
 .welcome-logo{

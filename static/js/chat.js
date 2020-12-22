@@ -7,7 +7,7 @@
         document.getElementById('probio').removeAttribute('disabled');
         document.getElementById('proname').removeAttribute('disabled');
         document.getElementById('prodesig').removeAttribute('disabled');
-        document.getElementById('proimage').style.display="block";
+        // document.getElementById('proimage').style.display="block";
         document.getElementById('prosave').style.display="block";
         document.getElementById('proname').style.border="thin solid black";
         document.getElementById('prodesig').style.border="thin solid black";
@@ -138,8 +138,8 @@ $(document).ready(function(){
                 if (profile)
                     data['avatar'] = profile
                 console.log(data);
-                $.post("/api/profile/"+user, JSON.stringify(data), function(response){
-                    console.log("working");
+                $.post("/api/profile/"+user, JSON.stringify(data), function(response){                                                           
+                    $('#myProfile').modal('toggle');
                 });
             });
            // create websocket
