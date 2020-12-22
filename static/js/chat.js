@@ -127,7 +127,7 @@ $(document).ready(function(){
             //     // code to send file to server        
             //     profile = e.target.files[0];        
             // });
-            
+            // used to save profile
             $("#profile-form").on("submit", function(e){
                 e.preventDefault();        
                 var data = {
@@ -138,7 +138,30 @@ $(document).ready(function(){
                 if (profile)
                     data['avatar'] = profile
                 console.log(data);
-                $.post("/api/profile/"+user, JSON.stringify(data), function(response){                                                           
+                $.post("/api/profile/"+user, JSON.stringify(data), function(response){                                                                                                                       
+                    
+                    document.getElementById('probio').setAttribute('disabled', true);
+                    document.getElementById('probio').setAttribute('style', 'border:none;');                    
+                    document.getElementById("probio").style.textAlign='center';
+
+                    document.getElementById('prodesig').setAttribute('disabled', true);
+                    document.getElementById('prodesig').setAttribute('style', 'border:none;');                    
+                    document.getElementById("prodesig").style.textAlign='center';
+
+
+                    document.getElementById('proname').setAttribute('disabled', true);
+                    document.getElementById('proname').setAttribute('style', 'border:none;');                    
+                    document.getElementById("proname").style.textAlign='center';  
+                    
+                    var proName = document.getElementById("proname");
+                    proName.style.color = 'Crimson';
+                    proName.style.fontSize='medium';
+                    proName.style.fontWeight='bold';
+                    var prodesig = document.getElementById("prodesig");
+                    prodesig.style.color = 'seagreen';
+                    prodesig.style.fontSize='medium';
+                    prodesig.style.fontWeight='bold';
+
                     $('#myProfile').modal('toggle');
                 });
             });
