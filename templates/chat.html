@@ -7,8 +7,8 @@
 
     <!-- Compiled and minified CSS-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Font Awesome-->
-    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous"> -->
+    
+    <!-- Font Awesome-->    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">    
     
     <!--CSS Stylesheet-->
@@ -55,7 +55,6 @@
                                         <a href="#" class="dropdown-item" id="linkProfile" data-toggle="modal" data-target="#myProfile" onclick="">Profile</a>
                                         <a href="" id="linkSignOut" class="dropdown-item">Sign Out</a>
                                     </div>
-
                                     <!--My Profile Modal-->
                                     <div class="modal fade" id="myProfile">
                                         <div class="modal-dialog modal-dialog-scrollable">
@@ -66,7 +65,7 @@
                                                 </div>
                                                 
                                                 <div class="modal-body">
-                                                    <form id='profile-form'>
+                                                    <form action="/api/profile/" id='profile-form' method="post">
                                                     <a class="proEdit" style="float: right; cursor: pointer;">
                                                         <i class="fa fa-edit icon" onclick="edit_profile()"></i>
                                                     </a>                                                                                                          
@@ -79,7 +78,7 @@
                                                                         <div class="profile-nav col-12 col-sm-12 col-md-12 col-lg-12 headd">
                                                                             <div class="user-heading round">                                                                    
                                                                                 <img src="/static/media/images/maleuser.png"><br>                                                                              
-                                                                                <input type="file" id="proimage" class="form-control-file border proimg" style="display: none;">                                                            
+                                                                                <input type="file" name="file" id="proimage" class="form-control-file border proimg" style="display: none;">                                                            
                                                                             </div>
                                                                                 <div class="user-heading">
                                                                                 <textarea id="proname" class="profileName text-center" rows="1" cols="30" disabled></textarea>
@@ -143,6 +142,10 @@
                     <div class="list-group list-group-flush">
                         <li class="list-group-item" style="background-color: #c2d3da;">
                             <button id="roomButton" class="btn" data-toggle="modal" data-target="#createRoom" onclick="">Create Room</button>
+                            <!-- <form id="test-form" enctype="multipart/form-data" method="post">
+                                <input name="file" type="file">
+                                <input type="submit">
+                            </form> -->
                         </li>
                         <!--Create Room Modal-->
                         <div class="modal fade" id="createRoom">
@@ -274,8 +277,7 @@
                                                                         <div class="row">
                                                                         <div class="profile-nav col-12 col-sm-12 col-md-12 col-lg-12 headd">
                                                                             <div class="user-heading round">                                                                    
-                                                                                <img src="/static/media/images/maleuser.png"><br>                                                                              
-                                                                                <input type="file" id="proimage" class="form-control-file border proimg" style="display: none;">                                                            
+                                                                                <img src="/static/media/images/maleuser.png"><br>                                                                                                                                                                                                                         
                                                                             </div>
                                                                                 <div class="user-heading">
                                                                                 <textarea id="proname" class="profileName text-center" rows="1" cols="30" disabled></textarea>

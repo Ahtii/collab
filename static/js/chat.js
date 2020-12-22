@@ -70,8 +70,8 @@ $(document).ready(function(){
                         profile_type = "#userProfile";
                     }    
                 }    
-                console.log(selected_profile);
-                console.log(profile_for);
+                // console.log(selected_profile);
+                // console.log(profile_for);
                 $.get("/api/profile/"+profile_for, function(response){
                     var profile = response["profile"];
                     // populate user profiel
@@ -79,6 +79,20 @@ $(document).ready(function(){
                         populate_profile(profile_type, profile);                                             
                 });
             });
+
+            // $("#test-form").on("submit", function(e){
+            //     e.preventDefault();
+            //     //$.post("/api/profile-update", $(this).serialize());
+            //     $.ajax({
+            //         type: "POST",
+            //         url: "/api/profile-update",
+            //         data: $(this).serialize(), // serializes the form's elements.
+            //         success: function(data)
+            //         {
+            //             alert(data); // show response from the php script.
+            //         }
+            //     });
+            // });
 
             /* BISMA's CODE END */
 
@@ -109,10 +123,10 @@ $(document).ready(function(){
             // profile edit code
             var profile = "";        
             // open file to upload
-            $("#proimage").on("change", function(e){
-                // code to send file to server        
-                profile = e.target.files[0];        
-            });
+            // $("#proimage").on("change", function(e){
+            //     // code to send file to server        
+            //     profile = e.target.files[0];        
+            // });
             
             $("#profile-form").on("submit", function(e){
                 e.preventDefault();        
@@ -120,7 +134,7 @@ $(document).ready(function(){
                     "fullname": $("#proname").val(),
                     "designation": $("#prodesig").val(),
                     "bio": $("#probio").val()
-                };
+                };      
                 if (profile)
                     data['avatar'] = profile
                 console.log(data);
@@ -628,7 +642,7 @@ $(document).ready(function(){
     });
 
     $(document).on("submit", "#room-form", function(e){
-        e.preventDefault();        
+        e.preventDefault(); 
         var selected_participants = [];
         $.each($("#user-list li"), function(index, user){
             var checked = $(user).find("input").is(":checked");

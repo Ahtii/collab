@@ -62,6 +62,11 @@ def preview_file(request: Request):
     # API ENDPOINTS
 
 
+@app.post("/api/profile-update/")
+async def upload_file(file: UploadFile = File(...)):
+    print(file)
+    print(file.filename)
+
 @app.get("/api/user")
 def get_current_user(request: Request, db: Session = Depends(get_db)):
     response = {}
@@ -143,56 +148,59 @@ def get_old_conversation(id):
 async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)):
     # setup code for each connection
     user = views.get_current_user(db, websocket.cookies.get("access_token"))
-    if user:        
-        await socket_manager.connect(websocket, user)        
-        await socket_manager.get_online_users()
-        users = db.query(models.User).all()        
-        messages = db.execute(get_old_conversation(str(user.id)))
-        friends = []
-        for message in messages:
-            sender = db.query(models.User).filter(
-                models.User.id == message.sender_id
-            ).first()
-            receiver = db.query(models.User).filter(
-                models.User.id == message.receiver_id
-            ).first()
-            msg_data = {
-                "id": message.id,                 
-                "author": {
-                    "username": sender.username,
-                    "fullname": views.get_fullname(sender)
-                },
-                "message": message.text,
-                "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
-                "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",                                
-                "receiver": {
-                    "username": receiver.username,
-                    "fullname": views.get_fullname(receiver),
-                },                
-                "last_message": True,
-                "user": user.username
-            }
-            if sender.id != user.id:
-                friends.append(sender)                
-            else:
-                friends.append(receiver)    
-            if message.attachment_url:
-                filename = message.attachment_url.split("/")[-1]
-                msg_data.update({
-                    "file": str(message.attachment_url),
-                    "filename": filename
-                })
-            await socket_manager.populate_old_messages(msg_data)            
-        #users = db.query(models.User).all()            
-        #await socket_manager.get_registered_users(users, friends, user)
-        strangers = list((set(users) - set(friends)) - set([user]))     
-        for stranger in strangers:                                  
-            await socket_manager.get_stranger(stranger)
-        response = views.get_rooms(user, db)
-        rooms = response["rooms"]
-        if rooms:
-            await socket_manager.populate_rooms(rooms, user)
-        await socket_manager.get_online_users()
+    if user: 
+        try:       
+            await socket_manager.connect(websocket, user)        
+            await socket_manager.get_online_users()
+            users = db.query(models.User).all()        
+            messages = db.execute(get_old_conversation(str(user.id)))
+            friends = []
+            for message in messages:
+                sender = db.query(models.User).filter(
+                    models.User.id == message.sender_id
+                ).first()
+                receiver = db.query(models.User).filter(
+                    models.User.id == message.receiver_id
+                ).first()
+                msg_data = {
+                    "id": message.id,                 
+                    "author": {
+                        "username": sender.username,
+                        "fullname": views.get_fullname(sender)
+                    },
+                    "message": message.text,
+                    "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
+                    "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",                                
+                    "receiver": {
+                        "username": receiver.username,
+                        "fullname": views.get_fullname(receiver),
+                    },                
+                    "last_message": True,
+                    "user": user.username
+                }
+                if sender.id != user.id:
+                    friends.append(sender)                
+                else:
+                    friends.append(receiver)    
+                if message.attachment_url:
+                    filename = message.attachment_url.split("/")[-1]
+                    msg_data.update({
+                        "file": str(message.attachment_url),
+                        "filename": filename
+                    })
+                await socket_manager.populate_old_messages(msg_data)            
+            #users = db.query(models.User).all()            
+            #await socket_manager.get_registered_users(users, friends, user)
+            strangers = list((set(users) - set(friends)) - set([user]))     
+            for stranger in strangers:                                  
+                await socket_manager.get_stranger(stranger)
+            response = views.get_rooms(user, db)
+            rooms = response["rooms"]
+            if rooms:
+                await socket_manager.populate_rooms(rooms, user)
+            await socket_manager.get_online_users()
+        except Exception as e:
+            print(e)
         try:
             while True:
                 data = await websocket.receive_json()
@@ -298,21 +306,21 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                         message = views.create_message(db, data)
                         await socket_manager.to_specific_user(message)                                                          
                     else:
-                        file_data = data.get('file')
-                        if file_data:
-                            file_size = file_data['size']
-                            if file_size <= FILE_SIZE:
-                                file = await websocket.receive_bytes()
-                                filename = file_data['filename']
-                                file_dir = views.gen_file_dir(room, __file__)
-                                file_url = views.create_file(file_dir, filename, file)
-                                data.update({
-                                    "file": file_url,
-                                    "filename": filename
-                                })
-                        data['user'] = user.username        
-                        message = views.create_room_message(db, data)
-                        await socket_manager.to_room_participants(message)
+                            file_data = data.get('file')
+                            if file_data:
+                                file_size = file_data['size']
+                                if file_size <= FILE_SIZE:
+                                    file = await websocket.receive_bytes()
+                                    filename = file_data['filename']
+                                    file_dir = views.gen_file_dir(room, __file__)
+                                    file_url = views.create_file(file_dir, filename, file)
+                                    data.update({
+                                        "file": file_url,
+                                        "filename": filename
+                                    })
+                            data['user'] = user.username        
+                            message = views.create_room_message(db, data)
+                            await socket_manager.to_room_participants(message)                
         except WebSocketDisconnect:
             socket_manager.disconnect(websocket, user)                        
 
@@ -553,3 +561,28 @@ def save_profile(user: str, profile_data: validators.ProfileUpdateForm, db: Sess
     else:
         response["error"] = "something went wrong."     
     return response    
+
+
+#  #   profile= await profile.get_user_by_email(db: Session =Depends(get), emai=profile.email)
+#   #   if not profile:
+#    	    raise HTTPException(
+#        	status_code=HTTP_401_UNAUTHORIZED,
+#        	detail="Incorrect email ,
+#      )
+#      else:
+#          profile=profile.get_user_by_email(db)
+#     return profile
+
+
+#@app.get("/api/profile")
+#def profile_update(db,email:str):
+ #   up_profile= await profile.get_user_by_email(email =profile.email db: Session = Depends(get_db))
+  #  if up_profile:
+    #    return up_profile
+    #else 
+    #name = name
+    #designation= designation
+    #avatar= avatar
+    #bio= bio
+
+    #return profile
