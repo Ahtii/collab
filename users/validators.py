@@ -1,13 +1,42 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError, validator
 
 # register validation
-class RegisterValidator(BaseModel):
+'''class RegisterValidator(BaseModel):
     first_name: str
     last_name: str
     username: str
     email: str
     password: str
+    is_social_account: bool = False'''
+
+class RegisterValidator(BaseModel):
+    full_name: str
+    email: str
+    password: str
     is_social_account: bool = False
+
+    # @validator('full_name')
+    # def validate_fullname(cls, v):
+    #     response = {}        
+    #     if len(v) < 3:
+    #         response['error'] = 'must not be less than 3 alphabets.'            
+    #     elif len(v) > 30:
+    #         response['error'] = 'must not be greater than 30 alphabets.'            
+    #     else:
+    #         response["value"] = v.lower()    
+    #     return response
+
+    # @validator('email')
+    # def validate_email(cls, v):
+    #     response = {}        
+    #     if len(v) < 3:
+    #         response['error'] = 'must not be less than 3 alphabets.'            
+    #     elif len(v) > 30:
+    #         response['error'] = 'must not be greater than 30 alphabets.'            
+    #     else:
+    #         response["value"] = v.lower()    
+    #     return response   
+
 
 # login validator
 class LoginValidator(BaseModel):

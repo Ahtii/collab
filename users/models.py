@@ -42,8 +42,7 @@ class User(Base):
     __tablename__ = "user"
 
     id = Column(Integer, primary_key=True)
-    first_name = Column(String(50), nullable=False)
-    last_name = Column(String(50), nullable=False)
+    full_name = Column(String(50), nullable=False)
     username = Column(String(50), nullable=False)
     email = Column(String(255), nullable=False)
     password = Column(String(300), nullable=False)
@@ -53,7 +52,7 @@ class User(Base):
     modified_date = Column(TIMESTAMP, default=utcnow())
     is_social_account = Column(Boolean, default=False)
     room = relationship("Room", secondary=user_room, backref='participants', lazy='dynamic')
-    profile_id = Column(Integer, ForeignKey("profile.id"))
+    profile_id = Column(Integer, ForeignKey("profile.id"))    
 
 class Room(Base):
 
@@ -63,7 +62,7 @@ class Room(Base):
     name = Column(String(50), nullable=False)
     description = Column(String(200))
     created_date = Column(TIMESTAMP, default=datetime.utcnow())
-    admin = Column(String(50))  # link to use model
+    admin = Column(String(50))  # link to use mode    
     is_default = Column(Boolean, default=False)
 
     def get_admin(self):

@@ -73,7 +73,8 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
     user = views.get_current_user(db, request.cookies.get("access_token"))
     if user:        
         response = {
-            "full_name": views.get_fullname(user),
+            # "full_name": views.get_fullname(user),
+            "fullname": user.full_name.title(),
             "user": user.username,
             "id": user.id
         }
@@ -88,12 +89,12 @@ def get_all_users(db: Session = Depends(get_db)):
 
 # create a user
 @app.post("/api/user")
-async def create_user(user: validators.RegisterValidator, db: Session = Depends(get_db)):
+async def create_user(user: validators.RegisterValidator, db: Session = Depends(get_db)):    
     response = views.register(db, user)
     if response['user']:
         await socket_manager.get_stranger(response['user'])
         response = {}
-    return response    
+    return response
 
 
 # login the user and generate token for further authentication
@@ -166,14 +167,16 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                     "id": message.id,                 
                     "author": {
                         "username": sender.username,
-                        "fullname": views.get_fullname(sender)
+                        # "fullname": views.get_fullname(sender)
+                        "fullname": sender.full_name.title()
                     },
                     "message": message.text,
                     "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
                     "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",                                
                     "receiver": {
                         "username": receiver.username,
-                        "fullname": views.get_fullname(receiver),
+                        #"fullname": views.get_fullname(receiver),
+                        "fullname": receiver.full_name.title()
                     },                
                     "last_message": True,
                     "user": user.username
@@ -201,6 +204,7 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
             await socket_manager.get_online_users()
         except Exception as e:
             print(e)
+            websocket.close()
         try:
             while True:
                 data = await websocket.receive_json()
@@ -212,14 +216,12 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                         receiver = db.query(models.User).filter(
                             models.User.username == receiver
                         ).first()
-                        #print(db.query(models.PersonalMessage).all())
                         old_messages = db.query(models.PersonalMessage).filter(
                             ((models.PersonalMessage.sender_id == user.id) &
                             (models.PersonalMessage.receiver_id == receiver.id)) |
                             ((models.PersonalMessage.sender_id == receiver.id) &
                             (models.PersonalMessage.receiver_id == user.id))
                         ).order_by(models.PersonalMessage.created_date).all()
-                        #old_messages = db.execute("select * from personal_message where sender_id = "+str(user.id)+" and receiver_id = "+str(receiver.id)+" or sender_id = "+str(receiver.id)+" and receiver_id = "+str(user.id)+";")
                         for message in old_messages:                            
                             sender = db.query(models.User).filter(
                                 models.User.id == message.sender_id
@@ -231,14 +233,16 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                                 "id": message.id,
                                 "author": {
                                     "username": sender.username,
-                                    "fullname": views.get_fullname(sender)
+                                    # "fullname": views.get_fullname(sender)
+                                    "fullname": sender.full_name.title()
                                 },
                                 "message": message.text,
                                 "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
                                 "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",
                                 "receiver": {
                                     "username": receiver.username,
-                                    "fullname": views.get_fullname(receiver)
+                                    # "fullname": views.get_fullname(receiver)
+                                    "fullname": receiver.full_name.title()
                                 },
                                 "user": user.username
                             }
@@ -267,7 +271,8 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                                 "id": message.id,
                                 "author": {
                                     "username": sender.username,
-                                    "fullname": views.get_fullname(sender)
+                                    # "fullname": views.get_fullname(sender)
+                                    "fullname": sender.full_name.title()
                                 },
                                 "message": message.text,
                                 "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
@@ -303,7 +308,9 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                                     print(e) 
                             else:                        
                                 print("file size exceeded!")
+                        print("message is: ")                        
                         message = views.create_message(db, data)
+                        print(message)
                         await socket_manager.to_specific_user(message)                                                          
                     else:
                             file_data = data.get('file')
@@ -322,16 +329,20 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                             message = views.create_room_message(db, data)
                             await socket_manager.to_room_participants(message)                
         except WebSocketDisconnect:
-            socket_manager.disconnect(websocket, user)                        
+            socket_manager.disconnect(websocket, user)  
+            await socket_manager.delete(user)        
+            #response = Response()
+            #response.delete_cookie("access_token")    
+            websocket.delete_cookie("access_token")
+            websocket.close()                  
 
 # for direct chat
 @app.websocket("/api/user-chat/{receiver}")
 async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = Depends(get_db)):
     user = views.get_current_user(db, websocket.cookies.get("access_token"))
     if user:
-        await socket_manager.connect(websocket, user)        
-        print("receiver")
-        print(receiver)
+        # load previous messages
+        await socket_manager.connect(websocket, user)                
         receiver = db.query(models.User).filter(models.User.username == receiver).first()
         old_messages = db.query(models.PersonalMessage).filter(
             ((models.PersonalMessage.sender_id == user.id) &
@@ -350,14 +361,16 @@ async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = D
                 "id": message.id,
                 "author": {
                     "username": sender.username,
-                    "fullname": views.get_fullname(sender)
+                    # "fullname": views.get_fullname(sender)
+                    "fullname": sender.full_name.title()
                 },
                 "message": message.text,
                 "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
                 "est_date": views.get_timezone(message.created_date, "US/Eastern")  + " EST",
                 "receiver": {
                     "username": receiver.username,
-                    "fullname": views.get_fullname(receiver)
+                    # "fullname": views.get_fullname(receiver)
+                    "fullname": receiver.full_name.title()
                 },                
                 "user": user.username
             }
@@ -366,16 +379,12 @@ async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = D
                 msg_data.update({
                     "file": str(message.attachment_url),
                     "filename": filename
-                })
-            # await socket_manager.specific(data)
+                })            
             await socket_manager.populate_old_messages(msg_data)
-        try:
-            print("file is")
-            print("testing")
+        try:            
             while True:
                 data = await websocket.receive_json()   
                 receiver = data["receiver"]                                
-                #data.update({"sender_id": user.id, "username": user.username})
                 data.update({"user": user})
                 file_data = data.get('file')
                 if file_data:
@@ -398,9 +407,9 @@ async def direct_chat(websocket: views.WebSocket, receiver: str, db: Session = D
                 message = views.create_message(db, data)
                 await socket_manager.to_specific_user(message)
         except WebSocketDisconnect:
-            socket_manager.disconnect(websocket, user)            
-            print("error occurred")
-            # await manager.broadcast(f"{user.username} left")@app.websocket("/api/user-chat/{receiver}")
+            socket_manager.disconnect(websocket, user)
+
+
 
 @app.websocket("/api/room-chat/{room}")
 async def room_chat(websocket: views.WebSocket, room: str, db: Session = Depends(get_db)):
@@ -424,7 +433,8 @@ async def room_chat(websocket: views.WebSocket, room: str, db: Session = Depends
                 "id": message.id,
                 "author": {
                     "username": sender.username,
-                    "fullname": views.get_fullname(sender)
+                    # "fullname": views.get_fullname(sender)
+                    "fullname": sender.full_name.title()
                 },
                 "message": message.text,
                 "ist_date": views.get_timezone(message.created_date, "Asia/Kolkata") + " IST",
@@ -524,7 +534,8 @@ def get_profile(user: str, db: Session = Depends(get_db)):
         bio = profile.bio
 
         response["profile"] = {
-            "fullname": views.get_fullname(user),
+            # "fullname": views.get_fullname(user),
+            "fullname": user.full_name.title(),
             "username": username,
             "email": email,
             "join_date": join_date,
@@ -561,28 +572,3 @@ def save_profile(user: str, profile_data: validators.ProfileUpdateForm, db: Sess
     else:
         response["error"] = "something went wrong."     
     return response    
-
-
-#  #   profile= await profile.get_user_by_email(db: Session =Depends(get), emai=profile.email)
-#   #   if not profile:
-#    	    raise HTTPException(
-#        	status_code=HTTP_401_UNAUTHORIZED,
-#        	detail="Incorrect email ,
-#      )
-#      else:
-#          profile=profile.get_user_by_email(db)
-#     return profile
-
-
-#@app.get("/api/profile")
-#def profile_update(db,email:str):
- #   up_profile= await profile.get_user_by_email(email =profile.email db: Session = Depends(get_db))
-  #  if up_profile:
-    #    return up_profile
-    #else 
-    #name = name
-    #designation= designation
-    #avatar= avatar
-    #bio= bio
-
-    #return profile

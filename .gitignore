@@ -1,0 +1,4 @@
+.idea/
+__pycache__/
+users/__pycache__/
+static/media/images/uploads/

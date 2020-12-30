@@ -265,20 +265,25 @@ $(document).ready(function(){
     $("#register-form").on("submit",function(e){
         e.preventDefault();
 
+        // var form_data = {
+        //     "first_name": $("#first_name").val(),
+        //     "last_name": $("#last_name").val(),
+        //     "email": $("#email").val(),
+        //     "username": $("#username").val(),
+        //     "password": $("#password").val()
+        // };
         var form_data = {
-            "first_name": $("#first_name").val(),
-            "last_name": $("#last_name").val(),
+            "full_name": $("#full_name").val(),
             "email": $("#email").val(),
-            "username": $("#username").val(),
             "password": $("#password").val()
-        };
+        };        
         console.log(form_data);
         console.log(isfError);
         console.log(iseError);
         console.log(isuError);
         console.log(ispError);
         console.log(iscpError);
-        if(isfError == false && isuError == false && iseError == false && ispError == false && iscpError == false){
+        //if(isfError == false && isuError == false && iseError == false && ispError == false && iscpError == false){
             $.post("/api/user", JSON.stringify(form_data),function(response){
                 var error = response["error"];
                 if (error)
@@ -286,7 +291,7 @@ $(document).ready(function(){
                 else
                     $("#sign-in-btn").trigger("click");
             });
-        }        
+        //}        
     });    
     // google login entrypoint
     start();

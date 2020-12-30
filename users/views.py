@@ -33,16 +33,30 @@ def get_timezone(d, timezone):
     d_local = d_utc.astimezone(pytz.timezone(timezone)).strftime("%H:%M %p")
     return d_local
 
+def get_username(db: Session, name: str):
+    full_name = name.lower().split(" ")
+    #first_name = len(full_name[0])    
+    username = full_name[0][:15]
+    if len(full_name) > 1:        
+        count = db.query(models.User).filter(models.User.username == username).count()
+        if count:
+            username += count
+    return username
+
 # register logic
 def register(db: Session, user: validators.RegisterValidator):
     response = {"user": None}
     if db.query(models.User).filter(models.User.email == user.email).first():
         response.update({"error": "email already exists"})
-    elif db.query(models.User).filter(models.User.username == user.username).first():
-        response.update({"error": "username already exists"})
+    # elif db.query(models.User).filter(models.User.username == user.username).first():
+    #     response.update({"error": "username already exists"})
     else:
         user = user.dict()
+        print("user full data:")
+        print(user)
         user['password'] = gen_hash(user['password'])
+        # get unique username
+        user['username'] = get_username(db, user['full_name'])        
         # create user
         db_user = models.User(**user)
         db.add(db_user)
@@ -107,7 +121,8 @@ def get_all_users(db: Session):
     for user in users:
         user_info = {
             "username": user.username,
-            "fullname": get_fullname(user)
+            # "fullname": get_fullname(user)
+            "fullname": user.full_name.title()
         }
         response["users"].append(user_info)    
     print(users)    
@@ -154,12 +169,22 @@ def social_login(db: Session, request: Request, response: Response, data: valida
                 token_data = credentials.id_token
                 first_name = token_data["given_name"].lower()
                 last_name = get_lastname(token_data, first_name)
-                username = first_name + last_name
+                #username = first_name + last_name
+                # user_data = {
+                #     "first_name": first_name,
+                #     "last_name": last_name,
+                #     "email": token_data["email"],
+                #     "username": username,
+                #     "password": "",
+                #     "is_social_account": True
+                # }
+                full_name = first_name
+                if last_name:
+                    full_name = first_name + " " + last_name
+
                 user_data = {
-                    "first_name": first_name,
-                    "last_name": last_name,
+                    "full_name": full_name,
                     "email": token_data["email"],
-                    "username": username,
                     "password": "",
                     "is_social_account": True
                 }
@@ -180,14 +205,14 @@ def social_login(db: Session, request: Request, response: Response, data: valida
                     # pass
 
                 if db_user is None:
-                    user.username = gen_username(db, user.username)
+                    #user.username = gen_username(db, user.username)
                     db_user = register(db, user)                                       
                     if "error" in db_user: 
                         return_response.update({"error": db_user["error"]})
                     else:
                         db_user = db_user["user"]    
 
-                access_token = gen_token(user.username)                
+                access_token = gen_token(db_user.username)                
                 response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)                                
                 return_response["user"] = db_user
                 print("user loged in with email: ")
@@ -219,7 +244,7 @@ class SocketManager:
             for connection in self.active_connections:
                 users = {
                     "username": connection[1].username,
-                    "fullname": get_fullname(connection[1])
+                    "fullname": connection[1].full_name
                 }
                 response['online_users'].append(users)
                 #response['fullname'].append(get_fullname(connection[1]))
@@ -237,7 +262,8 @@ class SocketManager:
         for user in users:
             user_ifo = {
                 "username": user.username,
-                "fullname": get_fullname(user)
+                # "fullname": get_fullname(user)
+                "fullname": user.full_name.title()
             }
             registered_users["registered_users"].append(user_ifo)
 
@@ -250,6 +276,9 @@ class SocketManager:
         for connection in self.active_connections:
             if found_sender and found_receiver:
                 break
+            print("data for your: ")
+            print(connection[1].username)
+            print(data)
             if connection[1].username == data['author']['username']:                
                 await connection[0].send_json(data)
                 found_sender = True
@@ -269,7 +298,8 @@ class SocketManager:
         msg_data = {
             "stranger": {
                 "username": user.username,
-                "fullname": get_fullname(user)
+                # "fullname": get_fullname(user)
+                "fullname": user.full_name.title()
             }
         }
         for connection in self.active_connections:
@@ -332,20 +362,29 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
 
 # create room
 def create_room(user: models.User, room_data: validators.CreateRoom, db: Session):
-    room = models.Room(
-        name=room_data.name,
-        admin=user.username,
-        description=room_data.description
-    )
-    room.participants.append(user)
-    for participant in room_data.participants:
-        participant = participant.strip()
-        user = db.query(models.User).filter(models.User.username == participant).first()
-        if user:
-            room.participants.append(user)
-    db.add(room)
-    db.commit()
-    response = {"room": room.name}
+    response = {"room": None}
+    try:
+        room = models.Room(
+            name=room_data.name,
+            admin=user.username,            
+            description=room_data.description
+        )
+        print("after initializing the room")
+        room.participants.append(user)
+        print("room participants")
+        for participant in room_data.participants:
+            participant = participant.strip()
+            user = db.query(models.User).filter(models.User.username == participant).first()
+            if user:
+                room.participants.append(user)
+        print("add room")        
+        db.add(room)
+        db.commit()
+        response['room'] = room.name
+        print("added room")
+    except Exception as e:
+        print("room exception is:")
+        print(e)    
     return response
 
 
@@ -359,6 +398,7 @@ def get_rooms(user: models.User, db: Session):
             data = {
                 "id": room.id,
                 "name": room.name,
+                "admin": room.admin,
                 "description": room.description,
                 "participants": [participant.username for participant in participants]
             }
@@ -437,16 +477,20 @@ def create_message(db: Session, data: dict):
                 "id": message.id,
                 "author": {
                     "username": sender.username,
-                    "fullname": get_fullname(sender)
+                    # "fullname": get_fullname(sender)
+                    "fullname": sender.full_name.title()
                 },
                 "message": message.text,
                 "ist_date": get_timezone(message.created_date, "Asia/Kolkata") + " IST",
                 "est_date": get_timezone(message.created_date, "US/Eastern")  + " EST",                
                 "receiver": {
                     "username": receiver.username,
-                    "fullname": get_fullname(receiver)
+                    #"fullname": get_fullname(receiver)
+                    "fullname": receiver.full_name.title()
                 }
             }
+            print("response messages are: ")
+            print(response)
             if file:
                 response.update({
                     "file": message.attachment_url,
@@ -456,8 +500,8 @@ def create_message(db: Session, data: dict):
             print(response)
         else:
             pass
-    except:
-        pass
+    except Exception as e:
+        print(e)
     return response
 
 def create_room_message(db: Session, data: dict):
@@ -490,7 +534,8 @@ def create_room_message(db: Session, data: dict):
                     "id": message.id,
                     "author": {
                         "username": sender.username,
-                        "fullname": get_fullname(sender)
+                        # "fullname": get_fullname(sender)
+                        "fullname": sender.full_name.title()
                     },
                     "message": message.text,
                     "ist_date": get_timezone(message.created_date, "Asia/Kolkata") + " IST",

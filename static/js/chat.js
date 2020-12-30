@@ -41,7 +41,7 @@ $(document).ready(function(){
     $.get("/api/user", function(response){
         user = response["user"];     
         if (user){
-           var name = response['full_name'];
+           var name = response['fullname'];           
            $(".active-user").text(name);
            uid = response['id'];
 
@@ -447,7 +447,8 @@ $(document).ready(function(){
                     });
                 }
                 document.getElementById('messages').scrollTo(0, document.getElementById('messages').scrollHeight);
-            };
+           };
+           //e.preventDefault();
         }
     });    
 
@@ -517,7 +518,7 @@ $(document).ready(function(){
         unseen_messages.splice(index, 1);
     });
 
-    function send_message(){
+    function send_message(e){
         var msg = $("#text-message").val();
         console.log(msg);
         data = {
@@ -548,12 +549,13 @@ $(document).ready(function(){
             socket.send(JSON.stringify(data));
         }    
         $("#text-message").val("");
+        e.preventDefault();
     }
 
     // send message
     $("#msg-form").on("submit", function(e){
         e.preventDefault();
-        send_message();
+        send_message(e);
     });
 
     // open file dialog
