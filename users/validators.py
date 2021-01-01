@@ -54,6 +54,11 @@ class CreateRoom(BaseModel):
     description: str = None
     participants: list
 
+# create sheet validator
+class CreateSheet(BaseModel):
+    name: str
+    participants: list    
+
 # create room validator
 class ProfileUpdateForm(BaseModel):
     fullname: str = None

@@ -11,6 +11,7 @@ from typing import List
 from starlette.responses import FileResponse
 from fastapi.responses import StreamingResponse
 import random, magic
+from users import settings
 
 app = FastAPI()
 # authentication
@@ -57,8 +58,22 @@ def preview_file(request: Request):
     else:
         return FileResponse(absolute_path, filename=filename)            
     # file = open(absolute_path, mode="rb")
-    # return StreamingResponse(file, media_type=mtype)
+    # return StreamingResponse(file, media_type=mtype) 
 
+#sheet = settings.CLIENT.open(settings.SHEET_NAME).sheet1
+# sheet_name = settings.CLIENT.create("Test1")
+# try:
+#     sheet_name.share('ahtishamshafi990699069906@gmail.com', perm_type='user', role='owner')
+#     sheet = sheet_name.get_worksheet(0)
+#     sheet.append_row(
+#                     [
+#                         'name',
+#                         'email'
+#                     ], 
+#                     table_range='A:B'
+#                 )
+# except Exception as e:    
+#     print("something went wrong.")            
     # API ENDPOINTS
 
 
@@ -71,7 +86,7 @@ async def upload_file(file: UploadFile = File(...)):
 def get_current_user(request: Request, db: Session = Depends(get_db)):
     response = {}
     user = views.get_current_user(db, request.cookies.get("access_token"))
-    if user:        
+    if user:
         response = {
             # "full_name": views.get_fullname(user),
             "fullname": user.full_name.title(),
@@ -89,7 +104,7 @@ def get_all_users(db: Session = Depends(get_db)):
 
 # create a user
 @app.post("/api/user")
-async def create_user(user: validators.RegisterValidator, db: Session = Depends(get_db)):    
+async def create_user(user: validators.RegisterValidator, db: Session = Depends(get_db)):   
     response = views.register(db, user)
     if response['user']:
         await socket_manager.get_stranger(response['user'])
@@ -129,6 +144,132 @@ async def social_login(request: Request, response: Response, data: validators.So
         response = {}
     return response    
 
+
+            # ROOM ENDPOINTS
+
+@app.post("/api/user/{id}/room")
+async def create_room(request: Request, id: int, room_data: validators.CreateRoom, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    if user:
+        response = views.create_room(user, room_data, db)
+        room = response['id']
+        if room:
+            response['participants'] = views.get_participants(room, db)            
+    else:
+        response = {"error": "Unauthorized user"}
+    return response
+
+
+@app.get("/api/user/{id}/room")
+def get_rooms(request: Request, id: int, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    if user:
+        response = views.get_rooms(user, db)
+    else:
+        response = {"error": "Unauthorized user"}
+    return response
+
+@app.get("/api/room/{id}/participants")
+def get_room_participants(request: Request, id: int, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    response = {}
+    if user:
+        response = views.room_participants(id, db)    
+    return response 
+
+@app.get("/api/room/{id}/sheet")
+def get_sheets(request: Request, id: int, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    response = {}
+    if user:
+        response = views.get_sheets(id, db)    
+    return response
+
+@app.post("/api/room/{id}/sheet")
+def create_sheet(request: Request, id: int, sheet_data: validators.CreateSheet, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    response = {}
+    if user:
+        response = views.create_sheet(id, sheet_data, db)    
+    return response
+
+'''
+    BISMA's CODE
+'''
+
+# delete personal message
+@app.delete("/api/user/personal-message/{id}")
+async def del_personal_msg(request: Request, id: int, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    if user:
+        db.query(models.PersonalMessage).filter(models.PersonalMessage.id == id).delete()
+        db.commit()
+        
+# delete room message
+@app.delete("/api/user/room-message/{id}")
+async def del_room_msg(request: Request, id: int, db: Session = Depends(get_db)):
+    user = views.get_current_user(db, request.cookies.get("access_token"))
+    if user:
+        db.query(models.RoomMessage).filter(models.RoomMessage.id == id).delete()
+        db.commit()
+
+
+# get user profile
+@app.get("/api/profile/{user}")
+def get_profile(user: str, db: Session = Depends(get_db)):    
+    response = {
+        "profile": {}        
+    }    
+    user = db.query(models.User).filter(models.User.username == user).first()    
+    if user:
+        username = user.username
+        email = user.email
+        join_date = user.created_date.strftime("%m-%b-%Y")
+
+        profile = db.query(models.Profile).filter(models.Profile.user == user).first()        
+        designation = profile.designation
+        avatar = profile.avatar        
+        bio = profile.bio
+
+        response["profile"] = {
+            # "fullname": views.get_fullname(user),
+            "fullname": user.full_name.title(),
+            "username": username,
+            "email": email,
+            "join_date": join_date,
+            "designation": designation,            
+            "bio": bio
+        }        
+        if avatar:
+            response['profile'].update({"avatar": avatar})
+    else:
+        response["error"] = "something went wrong."     
+    return response    
+
+# get user profile
+@app.post("/api/profile/{user}")
+def save_profile(user: str, profile_data: validators.ProfileUpdateForm, db: Session = Depends(get_db)):    
+    response = {}    
+    user = db.query(models.User).filter(models.User.username == user).first()    
+    if user:
+        profile = db.query(models.Profile).filter(models.Profile.user == user).first()
+        if profile_data.fullname:
+            fullname = profile_data.fullname.split(" ", 1)
+            user.first_name = fullname[0]
+            if len(fullname) > 1:
+                user.last_name = fullname[1]
+            else:
+                user.last_name = ""    
+        if profile_data.designation:    
+            profile.designation = profile_data.designation
+        if profile_data.bio:    
+            profile.bio = profile_data.bio
+        if profile_data.avatar:
+            print("code to store image.") 
+        db.commit()       
+    else:
+        response["error"] = "something went wrong."     
+    return response 
 
 
 def get_old_conversation(id):
@@ -469,106 +610,4 @@ async def room_chat(websocket: views.WebSocket, room: str, db: Session = Depends
         except WebSocketDisconnect:
             socket_manager.disconnect(websocket, user)
             # await manager.broadcast(f"{user.username} left")
-
-            # ROOM ENDPOINTS
-
-@app.post("/api/user/{id}/room")
-async def create_room(request: Request, id: int, room_data: validators.CreateRoom, db: Session = Depends(get_db)):
-    user = views.get_current_user(db, request.cookies.get("access_token"))
-    if user:
-        response = views.create_room(user, room_data, db)
-        room = response['room']
-        if room:
-            response['participants'] = views.get_participants(room, db)            
-    else:
-        response = {"error": "Unauthorized user"}
-    return response
-
-
-@app.get("/api/user/{id}/room")
-def get_rooms(request: Request, id: int, db: Session = Depends(get_db)):
-    user = views.get_current_user(db, request.cookies.get("access_token"))
-    if user:
-        response = views.get_rooms(user, db)
-    else:
-        response = {"error": "Unauthorized user"}
-    return response
-
-
-'''
-    BISMA's CODE
-'''
-
-# delete personal message
-@app.delete("/api/user/personal-message/{id}")
-async def del_personal_msg(request: Request, id: int, db: Session = Depends(get_db)):
-    user = views.get_current_user(db, request.cookies.get("access_token"))
-    if user:
-        db.query(models.PersonalMessage).filter(models.PersonalMessage.id == id).delete()
-        db.commit()
-        
-# delete room message
-@app.delete("/api/user/room-message/{id}")
-async def del_room_msg(request: Request, id: int, db: Session = Depends(get_db)):
-    user = views.get_current_user(db, request.cookies.get("access_token"))
-    if user:
-        db.query(models.RoomMessage).filter(models.RoomMessage.id == id).delete()
-        db.commit()
-
-
-# get user profile
-@app.get("/api/profile/{user}")
-def get_profile(user: str, db: Session = Depends(get_db)):    
-    response = {
-        "profile": {}        
-    }    
-    user = db.query(models.User).filter(models.User.username == user).first()    
-    if user:
-        username = user.username
-        email = user.email
-        join_date = user.created_date.strftime("%m-%b-%Y")
-
-        profile = db.query(models.Profile).filter(models.Profile.user == user).first()        
-        designation = profile.designation
-        avatar = profile.avatar        
-        bio = profile.bio
-
-        response["profile"] = {
-            # "fullname": views.get_fullname(user),
-            "fullname": user.full_name.title(),
-            "username": username,
-            "email": email,
-            "join_date": join_date,
-            "designation": designation,            
-            "bio": bio
-        }        
-        if avatar:
-            response['profile'].update({"avatar": avatar})
-    else:
-        response["error"] = "something went wrong."     
-    return response    
-
-# get user profile
-@app.post("/api/profile/{user}")
-def save_profile(user: str, profile_data: validators.ProfileUpdateForm, db: Session = Depends(get_db)):    
-    response = {}    
-    user = db.query(models.User).filter(models.User.username == user).first()    
-    if user:
-        profile = db.query(models.Profile).filter(models.Profile.user == user).first()
-        if profile_data.fullname:
-            fullname = profile_data.fullname.split(" ", 1)
-            user.first_name = fullname[0]
-            if len(fullname) > 1:
-                user.last_name = fullname[1]
-            else:
-                user.last_name = ""    
-        if profile_data.designation:    
-            profile.designation = profile_data.designation
-        if profile_data.bio:    
-            profile.bio = profile_data.bio
-        if profile_data.avatar:
-            print("code to store image.") 
-        db.commit()       
-    else:
-        response["error"] = "something went wrong."     
-    return response    
+   

@@ -359,6 +359,47 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
                 return None
         return param
 
+# get sheet
+def get_sheets(id: int, db: Session):
+    response = {}
+    try:
+        room = db.query(models.Room).filter(models.Room.id == id).first()
+        if room:            
+            sheets = db.query(models.Sheet).filter(models.Sheet.room_id == room.id).all()
+            sheet_list = []
+            for sheet in sheets:
+                sheet_info = {
+                    "id": sheet.id,
+                    "title": sheet.title,
+                    "url": sheet.url                    
+                }
+                sheet_list.append(sheet_info)
+            response.update({"sheets": sheet_list})    
+    except Exception as e:
+        print(e)
+        response.update({"error": "something went wrong."})   
+    return response   
+
+# create sheet
+def create_sheet(id: int, sheet_data: validators.CreateSheet, db: Session):
+    response = {}
+    try:
+        room = db.query(models.Room).filter(models.Room.id == id).first()
+        if room:            
+            sheet_name = settings.CLIENT.create(sheet_data.name)
+            print("sheet created")
+            print(sheet_name)
+            for participant in sheet_data.participants:                
+                sheet_name.share(participant, perm_type='user', role='writer') 
+            sheet = models.Sheet(title=sheet_name.title, url=sheet_name.url, room_id=room.id)
+            #room.sheets.append(sheet)
+            db.add(sheet)
+            db.commit()
+            response.update({"sheet-url": sheet_name.url})
+    except Exception as e:
+        print(e)
+        response.update({"error": "something went wrong."})   
+    return response     
 
 # create room
 def create_room(user: models.User, room_data: validators.CreateRoom, db: Session):
@@ -380,7 +421,7 @@ def create_room(user: models.User, room_data: validators.CreateRoom, db: Session
         print("add room")        
         db.add(room)
         db.commit()
-        response['room'] = room.name
+        response['id'] = room.id
         print("added room")
     except Exception as e:
         print("room exception is:")
@@ -443,11 +484,17 @@ def create_file(dir, name, file):
     return path
 
 # get room participants
-def get_participants(room: str, db: Session):
-    room = db.query(models.Room).filter(models.Room.name == room).first()
+def get_participants(room: int, db: Session):
+    room = db.query(models.Room).filter(models.Room.id == room).first()
     if room:
         return [participant.username for participant in room.participants]
     return None
+
+def room_participants(room: int, db: Session):
+    room = db.query(models.Room).filter(models.Room.id == room).first()
+    if room:
+        return [{'name': participant.full_name.title(), 'email': participant.email} for participant in room.participants]
+    return None    
 
 # create message object and save it in db
 def create_message(db: Session, data: dict):

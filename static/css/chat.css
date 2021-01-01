@@ -239,3 +239,26 @@ body{
       color: maroon;
       font-size: 12px;
   }
+  .gsheet-add {
+      position: relative;
+  }
+  .add-sheet {
+      color: rgb(10, 90, 10);
+      font-size: 12.5px;      
+      position: absolute;
+      top: 16px;
+  }
+  .gsheet img {
+      width: 15px;
+      height: 20px;
+  }
+  .gsheet:hover {
+      cursor: pointer;
+  }
+  .room-participant {
+      font-size: 14px;
+      color: rgb(40, 50, 60);
+  }
+  .sheet-creating {
+    font-size: 13px;
+  }

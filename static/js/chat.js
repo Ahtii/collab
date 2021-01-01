@@ -34,7 +34,7 @@
 $(document).ready(function(){
     
     var selected_user, file;
-    var selected_room, unseen_messages = [];
+    var selected_room, room_id, unseen_messages = [];
     var user = "", socket;
     var uid; 
 
@@ -103,6 +103,7 @@ $(document).ready(function(){
                     //$("#roomMsg ul")
                     $.each(room_list, function(key, room){
                         var room_id_holder = "<span class='hide room-id-holder'>"+room["id"]+"</span>";
+                        var room_admin_holder = "<span class='hide room-admin-holder'>"+room["admin"]+"</span>";
                         var room_layout = "<li class='list-group-item list-group-item-action'>\
                                             <div class='row'>\
                                                 <div class='col-2 col-md-2'>\
@@ -110,6 +111,7 @@ $(document).ready(function(){
                                                 </div>\
                                                 <div class='col-9 col-sm-8 col-md-8 col-lg-9' style='cursor: pointer;'>\
                                                     "+room_id_holder+"\
+                                                    "+room_admin_holder+"\
                                                     <div class='name'><span class='room-name'>"+room["name"]+"</span></div>\
                                                     <div class='under-name'>"+room["description"]+"</div>\
                                                 </div>\
@@ -460,6 +462,94 @@ $(document).ready(function(){
     //     window.location.href = "/direct?user="+user;
     // });
 
+    /* SHEET CODE => start */
+
+    // populate sheet modal with room participants
+    $(".gsheet-add").on("click", function(){
+        //if ($("#sheet-member-list li").length == 0){
+            $("#sheet-member-list").empty();
+            $.get("/api/room/"+room_id+"/participants", function(response){            
+                $.each(response, function(key, participant){                                
+                    var participant_layout = "<li class='list-group-item style='text-align: left;'>\
+                                        <span class='hide participantEmail'>"+participant['email']+"</span>\
+                                        <input type='checkbox'>&nbsp;\
+                                        <span class='room-participant'>"+participant["name"]+"</span>\
+                                    </li>";
+                    $("#sheet-member-list").append(participant_layout);                      
+                });
+            });
+        //}
+    });
+
+    // populate dropdown with room sheets
+    $(".gsheets").on("click", function(){
+        $.get("/api/room/"+room_id+"/sheet", function(response){
+            var error = response['error'];
+            if (error)
+                alert(error);
+            else {
+                $(".gsheets-menu").empty();
+                $.each(response["sheets"], function(index, sheet){                                
+                    var sheet_layout = "<a class='dropdown-item sheet-target'>\
+                                    <span class='hide sheet-id'>"+sheet["id"]+"</span>\
+                                    <span class='hide sheet-url'>"+sheet["url"]+"</span>\
+                                    <span class='sheet-title'>"+sheet["title"]+"</span>\
+                                    </a>";
+                    $(".gsheets-menu").append(sheet_layout);
+                });                 
+            }    
+        });               
+    });
+
+    // open sheet in new tab    
+    $(document).on("click", ".sheet-target", function(e){
+        var url = $(this).find(".sheet-url").text();
+        window.open(url);
+    });
+
+    // create new sheet
+    var sheet_btn_clicked = true;
+    $(document).on("submit", "#sheet-form", function(e){
+        e.preventDefault(); 
+        if (sheet_btn_clicked){
+            sheet_btn_clicked = false;
+            $(".sheet-creating").removeClass("hide");
+            var len = $("#sheet-member-list li").length - 1;
+            let selected_participants = [];
+            $.each($("#sheet-member-list li"), function(index, user){
+                var checked = $(user).find("input").is(":checked");
+                console.log($(user));
+                console.log(checked);
+                var email = $(user).find(".participantEmail").text();
+                if (checked)
+                    selected_participants.push(email);
+                console.log(selected_participants);    
+                if (index == len){
+                    var data = {
+                        "name": $("#sheetName").val(),
+                        "participants": selected_participants
+                    }
+                    $.post("/api/room/"+room_id+"/sheet", JSON.stringify(data), function(response){
+                        console.log("inside api call");
+                        console.log(data);
+                        var error = response["error"];
+                        console.log(error);
+                        if (error){
+                            $("#err").text(error);
+                        } else {
+                            console.log(response['sheet-url']);
+                            $("#addSheet").modal("toggle");
+                        }
+                        $(".sheet-creating").addClass("hide");
+                        sheet_btn_clicked = true;                
+                    });     
+                }    
+            });
+        }     
+    });
+
+    /* SHEET CODE => end */
+
     //send message with websocket
     function load_messages() {
         console.log("load message");        
@@ -482,7 +572,9 @@ $(document).ready(function(){
 
         $("#messages").empty();
         selected_room = "";
+        room_id = null;
         $("#chatPanel .dropleft").find(".dropdown-toggle").removeClass("hide");
+        $("#chatPanel .gsheet").addClass("hide");
 
         $(".panel-pic").attr("src", "/static/media/images/maleuser.png");        
         
@@ -590,14 +682,21 @@ $(document).ready(function(){
         selected_user = "";
         
         $("#chatPanel .dropleft").find(".dropdown-toggle").addClass("hide");   
+        $("#chatPanel .gsheet").removeClass("hide");                
         
         $(".panel-pic").attr("src", "/static/media/images/groups.png");                
 
         room_id = $(this).find(".room-id-holder").text();
+        room_admin = $(this).find(".room-admin-holder").text();
         selected_room = $(this).find(".room-name").text();
+
+        if (room_admin != user)
+            $("#chatPanel .gsheet-add").addClass("hide");
+        else
+            $("#chatPanel .gsheet-add").removeClass("hide");
         
         console.log(room_id);
-        console.log(selected_room);       
+        console.log(selected_room); 
 
         // var full_name = $(this).find("span").eq(1).text();
         // var state = "offline";

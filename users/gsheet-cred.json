@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "steam-boulevard-294210",
+  "private_key_id": "a64b195805d0e613cfe7ca6c83affc4ed0027f54",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDUud5pqQhhR8t5\nfajF4ms7YuPHWV3wF3UxJ2XbuHAWz1LbzxgnarxKd+SvFFgB/NjGiDCVqyWOWf3Q\nL2bDlCWJMZZamHPA+fplFkDuBblu6KLsV5tagoc9BLtlc0cLDDzHKn0Lqe5wRQLr\nLH+FbXCb7nME1FkgCn4yTbry8aSF4tonsoewCmPeeyBj42eik7+s6wP7bqA+LusO\n6QzZY+oaebCznbpdQBVpJeksEtOte/xYcRKIYiQTfTqbtrPPJnOVvonZG/tOX6js\nqQWaDaypvisJpEE6qbBsjv5IAW4DqtZn22MvA0RiHhchcxvvOcPnM2qx5WVPe3zI\nYqeKBLCPAgMBAAECggEAYIz6K2fak1jEPCCyJRq2w+4G51ii/9GN0eEJZLgqO9ge\nygCNfHp/+qa/J03rAf/yne17a7sR4THsNv0Evfk0LjhQ/06Znzl2kkIO91mmx/WT\n2QSMUQDUg/ftXEb9tEB6J4Wb2trmi5NvFzGLsZIyHbwU/ViqGRZaH9fS5eiSXWd8\n91pkzyUzuu1BUuaeHrXRd4i8PnANSa4rVMrGKYlXICo8Z9FrkDw/obzHYUi8JuQ/\nZPQwKfXAej+xUpBiEi0GjDl79gv1PHXNHWV9Xot9GwYuQnO7lfOdGainQyzTBxts\n90U640GnHk4KFYbRI/76BgibvMypYdq1B+TB7YCEAQKBgQDrac9pmuiQdPizIlTz\n8uvpuYf3kA3LBl+PI2ZFCJYRQ/zDtITXWRrIkDe0E6XPLFM8Qd3wPrXnDki9JWAx\nbgafbRDf4jCAcM0iiZc9jJNgkso9wzMO/JUh1lugNQAXBYL6R9NoT+mJsSPjJPTo\n7ZElc3LBd1kfjovwD2tKcJJkjwKBgQDnVCjRouicpzZ5QIHJmJ3w9FPbHdQH+end\n0w8wahrE5ZsxlHhtRGTIHtcxamitHnH9/wXUZRFJNhIFZJgcKDN+CHbtDPuffZKU\niu/8gg1HhQM5+3w7y0Cz6Pue3UDpwvzMIgJKMST5erEFHZbqTCH1qhm65fhPhqlS\nquWPBcb0AQKBgCmEYaX4QeeoGWxOM7lKMDzqEYahiy0xFI1D6vdlykGFQgCpx3vL\nJSQV+xzxEh71bECGRUPna2EybbWd79cH1ncrXvx9AZzFSAg9R8T9E8jGWpCF6m1M\nMmjjSwl4D2n/+Nd271vILCGycefPTrn9m8mFEMn56GfeVeOidIOOUuMVAoGAfGRE\nAt6QKNS9tRvb7rTTkWNAyF3Uy2k2ueKpk0YrGN/CwTluPIt/iiETZG4s1ZK+h2+g\nCeNDFVQvApliNhnj/oy8rqHBmLTkol3HyMeCLog3APHbjyevpk7NJ1MgedMxLu/G\nvXCJymGQWQjdQyYnSLvsVBUfnlvyJxLgmDTqFAECgYB7R8Hp9KvhnCgtvR1r+n4R\nGqoL6MoPLsKc79+78TyotsR8+27ZIfHC4lUaG/mirMGDI9ZSANlCgLv0p+FBENNJ\n1+3/a5TzZ2/bNL1m7Jqb7iwOgxms9nxlvo9XJnAnl4w7yaqd1omS4WwyB1Sb1LCI\nbbh7xdKw2ldSQ3jVhWJWxg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "collab@steam-boulevard-294210.iam.gserviceaccount.com",
+  "client_id": "111667148931080208348",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/collab%40steam-boulevard-294210.iam.gserviceaccount.com"
+}

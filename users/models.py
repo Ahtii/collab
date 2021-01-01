@@ -13,11 +13,11 @@ import pytz
 
 Base = declarative_base()
 
-# for many to many relationship
+# for many to many relationship between User and Room
 user_room = Table('user_room', Base.metadata,
                   Column('user_id', Integer, ForeignKey('user.id')),
                   Column('room_id', Integer, ForeignKey('room.id'))
-                  )    
+                  )                    
 # function to generate utc datetime for database
 class utcnow(expression.FunctionElement):
     type = DateTime()
@@ -62,11 +62,18 @@ class Room(Base):
     name = Column(String(50), nullable=False)
     description = Column(String(200))
     created_date = Column(TIMESTAMP, default=datetime.utcnow())
-    admin = Column(String(50))  # link to use mode    
+    admin = Column(String(50))  # link to use mode
+    sheet = relationship("Sheet", backref='sheets')
     is_default = Column(Boolean, default=False)
 
-    def get_admin(self):
-        return self.admin
+class Sheet(Base):
+
+    __tablename__ = "sheet"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String(200), nullable=False)
+    url = Column(String(500), nullable=False)
+    room_id = Column(Integer, ForeignKey("room.id"))
 
 
 class BaseMessage(object):

@@ -246,8 +246,55 @@
                             </div>
                             <div class="col-1 col-sm-2 col-md-1 col-lg-1 icons">
                                 <div class="dropleft">
-                                    <!-- <i class="fa fa-search" style="cursor: pointer;"></i>
-                                    <i class="fa fa-paperclip ml-4" style="cursor: pointer;"></i> -->
+                                    <!-- <i class="fa fa-search" style="cursor: pointer;"></i>-->
+                                    <!-- <i class="fa fa-paperclip ml-4" style="cursor: pointer;"></i> -->
+                                    <!-- GSHEET CODE -->
+                                    <div class="container-fluid">
+                                        <div class="gsheet row">
+                                            <div class="col-8">                                                
+                                                <div class="gsheet-add">
+                                                    <i class="fa fa-plus add-sheet" data-toggle="modal" data-target="#addSheet"> </i>
+                                                    <img src="/static/media/images/gsheet.png"/>
+                                                </div>
+                                                <div class="modal fade" id="addSheet">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header" style="background-color: #c2d3da;">
+                                                                <h6 class="modal-title">Create Sheet</h6>
+                                                                <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
+                                                            </div> <!--closing of card header-->
+                        
+                                                            <div class="modal-body">
+                                                                <form id="sheet-form" class="text-center">
+                                                                    <div class="form-group">
+                                                                        <label for="formSheetName">Sheet Name</label>
+                                                                        <input type="text" class="form-control inputStyle" id="sheetName" placeholder="Write name here">                                                                                                                                                                                                                                                                                               
+                                                                        <label for="formSheetMembers">Sheet Members</label>                                                    
+                                                                        <ul id="sheet-member-list" class="list-group text-left">                                                                
+                                                                        </ul> 
+                                                                    </div>                                                                      
+                                                                    <button type="submit" class="btn formButton"><i class="fa fa-spinner fa-spin sheet-creating hide"></i> &nbsp; Create</button>      
+                                                                </form>
+                                                                <!-- <a href="#" class="sheet-url hide">Sheet Url</a> -->                                                                
+                                                            </div> <!--closing of card body-->   
+                                                            <div class="modal-footer" style="background-color: #c2d3da;">
+                                                            </div> <!-- closing of modal footer-->                                
+                                                        </div> <!--closing of modal content-->
+                                                    </div> <!--closing of modal dialog-->
+                                                </div>
+                                            </div>                                  
+                                            <div class="col-4">
+                                                <!-- <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Action
+                                                </button> -->
+                                                <!-- <span class="dropdown-toggle" data-toggle="dropdown">                                                    
+                                                </span>                                                     -->
+                                                <img src="/static/media/images/gsheet.png" class="gsheets" data-toggle="dropdown"/>
+                                                <div class="dropdown-menu dropdown-menu-right gsheets-menu">                                                                                                     
+                                                </div> 
+                                            </div>                                              
+                                        </div>                 
+                                    </div>                                                           
                                     <span class="dropdown-toggle" data-toggle="dropdown">
                                         <i class="fa fa-ellipsis-v ml-4" style="cursor: pointer;"></i>
                                     </span>
