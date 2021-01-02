@@ -469,13 +469,15 @@ $(document).ready(function(){
         //if ($("#sheet-member-list li").length == 0){
             $("#sheet-member-list").empty();
             $.get("/api/room/"+room_id+"/participants", function(response){            
-                $.each(response, function(key, participant){                                
-                    var participant_layout = "<li class='list-group-item style='text-align: left;'>\
+                $.each(response, function(key, participant){
+                    if (user != participant['username']){
+                        var participant_layout = "<li class='list-group-item style='text-align: left;'>\
                                         <span class='hide participantEmail'>"+participant['email']+"</span>\
                                         <input type='checkbox'>&nbsp;\
                                         <span class='room-participant'>"+participant["name"]+"</span>\
                                     </li>";
-                    $("#sheet-member-list").append(participant_layout);                      
+                        $("#sheet-member-list").append(participant_layout);                      
+                    }                    
                 });
             });
         //}

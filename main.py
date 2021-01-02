@@ -190,7 +190,7 @@ def create_sheet(request: Request, id: int, sheet_data: validators.CreateSheet, 
     user = views.get_current_user(db, request.cookies.get("access_token"))
     response = {}
     if user:
-        response = views.create_sheet(id, sheet_data, db)    
+        response = views.create_sheet(id, user, sheet_data, db)    
     return response
 
 '''

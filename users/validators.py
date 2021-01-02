@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ValidationError, validator
+import html
 
 # register validation
 '''class RegisterValidator(BaseModel):
@@ -13,7 +14,7 @@ class RegisterValidator(BaseModel):
     full_name: str
     email: str
     password: str
-    is_social_account: bool = False
+    is_social_account: bool = False    
 
     # @validator('full_name')
     # def validate_fullname(cls, v):
@@ -47,6 +48,11 @@ class LoginValidator(BaseModel):
 class SocialLoginValidator(BaseModel):
     type: str
     token: str
+
+# social login data
+class MessageValidator(BaseModel):
+    message: str = None
+    receiver: str = None   
 
 # create room validator
 class CreateRoom(BaseModel):

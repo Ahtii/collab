@@ -15,7 +15,7 @@ from oauth2client import client
 import os, pathlib, random
 from datetime import datetime
 from dateutil import tz
-import pytz
+import pytz, html
 
 # hashing password algorithm (BCRYPT for new hash) with support for old algorithm
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -40,7 +40,7 @@ def get_username(db: Session, name: str):
     if len(full_name) > 1:        
         count = db.query(models.User).filter(models.User.username == username).count()
         if count:
-            username += count
+            username += str(count)
     return username
 
 # register logic
@@ -381,14 +381,18 @@ def get_sheets(id: int, db: Session):
     return response   
 
 # create sheet
-def create_sheet(id: int, sheet_data: validators.CreateSheet, db: Session):
+def create_sheet(id: int, user: models.User, sheet_data: validators.CreateSheet, db: Session):
     response = {}
     try:
         room = db.query(models.Room).filter(models.Room.id == id).first()
         if room:            
-            sheet_name = settings.CLIENT.create(sheet_data.name)
+            sheet_name = settings.CLIENT.create(html.escape(sheet_data.name))
             print("sheet created")
             print(sheet_name)
+
+            if room.admin == user.username:                
+                sheet_name.share(user.email, perm_type='user', role='owner')
+
             for participant in sheet_data.participants:                
                 sheet_name.share(participant, perm_type='user', role='writer') 
             sheet = models.Sheet(title=sheet_name.title, url=sheet_name.url, room_id=room.id)
@@ -406,9 +410,9 @@ def create_room(user: models.User, room_data: validators.CreateRoom, db: Session
     response = {"room": None}
     try:
         room = models.Room(
-            name=room_data.name,
+            name=html.escape(room_data.name),
             admin=user.username,            
-            description=room_data.description
+            description=html.escape(room_data.description)
         )
         print("after initializing the room")
         room.participants.append(user)
@@ -493,7 +497,7 @@ def get_participants(room: int, db: Session):
 def room_participants(room: int, db: Session):
     room = db.query(models.Room).filter(models.Room.id == room).first()
     if room:
-        return [{'name': participant.full_name.title(), 'email': participant.email} for participant in room.participants]
+        return [{'name': participant.full_name.title(), 'email': participant.email, 'username': participant.username} for participant in room.participants]
     return None    
 
 # create message object and save it in db
@@ -502,8 +506,8 @@ def create_message(db: Session, data: dict):
     try:
         sender = data['user']
         if sender:
-            message = models.PersonalMessage()
-            message.text = data['message']
+            message = models.PersonalMessage()            
+            message.text = html.escape(data['message'])
             message.sender_id = sender.id            
             receiver = db.query(models.User).filter(
                 models.User.username == data['receiver']
@@ -567,7 +571,7 @@ def create_room_message(db: Session, data: dict):
             print(sender)
             if sender:
                 message = models.RoomMessage()
-                message.text = data['message']
+                message.text = html.escape(data['message'])
                 message.sender_id = sender.id
                 message.room_id = room.id
                 file = data.get('file')
