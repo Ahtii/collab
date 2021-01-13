@@ -37,7 +37,7 @@ def get_username(db: Session, name: str):
     full_name = name.lower().split(" ")
     #first_name = len(full_name[0])    
     username = full_name[0][:15]
-    if len(full_name) > 1:        
+    if len(full_name) > 1:
         count = db.query(models.User).filter(models.User.username == username).count()
         if count:
             username += str(count)

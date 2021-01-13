@@ -57,8 +57,9 @@ $(document).ready(function(){
                 $(profile_type + " .profileJoinDate").html("&nbsp;&nbsp;"+profile_data["join_date"]); 
             }
 
-            $("#linkProfile, #linkUserProfile").on("click", function(){
+            $("#linkUserProfile, #linkProfile").on("click", function(){
                 var selected_profile = $(this).attr("id");
+                console.log("selected_profile");
                 var profile_for = user;
                 console.log("user is: ");
                 console.log(profile_for);
@@ -96,7 +97,7 @@ $(document).ready(function(){
 
             /* BISMA's CODE END */
 
-           $.get("/api/user/"+uid+"/room", function(response){
+            $.get("/api/user/"+uid+"/room", function(response){
                 var room_list = response["rooms"];
                 console.log(room_list);
                 if (!jQuery.isEmptyObject(room_list)){
@@ -784,9 +785,31 @@ $(document).ready(function(){
             var error = response["error"];
             if (error){
                 $("#err").text(error);
-            } else
+            } else{
                 $("#createRoom").modal("toggle");
-        });
+                $.get("/api/user/"+uid+"/room", function(response){
+                    var room_list = response['rooms'];
+                    var room = $(room_list).last();            
+                    var room_id_holder = "<span class='hide room-id-holder'>"+room[0]["id"]+"</span>";
+                    var room_admin_holder = "<span class='hide room-admin-holder'>"+room[0]["admin"]+"</span>";
+                    var room_layout = "<li class='list-group-item list-group-item-action'>\
+                                        <div class='row'>\
+                                            <div class='col-2 col-md-2'>\
+                                                <img src='/static/media/images/groups.png' class='profile-pic'/>\
+                                            </div>\
+                                            <div class='col-9 col-sm-8 col-md-8 col-lg-9' style='cursor: pointer;'>\
+                                                "+room_id_holder+"\
+                                                "+room_admin_holder+"\
+                                                <div class='name'><span class='room-name'>"+room[0]["name"]+"</span></div>\
+                                                <div class='under-name'>"+room[0]["description"]+"</div>\
+                                            </div>\
+                                        </div>\
+                                    </li>";
+                    $("#room-msg-list").append(room_layout);
+                    document.getElementById('roomMsg').scrollTo(0, document.getElementById('roomMsg').scrollHeight);
+                });
+            }    
+        });        
         // var room = $(this).text();
         // if (room)
         //     window.location.href = "/room?name="+room;
