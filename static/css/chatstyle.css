@@ -9,7 +9,7 @@ body, html{
 body{
     /* background-image: linear-gradient(180deg, #be0032, pink); */
     /* background-image: linear-gradient(180deg, #dddbd1, #d2dbdc); */
-    background-image: url(/static/media/images/bg_blur.jpg);
+    background-image: url(/static/media/images/purple-mountain.jpg);
     background-repeat: no-repeat;
     background-size: cover;
     /* backdrop-filter: blur(5px); */
@@ -57,6 +57,12 @@ body{
     width: 50px;
 }
 
+.profile-pic{
+    height: 50px;
+    width: 50px;
+}
+
+
 .name{
     font-weight: 400;
     color: #000;
@@ -70,7 +76,8 @@ body{
 
 .icons{
     font-size: 20px;
-    color: #9ca1a3;
+    /* color: #9ca1a3; */
+    color: #272424;
 }
 
 .welcome-text{
@@ -91,6 +98,27 @@ body{
     display: none !important;
 }
 
+/* .left-header{
+    box-shadow: inset 0 0 0 3000px rgba(255,255,255,0.3);
+    filter: blur(10px);
+} */
+
+/* .left-header{
+    background-color: rgba(255, 255, 255, 0.6);
+} */
+/* .left_header{
+    background-color: rgba(255, 255, 255, 0.6);
+} */
+/* .card{
+    background-color: rgba(255, 255, 255, 0.6);
+} */
+
+.card{
+    background-color: rgba(245, 245, 245, 0.8);
+}
+.card-header, .card-footer{
+    opacity: 1;
+}
 
 
 /* /////////////////////////// */
@@ -137,8 +165,8 @@ body{
 /* ///////////////////////////////// */
 
 
-/* ///////////////////////////////// */
-/* For Scrolling */
+
+/* /////////For Scrolling/////////// */
 
 .card{
     height: 100vh;
@@ -157,7 +185,6 @@ body{
 /* /////////////////////////////////// */
 
 
-/* /////////////////////////////////// */
 /* For Alphabetical Profile Pictures */
 /* .wrapper {
 
@@ -182,6 +209,8 @@ body{
 } */
 /* ////////////////////////////////// */
 
+
+
 /* ///////////////TABS //////////////*/
 
 .tab-header{
@@ -197,10 +226,23 @@ body{
 }
 .tab-header .nav-tabs li a{
     color: #81a3a7 !important;
+    /* background-color: rgba(245, 245, 245, 0.8); */
 }
+/* .tab-header .nav-tabs .active a{
+    background-color: rgba(245, 245, 245, 0.8) !important;
+} */
+.tab-head-bg{
+    background-color: rgba(245, 245, 245, 0.8);
 
+}
 .tab-pane{
     overflow-y: auto;
+}
+/* .tab-user-list{
+    background-color: rgba(245, 245, 245, 0.8);
+} */
+.tab-content .tab-pane ul{
+    background-color: rgba(245, 245, 245, 0.8);
 }
 
 /* ////////////////////////////////// */
@@ -208,15 +250,19 @@ body{
 /* ///////////Create Room Style/////////// */
 
 .list-group .list-group-item .btn{
-    border: 1px solid #272424;
-    color: #242424;
+    /* border: 1px solid #272424; */
+    background-color: #595775;
+    color: #fff;
 }
 
 .list-group .list-group-item .btn:hover{
-    background: #c2d3da !important;
-    color: #81a3a7 !important;
+    background-color: #aba6bf;
+    color: #272424;
+    /* background: #595775 !important;
+    color: #fff !important; */
     border: 1px solid #272424 !important;
 }
+
 
 .createRoomForm{
     color: #272424 !important;
@@ -226,7 +272,7 @@ body{
     margin-bottom: 20px; 
     border-bottom-width: 2px; 
     border-bottom-style: solid; 
-    border-bottom-color: #c2d3da; 
+    border-bottom-color: #aba6bf; 
     border-top-style: none; 
     border-right-style: none; 
     border-left-style: none; 
@@ -236,13 +282,14 @@ body{
 }
 .formButton{
     float: right;
-	border: 2px solid #c2d3da;
-	color: #272424;
+    /* border: 2px solid #595775; */
+    background-color: #595775;
+	color: #fff;
 	font-weight: 400;
 }
 .formButton:hover {
-	background-color: #c2d3da;
-    color:#ffffff;
+	background-color: #aba6bf;
+    color: #272424;
 }
 /* /////////////////////////////// */
 
@@ -303,7 +350,10 @@ body{
     color:rgb(6, 6, 70);
     font-size: 25px;
 } */
-/* PROFILE EDIT STYLE */
+
+
+
+/*//////// PROFILE EDIT STYLE/////// */
 
 .profileBio{
     border: transparent;
@@ -339,3 +389,79 @@ body{
 
 }
 /* //////////////////////// */
+
+
+/* Ahtisham Added Following */
+
+.notifier {
+    color: white;    
+    float: right;
+    padding: 5px;
+    font-size: 11px;
+}
+
+.online {
+    color: green;
+}
+
+.offline {
+    color: gray;
+}
+
+#user-list {
+    max-height: 200px;
+    overflow: auto;
+}
+
+.hide {
+    display: none;
+}
+
+#upload {
+      cursor: pointer;   
+      /* color: #9ca1a3;    */
+}  
+  
+#submit {
+    background-color: transparent;
+    border: none;    
+    /* font-size: 14px;
+    color: #9ca1a3; */
+}
+
+#selected-file {
+      color: rgb(42, 52, 82);
+      font-size: 12px;
+}
+
+#err-msg {
+      color: maroon;
+      font-size: 12px;
+}
+
+.room-participant {
+    font-size: 14px;
+    color: rgb(40, 50, 60);
+}
+
+/* .gsheet-add {
+    position: relative;
+} */
+/* .add-sheet {
+    color: rgb(10, 90, 10);
+    font-size: 12.5px;
+    position: absolute;
+    top: 16px;
+} */
+
+.gsheet img {
+    width: 25px;
+    height: 30px;
+}
+
+.gsheet:hover {
+    cursor: pointer;
+}
+.sheet-creating {
+    font-size: 13px;
+}

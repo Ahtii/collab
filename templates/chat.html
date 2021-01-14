@@ -34,8 +34,8 @@
 
             <!--LEFT PANEL-->
             <div class="col-sm-4 col-md-5 col-lg-4 p-0 d-none d-md-block leftPanel" id="left-panel">
-                <div class="card" style="min-height: 100%;">
-                    <div class="card-header" style="background-color: #c2d3da;">
+                <div class="card">
+                    <div class="card-header left_header" style="background-color: #aba6bf;">
                         <div class="row">
                             <div class="col-1 col-sm-1 col-md-1 col-lg-1">
                                 <i class="fa fa-angle-left icons mt-3 d-md-none" style="cursor: pointer;" onclick="hideChatList()"></i>
@@ -59,7 +59,7 @@
                                     <div class="modal fade" id="myProfile">
                                         <div class="modal-dialog modal-dialog-scrollable">
                                             <div class="modal-content">
-                                                <div class="modal-header" style="background-color: #c2d3da;">
+                                                <div class="modal-header" style="background-color: #aba6bf;">
                                                     <h5 class="modal-title" id="exampleModalLabel">My Profile</h5>
                                                     <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
                                                 </div>
@@ -110,19 +110,11 @@
                                                             </div>
                                                         </div><!--end row-->                                                        
                                                     </div><!--end of container-->
-                                                    <button id="prosave" class="btn" style="float: right; background-color: #c2d3da; color: #272424; display: none;" type="submit">Save</button>
+                                                    <button id="prosave" class="btn" style="float: right; background-color: #aba6bf; color: #272424; display: none;" type="submit">Save</button>
                                                 </form>
                                                 </div><!--closing of modal body-->
-                                                <div class="modal-footer" style="background-color: #c2d3da;">
-                                                    
+                                                <div class="modal-footer" style="background-color: #aba6bf;">
                                                 </div><!--footer-->
-                                                
-                                                <!-- <div class="card">
-                                                    <div class="card-header">
-                                                        My Profile
-                                                        <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span> -->
-                                                    <!--</div>--> <!--closing of card header-->
-                                                <!--</div>--> <!--closing of card -->
                                             </div> <!--closing of modal content-->
                                         </div> <!--closing of modal dialog-->
                                     </div> <!--closing of modal-->
@@ -140,8 +132,8 @@
 
                     <!--CREATE ROOM-->
                     <div class="list-group list-group-flush">
-                        <li class="list-group-item" style="background-color: #c2d3da;">
-                            <button id="roomButton" class="btn" data-toggle="modal" data-target="#createRoom" onclick="">Create Room</button>
+                        <li class="list-group-item" style="background-color: #aba6bf">
+                            <button id="roomButton" class="btn create-room-btn" data-toggle="modal" data-target="#createRoom" onclick="">Create Workspace</button>
                             <!-- <form id="test-form" enctype="multipart/form-data" method="post">
                                 <input name="file" type="file">
                                 <input type="submit">
@@ -151,23 +143,23 @@
                         <div class="modal fade" id="createRoom">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <div class="modal-header" style="background-color: #c2d3da;">
-                                        <h6 class="modal-title" id="exampleModalLabel">Create Room</h6>
+                                    <div class="modal-header" style="background-color: #aba6bf;">
+                                        <h6 class="modal-title" id="exampleModalLabel">Create Workspace</h6>
                                         <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
-                                    </div> <!--closing of card header-->
+                                    </div> <!--closing of modal header-->
 
                                     <div class="modal-body">
                                         <form id="room-form" class="createRoomForm text-center">
                                             <div class="form-group">
-                                                <label for="formRoomName">Room Name</label>
+                                                <label for="formRoomName">Give your workspace a name</label>
                                                 <input type="text" class="form-control inputStyle" id="roomName" placeholder="Write name here">
                                                 </div>
                                                 <div class="form-group">
-                                                <label for="formRoomDesc">Room Description</label>
+                                                <label for="formRoomDesc">Write some description</label>
                                                 <input type="text" class="form-control inputStyle" id="roomDesc" placeholder="Write description here">
                                                 </div>
                                                 <div class="form-group">
-                                                <label for="formMembers">Room Members</label>                                                    
+                                                <label for="formMembers">Add members to your workspace</label>                                                    
                                                     <ul id="user-list" class="list-group">                                                                
                                                     </ul>
                                                 </div>
@@ -175,18 +167,18 @@
                                                 <button type="submit" class="btn formButton">Create</button>
                                                 </div>
                                         </form>
-                                    </div> <!--closing of card body-->   
-                                    <div class="modal-footer" style="background-color: #c2d3da;">
+                                    </div> <!--closing of modal body-->   
+                                    <div class="modal-footer" style="background-color: #aba6bf;">
                                     </div> <!-- closing of modal footer-->                                
                                 </div> <!--closing of modal content-->
                             </div> <!--closing of modal dialog-->
                         </div> <!--closing of modal-->
-                    </div>
+                    </div> <!--closing create room-->
                     <div class="card-body">
                     <!--TABS-->
-                    <div class="container">
+                    <div class="container"> 
                         <div class="tab-header">
-                            <ul class="nav nav-tabs nav-justified" role="tablist">
+                            <ul class="nav nav-tabs nav-justified tab-head-bg" role="tablist">
                                 <li class="nav-item">
                                 <a id="tab-direct-message" class="nav-link active" data-toggle="tab" href="#directMsg">
                                     <i class="fa fa-user"></i>
@@ -196,14 +188,14 @@
                                 <li class="nav-item">
                                 <a id="tab-room-message" class="nav-link" data-toggle="tab" href="#roomMsg">
                                     <i class="fa fa-users"></i>  
-                                        Rooms
+                                        Workspaces
                                 </a>
                                 </li>
                             </ul>
                         </div><!--closing of tab header-->
 
                     <!--TAB CONTENTS-->
-                    <div class="tab-content">
+                    <div class="tab-content tab-user-list">
                             <!--DIRECT MESSAGES-->
                             <div id="directMsg" class="container tab-pane active"><br>
                                 <ul class="list-group list-group-flush" id="direct-msg-list">
@@ -218,7 +210,7 @@
                     </div> <!--closing of tabs content-->
                 </div> <!--closing of tabs container-->
             </div> <!--closing of card body-->
-            <div class="card-footer" style="background-color: #c2d3da;">
+            <div class="card-footer" style="background-color: #aba6bf;">
             </div>
 
 
@@ -229,72 +221,76 @@
             <!--RIGHT PANEL-->
             <div class="col-sm-8 col-md-7 col-lg-8 p-0 rightPanel" id="right-panel">
                 <div id="chatPanel" class="card" style="display: none;">
-                    <div class="card-header" style="background-color: #c2d3da;">
+                    <div class="card-header" style="background-color: #aba6bf;">
                         <div class="row">
                             <div class="col-1 col-sm-1 col-md-1 col-lg-1">
                                 <i class="fa fa-angle-left mt-3 icons d-md-none" style="cursor: pointer;" onclick="showChatList()"></i>
                             </div>
                             <div class="col-2 col-sm-2 col-md-2 col-lg-1">                      
-                                <img src="" class="panel-pic" />
+                                <img src="" class="panel-pic"/>
                             </div>
                             <!--<div class="col-6 col-sm-7 col-md-7 col-lg-9">
                                 <div class="name"></div>
                                 <div class="under-name"><i class="fa fa-circle offline state"></i> </div>-->
-                            <div class="col-6 col-sm-7 col-md-7 col-lg-9">                                
+                            <div class="col-4 col-sm-4 col-md-4 col-lg-6">                                
                                 <div class="name"><span class="hide username-holder"></span><span class="user-fullname"></span></div>
                                 <div class="under-name"><i class="fa fa-circle state"></i> &nbsp; <span></span> </div>
                             </div>
-                            <div class="col-1 col-sm-2 col-md-1 col-lg-1 icons">
+                            <div class="col-4 col-sm-4 col-md-4 col-lg-3">
+                            <!--CODE OF GSHEET-->
+                            <div class="container-fluid">
+                                <div class="gsheet row">
+                                    <div class="col">
+                                        <div class="gsheet-add">
+                                            <!-- <i class="fa fa-plus add-sheet" data-toggle="modal" data-target="#addSheet"> </i> -->
+                                            <img src="/static/media/images/add-gsheet.png" data-toggle="modal" data-target="#addSheet" class="gsheet-tooltip" data-toggle="tooltip" data-placement="bottom" title="Create Google Sheet"/>
+                                        </div>
+                                        <div class="modal fade" id="addSheet">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header" style="background-color: #aba6bf;">
+                                                        <h6 class="modal-title">Create Google Sheet</h6>
+                                                        <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
+                                                    </div> <!--closing of modal header-->
+
+                                                    <div class="modal-body">
+                                                        <form id="sheet-form" class="text-center">
+                                                            <div class="form-group">
+                                                                <label for="formSheetName">Give your sheet a name</label>
+                                                                <input type="text" class="form-control inputStyle" id="sheetName" placeholder="Write name here">                                                                                                                                                                                                                                                                                               
+                                                                <label for="formSheetMembers">Add sheet members</label>                                                    
+                                                                <ul id="sheet-member-list" class="list-group text-left">                                                                
+                                                                </ul> 
+                                                            </div>                                                                      
+                                                            <button type="submit" class="btn formButton"><i class="fa fa-spinner fa-spin sheet-creating hide"></i> &nbsp; Create</button>      
+                                                        </form>
+                                                        <!-- <a href="#" class="sheet-url hide">Sheet Url</a> -->                                                                
+                                                    </div> <!--closing of modal body-->
+                                                    <div class="modal-footer" style="background-color: #aba6bf;">
+                                                    </div> <!-- closing of modal footer-->                        
+                                                </div> <!--closing of modal content-->
+                                            </div> <!--closing of modal dialog-->
+                                        </div> <!--closing of modal-->
+                                    </div>
+                                    <div class="col">
+                                        <!-- <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Action
+                                        </button> -->
+                                        <!-- <span class="dropdown-toggle" data-toggle="dropdown">                                                    
+                                        </span>-->
+                                        <img src="/static/media/images/gsheet.png" class="gsheets gsheet-tooltip" data-toggle="dropdown" data-toggle="tooltip" data-placement="bottom" title="View Google Sheets"/>
+                                        <div class="dropdown-menu dropdown-menu-right gsheets-menu"></div>
+                                    </div>
+                                </div> <!--gsheet row-->                 
+                            </div> <!--gsheet container-->
+                            </div> <!--col of gsheet-->
+
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 icons">
                                 <div class="dropleft">
                                     <!-- <i class="fa fa-search" style="cursor: pointer;"></i>-->
                                     <!-- <i class="fa fa-paperclip ml-4" style="cursor: pointer;"></i> -->
                                     <!-- GSHEET CODE -->
-                                    <div class="container-fluid">
-                                        <div class="gsheet row">
-                                            <div class="col-8">                                                
-                                                <div class="gsheet-add">
-                                                    <i class="fa fa-plus add-sheet" data-toggle="modal" data-target="#addSheet"> </i>
-                                                    <img src="/static/media/images/gsheet.png"/>
-                                                </div>
-                                                <div class="modal fade" id="addSheet">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header" style="background-color: #c2d3da;">
-                                                                <h6 class="modal-title">Create Sheet</h6>
-                                                                <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
-                                                            </div> <!--closing of card header-->
-                        
-                                                            <div class="modal-body">
-                                                                <form id="sheet-form" class="text-center">
-                                                                    <div class="form-group">
-                                                                        <label for="formSheetName">Sheet Name</label>
-                                                                        <input type="text" class="form-control inputStyle" id="sheetName" placeholder="Write name here">                                                                                                                                                                                                                                                                                               
-                                                                        <label for="formSheetMembers">Sheet Members</label>                                                    
-                                                                        <ul id="sheet-member-list" class="list-group text-left">                                                                
-                                                                        </ul> 
-                                                                    </div>                                                                      
-                                                                    <button type="submit" class="btn formButton"><i class="fa fa-spinner fa-spin sheet-creating hide"></i> &nbsp; Create</button>      
-                                                                </form>
-                                                                <!-- <a href="#" class="sheet-url hide">Sheet Url</a> -->                                                                
-                                                            </div> <!--closing of card body-->   
-                                                            <div class="modal-footer" style="background-color: #c2d3da;">
-                                                            </div> <!-- closing of modal footer-->                                
-                                                        </div> <!--closing of modal content-->
-                                                    </div> <!--closing of modal dialog-->
-                                                </div>
-                                            </div>                                  
-                                            <div class="col-4">
-                                                <!-- <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    Action
-                                                </button> -->
-                                                <!-- <span class="dropdown-toggle" data-toggle="dropdown">                                                    
-                                                </span>                                                     -->
-                                                <img src="/static/media/images/gsheet.png" class="gsheets" data-toggle="dropdown"/>
-                                                <div class="dropdown-menu dropdown-menu-right gsheets-menu">                                                                                                     
-                                                </div> 
-                                            </div>                                              
-                                        </div>                 
-                                    </div>                                                           
+                                                                                              
                                     <span class="dropdown-toggle" data-toggle="dropdown">
                                         <i class="fa fa-ellipsis-v ml-4" style="cursor: pointer;"></i>
                                     </span>
@@ -306,7 +302,7 @@
                                     <div class="modal fade" id="userProfile">
                                         <div class="modal-dialog modal-dialog-scrollable">
                                             <div class="modal-content">
-                                                <div class="modal-header" style="background-color: #c2d3da;">
+                                                <div class="modal-header" style="background-color: #aba6bf;">
                                                     <h5 class="modal-title" id="exampleModalLabel" style="color: #272424;">User Profile</h5>
                                                     <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
                                                 </div>
@@ -357,26 +353,19 @@
                                                             </div>
                                                         </div><!--end row-->                                                        
                                                     </div><!--end of container-->
-                                                    <button id="prosave" class="btn" style="float: right; background-color: #c2d3da; color: #272424; display: none;" type="submit" onclick="save()">Save</button>
+                                                    <!-- <button id="prosave" class="btn" style="float: right; background-color: #aba6bf; color: #272424; display: none;" type="submit" onclick="save()">Save</button> -->
                                                 </form>
                                                 </div><!--closing of modal body-->
-                                                <div class="modal-footer" style="background-color: #c2d3da;">
+                                                <div class="modal-footer" style="background-color: #aba6bf;">
                                                     
-                                                </div><!--footer-->
-                                                
-                                                <!-- <div class="card">
-                                                    <div class="card-header">
-                                                        My Profile
-                                                        <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span> -->
-                                                    <!--</div>--> <!--closing of card header-->
-                                                <!--</div>--> <!--closing of card -->
+                                                </div><!--closing of modal footer-->
                                             </div> <!--closing of modal content-->
                                         </div> <!--closing of modal dialog-->
                                     </div> <!--closing of modal-->
                                     
-                                </div>
-                            </div>
-                        </div>
+                                </div> <!--dropleft close-->
+                            </div> <!--col close-->
+                        </div> <!--row close-->
                     </div><!--closing of card header-->
 
                     <!--CHAT BODY SPEECH BUBBLES-->
@@ -384,11 +373,11 @@
                     </div>
 
                     <!--FOOTER-->                                      
-                    <div class="card-footer" style="background-color: #c2d3da;">
+                    <div class="card-footer" style="background-color: #aba6bf;">
                         <form id="msg-form">
                             <div class="row">                            
                                 <div class="col-md-1 col-2 file-upload">
-                                    <i id="upload" class="fa fa-plus mt-2 ml-4"></i>                                    
+                                    <i id="upload" class="fa fa-plus icons mt-2 ml-4"></i>                                    
                                 </div>
                                 <div class="col-md-10 col-8">
                                     <span id="selected-file"></span>
@@ -397,12 +386,12 @@
                                     <input type="text" id="text-message" placeholder="Message here" class="form-control round-box"/>
                                 </div>
                                 <div class="col-md-1 col-2 mt-1">
-                                    <button id="submit" type="submit"><i class="fa fa-paper-plane"></i> </button>
+                                    <button id="submit" type="submit"><i class="fa fa-paper-plane icons mt-1 mr-5"></i> </button>
                                 </div>                                
                             </div>
                         </form>
-                    </div>
-                </div>
+                    </div> <!--footer close-->
+                </div> <!--chatPanel close-->
 
                 <!--WELCOME SCREEN-->
                 <div class="container">
@@ -410,7 +399,7 @@
                         <img src="/static/media/images/collab-grayed.png" class="welcome-logo" style="height: 130px; width: 200px;">
                         <!-- <i class="fa fa-comments mt-5" style="font-size: 250px;"></i> -->
                         <div class="welcome-text">
-                            <h3 class="">Welcome to the chat room of <strong>Collab</strong></h3>
+                            <h3 class="">Welcome to <strong>COLLAB</strong></h3>
                             <h4 class="mt-5">Start sharing your ideas!</h4>
                         </div>
                         <!-- <a href="#" class="d-md-none" onclick="showChatList()">Select Chat</a> -->
@@ -422,7 +411,7 @@
 
         </div> <!--closing of main row-->
     </div> <!--closing of chatbox-->
-    <script type="text/javascript" src="/static/js/chat.js"></script>
-    <script type="text/javascript" src="/static/js/chatscript.js"></script>    
+    <script type="text/javascript" src="/static/js/chatscript.js"></script>   
+    <script type="text/javascript" src="/static/js/chat.js"></script> 
 </body>
 </html>
