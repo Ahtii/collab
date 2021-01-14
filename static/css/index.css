@@ -26,13 +26,13 @@ input {
   position: absolute;
   line-height: 9px;
 } */
-#fmessage, #umessage, #emessage, #pmessage, #cpmessage{
-  color: purple;
+#fmessage, #umessage, #emessage, #pmessage, #cpmessage, #fnmessage{
+  /* color: red; */
   width: 60%;
   margin-left: 280px;
   position: absolute;
   line-height: 9px;
-  font-size: 10px;  
+  font-size: 10px;
 }
 /* .first-name-field:focus:required:valid {
   box-shadow: 0 0 3pt 2pt seagreen;
@@ -213,8 +213,8 @@ form.sign-in-form {
 }
 
 .social-iconl:hover {
-  color: #81a3a7;
-  border-color: #81a3a7;
+  color: #80789e;
+  border-color: #80789e;
   transition: 0.4s ease-in;
   text-decoration: none;
   cursor: pointer;
@@ -249,7 +249,7 @@ form.sign-in-form {
 .btnl {
   width: 120px;
   height: 40px;
-  background-color: #81a3a7;
+  background-color: #80789e;
   border: none;
   outline: none;
   border-radius: 49px;
@@ -269,7 +269,7 @@ form.sign-in-form {
 .btnu {
   width: 120px;
   height: 40px;
-  background-color: #81a3a7;
+  background-color: #80789e;
   border: none;
   outline: none;
   border-radius: 49px;
@@ -322,7 +322,7 @@ form.sign-in-form {
   top: -10%;
   right: 48%;
   transform: translateY(-50%);
-  background-image: linear-gradient(-45deg, #585a56 0%, #81a3a7 100%);
+  background-image: linear-gradient(-45deg, #595775 0%, #aba6bf 100%);
   transition: 1.5s ease-in-out;
   border-radius: 50%;
   z-index: 6;

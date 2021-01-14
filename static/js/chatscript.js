@@ -9,17 +9,24 @@
 
 
 //show chat list on welcome screen
-function showChatList(){
-    document.getElementById('left-panel').classList.remove('d-none','d-md-block');
-    document.getElementById('right-panel').classList.add('d-none');
-}
+// function showChatList(){
+//     document.getElementById('left-panel').classList.remove('d-none','d-md-block');
+//     document.getElementById('right-panel').classList.add('d-none');
+// }
 
 
-//hide chat list on welcome screen
-function hideChatList(){
-    document.getElementById('left-panel').classList.add('d-none','d-md-block');
-    document.getElementById('right-panel').classList.remove('d-none');
-}
+// //hide chat list on welcome screen
+// function hideChatList(){
+//     document.getElementById('left-panel').classList.add('d-none','d-md-block');
+//     document.getElementById('right-panel').classList.remove('d-none');
+// }
+
+// //for showing tooltips over Gsheet
+// $(document).ready(function(){
+//     $(".gsheet-tooltip").tooltip({
+//         delay: {show: 0, hide: 250}
+//     }); 
+// });
 
 
 //sending message on pressing Enter key

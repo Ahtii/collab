@@ -20,7 +20,7 @@
             <div class="signin-signup">
             <form id="login-form" class="sign-in-form">
             <div>
-                <h2 class="title">Log in</h2>
+                <h2 class="title">Login</h2>
             </div>
             <div class="fields">
                 <div class="input-field">
@@ -63,7 +63,8 @@
 
                 <div class="input-field">
                 <i class="fa fa-user"></i>
-                <input id="full_name" type="text" placeholder="Full Name"/>
+                <input id="full_name" type="text" placeholder="Full Name *" class="full-name-field" onkeyup="return fullnameFunc()" required/>
+                <span class="fnmessage" id="fnmessage"></span>
                 </div>
 
                 <div class="input-field">
@@ -127,7 +128,7 @@
                 If you already have an account then login here.
                 </p>
                 <button class="btn btns transparent" id="sign-in-btn">
-                Log in
+                Login
                 </button>
             </div>
             <img src="/static/media/images/login.svg" class="image" alt="" />
@@ -141,7 +142,7 @@
     <!-- Google API -->
     <script src="https://apis.google.com/js/client:platform.js" type="text/javascript"></script>
 
-    <!-- Custome CSS -->
+    <!-- Custom JS -->
     <script type="text/javascript" src="/static/js/index.js"></script>    
 
     <!--Popper JS-->
