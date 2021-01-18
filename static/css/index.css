@@ -13,6 +13,20 @@ input {
   font-family: "Poppins", sans-serif;
 }
 
+.forgot-pass a{
+  text-decoration: none;
+  color: #595775;
+}
+.forgot-pass a:hover{
+  color:#272424;
+  transition: ease-in 0.3s;
+}
+.forgot-pass a span{
+  float: right;
+  font-size: 10px;
+}
+
+
 
 /* //////////For Validation////////// */
 
@@ -26,10 +40,19 @@ input {
   position: absolute;
   line-height: 9px;
 } */
-#fmessage, #umessage, #emessage, #pmessage, #cpmessage, #fnmessage{
+/* #fmessage, #umessage, #emessage, #pmessage, #cpmessage, #fnmessage{ */
   /* color: red; */
-  width: 60%;
+  /* width: 60%;
   margin-left: 280px;
+  position: absolute;
+  line-height: 9px;
+  font-size: 10px;
+} */
+#fmessage, #umessage, #emessage, #pmessage, #cpmessage, #fnmessage, #forgotmessage{
+  /* color: red; */
+  width: 120%;
+  margin-left: 10px;
+  margin-top: 48px;
   position: absolute;
   line-height: 9px;
   font-size: 10px;
@@ -154,7 +177,7 @@ form.sign-in-form {
   max-width: 380px;
   width: 100%;
   background-color: #f0f0f0;
-  margin: 10px 0;
+  margin: 20px 0;
   height: 45px;
   border-radius: 55px;
   display: grid;
@@ -543,12 +566,12 @@ form.sign-in-form {
   }
 
   .auth-container:before {
-    bottom: 72%;
+    bottom: 70%;
     left: 50%;
   }
 
   .container.sign-up-mode:before {
-    bottom: 28%;
+    bottom: 30%;
     left: 50%;
   }
 }
