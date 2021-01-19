@@ -195,10 +195,32 @@
                             </div> <!--closing of modal dialog-->
                         </div> <!--closing of modal-->
                     </div> <!--closing create room-->
-                    <div class="card-body">
+
+                    <!--TAB HEADER-->
+                    <div class="list-group list-group-flush">
+                        <li class="list-group-item tab-header-bg"> <!--style="background-color: #aba6bf-->
+                            <div class="tab-header">
+                                <ul class="nav nav-tabs nav-justified tab-head-bg" role="tablist">
+                                    <li class="nav-item">
+                                    <a id="tab-direct-message" class="nav-link active" data-toggle="tab" href="#directMsg">
+                                        <i class="fa fa-user"></i>
+                                            Direct
+                                    </a>
+                                    </li>
+                                    <li class="nav-item">
+                                    <a id="tab-room-message" class="nav-link" data-toggle="tab" href="#roomMsg">
+                                        <i class="fa fa-users"></i>  
+                                            Workspaces
+                                    </a>
+                                    </li>
+                                </ul>
+                            </div><!--closing of tab header-->
+                        </li>
+                    </div>
+                    <div class="card-body scroll-div">
                     <!--TABS-->
                     <div class="container"> 
-                        <div class="tab-header">
+                        <!-- <div class="tab-header">
                             <ul class="nav nav-tabs nav-justified tab-head-bg" role="tablist">
                                 <li class="nav-item">
                                 <a id="tab-direct-message" class="nav-link active" data-toggle="tab" href="#directMsg">
@@ -213,7 +235,7 @@
                                 </a>
                                 </li>
                             </ul>
-                        </div><!--closing of tab header-->
+                        </div> closing of tab header -->
 
                     <!--TAB CONTENTS-->
                     <div class="tab-content tab-user-list">

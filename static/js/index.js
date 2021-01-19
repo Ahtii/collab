@@ -417,8 +417,12 @@ $(document).ready(function(){
     $.post("/api/user/token", form_data, function(response){
         //$("#err").text("");
         var error = response["error"];
-        if (error)
-            alert(error);
+        if (error){
+            document.getElementById("forgotmessage").innerHTML = "The Username or Password you entered is incorrect";
+            document.getElementById("forgotmessage").style.color = "Red";
+            // alert(error);
+            // alert("yes this is it");
+        }
         else{
           //genProfile();
           console.log("show profile");
