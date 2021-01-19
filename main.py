@@ -73,7 +73,33 @@ def preview_file(request: Request):
 #                     table_range='A:B'
 #                 )
 # except Exception as e:    
-#     print("something went wrong.")            
+#     print("something went wrong.")     
+
+    # UTILITIES 
+
+@app.post("/send-otp")
+def send_otp(request: Request, db: Session = Depends(get_db)):    
+    response = {}
+    try:
+        user = views.get_current_user(db, request.cookies.get("access_token"))
+        if user:
+            otp = views.gen_otp()
+            response.update(views.send_otp(otp, user))
+    except Exception:
+        response.update({"error": "something went wrong!"})
+    return response    
+
+@app.post("/verify-otp")
+def verify_otp(request: Request, data: validators.OTPForm, db: Session = Depends(get_db)):    
+    response = {}
+    try:
+        user = views.get_current_user(db, request.cookies.get("access_token"))
+        if user:
+            response.update(views.verify_otp(data.otp, user, db))          
+    except Exception:
+        response.update({"error": "something went wrong!"})        
+    return response
+
     # API ENDPOINTS
 
 
@@ -91,7 +117,8 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
             # "full_name": views.get_fullname(user),
             "fullname": user.full_name.title(),
             "user": user.username,
-            "id": user.id
+            "id": user.id,
+            "is_verified": user.is_verified
         }
     return response
 
@@ -454,21 +481,21 @@ async def connect_user(websocket: views.WebSocket, db: Session = Depends(get_db)
                         print(message)
                         await socket_manager.to_specific_user(message)                                                          
                     else:
-                            file_data = data.get('file')
-                            if file_data:
-                                file_size = file_data['size']
-                                if file_size <= FILE_SIZE:
-                                    file = await websocket.receive_bytes()
-                                    filename = file_data['filename']
-                                    file_dir = views.gen_file_dir(room, __file__)
-                                    file_url = views.create_file(file_dir, filename, file)
-                                    data.update({
-                                        "file": file_url,
-                                        "filename": filename
-                                    })
-                            data['user'] = user.username        
-                            message = views.create_room_message(db, data)
-                            await socket_manager.to_room_participants(message)                
+                        file_data = data.get('file')
+                        if file_data:
+                            file_size = file_data['size']
+                            if file_size <= FILE_SIZE:
+                                file = await websocket.receive_bytes()
+                                filename = file_data['filename']
+                                file_dir = views.gen_file_dir(room, __file__)
+                                file_url = views.create_file(file_dir, filename, file)
+                                data.update({
+                                    "file": file_url,
+                                    "filename": filename
+                                })
+                        data['user'] = user.username        
+                        message = views.create_room_message(db, data)
+                        await socket_manager.to_room_participants(message)                
         except WebSocketDisconnect:
             socket_manager.disconnect(websocket, user)  
             await socket_manager.delete(user)        

@@ -393,6 +393,56 @@ body{
 
 /* Ahtisham Added Following */
 
+.chatBox {
+    position: relative;
+}
+
+.email-verifier {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    background: rgb(200, 200, 200);
+    border-radius: 10px;
+    border: 3px solid purple;
+    box-shadow: 0px 0px 5px purple;
+    z-index: 1;
+}
+
+.send-btn, .verify-btn {
+    font-size: 12px;    
+    background-color: purple;
+    color: rgb(200, 200, 200);
+    padding: 5px;
+}
+
+.send-btn:hover, .verify-btn:hover {
+    color: rgb(200, 200, 200);
+    box-shadow: 0px 0px 2px purple;
+    border-color: rgb(200, 200, 200);
+}
+
+.verify-err {
+    color: maroon;
+    font-size: 12px;
+    position: absolute;
+    top: -20px;
+    transform: translateY(-20px);
+    left: 40%;    
+    transform: translateX(40%);
+}
+
+.verified-msg {
+    font-size: 12px;
+    font-weight: bold;
+    color: darkgreen;
+}
+
+.verify-input {
+   font-size: 12px; 
+   background-color: rgb(240, 240, 240);
+}
+
 .notifier {
     color: white;    
     float: right;

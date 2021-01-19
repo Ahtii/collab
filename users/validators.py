@@ -14,7 +14,8 @@ class RegisterValidator(BaseModel):
     full_name: str
     email: str
     password: str
-    is_social_account: bool = False    
+    is_social_account: bool = False
+    is_verified : bool = False    
 
     # @validator('full_name')
     # def validate_fullname(cls, v):
@@ -71,4 +72,8 @@ class ProfileUpdateForm(BaseModel):
     designation: str = None
     bio: str = None
     avatar: str = None    
+
+# OTP form
+class OTPForm(BaseModel):
+    otp: int = None    
 

@@ -57,7 +57,7 @@ $(document).ready(function(){
     var selected_user, file;
     var selected_room, room_id, unseen_messages = [];
     var user = "", socket;
-    var uid; 
+    var uid, verified; 
 
     $.get("/api/user", function(response){
         user = response["user"];     
@@ -96,7 +96,7 @@ $(document).ready(function(){
                 // console.log(profile_for);
                 $.get("/api/profile/"+profile_for, function(response){
                     var profile = response["profile"];
-                    // populate user profiel
+                    // populate user profile
                     if (profile)
                         populate_profile(profile_type, profile);                                             
                 });
@@ -193,8 +193,7 @@ $(document).ready(function(){
            var protocol = window.location.protocol === "http:" ? "ws://" : "wss://";
            var host = window.location.host;
            var api_path = "/chat";
-           var full_address = protocol+host+api_path;
-           console.log(window.location.protocol);
+           var full_address = protocol+host+api_path;           
            socket = new WebSocket(full_address);
            socket.onmessage = function(event) {
                var data = JSON.parse(event.data);
@@ -244,9 +243,7 @@ $(document).ready(function(){
                     });                                  
                 }  
                 var show_direct_notification = false;
-                var show_room_notification = false;
-                //console.log(room);
-                // code to show message
+                var show_room_notification = false;                
                 if (message || file){  
                     if (file){
                         var full_path = file.split("/");
@@ -263,6 +260,7 @@ $(document).ready(function(){
                             display_username = receiver['username'];
                             user_tag = receiver["fullname"];                       
                         }  
+                        console.log("message is:");
                         console.log(data);    
                         var username_holder = "<span class='hide username-holder'>"+display_username+"</span>";                                                
                         if (last_message){                    
@@ -279,8 +277,8 @@ $(document).ready(function(){
                             $("#direct-msg-list").append(content);
                         } else {
                             var panel_selected_user = $("#chatPanel .name").find(".username-holder").text();                            
-                            console.log(panel_selected_user);
-                            console.log(room);
+                            // console.log(panel_selected_user);
+                            // console.log(room);
                             var content;
                             // decide position of message box
                             if (user == author["username"]){
@@ -319,11 +317,12 @@ $(document).ready(function(){
                         if (user == display_username){   
                             displayname = "You";
                         } 
+                        console.log("room is:");
                         console.log(data);    
                         var username_holder = "<span class='hide username-holder'>"+display_username+"</span>";                                                
                         var panel_selected_user = $("#chatPanel .name").find(".user-fullname").text();
-                        console.log(panel_selected_user);
-                        console.log(room);
+                        // console.log(panel_selected_user);
+                        // console.log(room);
                         var content;
                         // decide position of message box                                                       
                         if (panel_selected_user == room){
@@ -432,8 +431,8 @@ $(document).ready(function(){
                     console.log("setup room notification"); 
                     $.each($("#room-msg-list li"), function(index, value){
                         console.log("inside room list");
-                        console.log($(this).find(".room-name").text());
-                        console.log(room);
+                        // console.log($(this).find(".room-name").text());
+                        // console.log(room);
                         if ($(this).find(".room-name").text() == room){                             
                             console.log("found room match");
                             var content = "<div class='row justify-content-end'>\
@@ -455,25 +454,31 @@ $(document).ready(function(){
                                 unseen_messages[room] = [content];
                             
                             var target = $(this).find(".name").children(".notifier");                            
-                            console.log($(target));
-                            console.log(unseen_messages);
+                            // console.log($(target));
+                            // console.log(unseen_messages);
                             
                             if ($(target).length > 0)
                                 $(target).text(unseen_messages[room].length);
                             else {
                                 var notifier = "<span class='badge badge-primary notifier'>1</span>";
                                 $(this).find(".name").append(notifier);
-                                console.log($(target));
-                                console.log(unseen_messages);
+                                // console.log($(target));
+                                // console.log(unseen_messages);
                             }    
                             return;
                         }
                     });
                 }
                 document.getElementById('messages').scrollTo(0, document.getElementById('messages').scrollHeight);
-           };
-           //e.preventDefault();
+           };           
         }
+        verified = response['is_verified'];
+        console.log(verified);                  
+        if (!verified){            
+            $(".email-verifier").removeClass("hide");
+            $(".email-verifier").addClass("show");         
+            $(".gsheet img").addClass("hide");
+        }    
     });    
 
     // $(document).on("click", "#messages p", function(){
@@ -484,6 +489,61 @@ $(document).ready(function(){
     //     window.location.href = "/direct?user="+user;
     // });
 
+    /* SEND VERIFICATION BUTTON */
+    
+    $(".send-btn").on('click', function(e){
+        
+        $(".send-txt").text("Sending");
+        $(".sending").removeClass("hide");
+
+        $.post('send-otp', function(response){
+            
+            $(".send-txt").text("Send OTP");
+            $(".sending").addClass("hide");
+            $(".send-btn").addClass("hide");
+
+            $(".verify-btn").removeClass("hide");                        
+            $(".verify-input").removeClass("hide");            
+        })
+    });
+
+    /* VERIFICATION BUTTON */
+
+    $(".verify-btn").on('click', function(e){
+        
+        $(".verify-txt").text("Verifying");
+        $(".verifying").removeClass("hide");        
+        var otp = $(".verify-input").val();
+        if (otp == "")
+            otp = 0;
+        var data = { 'otp': otp }
+
+        $.post('/verify-otp', JSON.stringify(data), function(response){
+            $(".verifying").addClass("hide");    
+            console.log(response)        
+            var verified = response["verified"];
+            $(".verify-txt").text("Verify");
+            console.log(verified);
+            if (verified){                                                
+                $(".verify-btn").addClass("hide");
+                $(".verify-input").text("");
+                $(".verify-input").addClass("hide");
+                $(".verified-msg").removeClass("hide");  
+                setTimeout(function(){
+                    $(".email-verifier").alert("close");
+                }, 3500);             
+            } else {
+                $(".verify-err").removeClass("hide");
+            }           
+        })
+    });
+
+    $(".verify-input").on("keyup", function(response){
+        if (!$(".verify-err").hasClass("hide")){
+            $(".verify-err").addClass("hide");
+        }        
+    });
+
     /* SHEET CODE => start */
 
     // populate sheet modal with room participants
@@ -493,9 +553,14 @@ $(document).ready(function(){
             $.get("/api/room/"+room_id+"/participants", function(response){            
                 $.each(response, function(key, participant){
                     if (user != participant['username']){
+                        
+                        var participant_selector = "<input type='checkbox'>";
+                        if (!participant['is_verified'])
+                            participant_selector =  "<input type='checkbox' disabled>";
+
                         var participant_layout = "<li class='list-group-item style='text-align: left;'>\
                                         <span class='hide participantEmail'>"+participant['email']+"</span>\
-                                        <input type='checkbox'>&nbsp;\
+                                        "+participant_selector+"&nbsp;\
                                         <span class='room-participant'>"+participant["name"]+"</span>\
                                     </li>";
                         $("#sheet-member-list").append(participant_layout);                      

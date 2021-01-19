@@ -12,13 +12,16 @@ from typing import Optional
 from fastapi import WebSocket
 from typing import List
 from oauth2client import client
-import os, pathlib, random
+import os, pathlib, random, math, smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 from dateutil import tz
 import pytz, html
+from . import config
 
 # hashing password algorithm (BCRYPT for new hash) with support for old algorithm
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") 
 
 # generate hashed password
 def gen_hash(password):
@@ -149,6 +152,50 @@ def gen_username(db, username):
         username = username[:3] + str(count)        
     return username 
 
+def gen_otp():
+    digits = "0123456789"
+    otp = ""
+    for i in range(5):
+        otp += digits[math.floor(random.random() * 10)]
+    return otp
+
+def send_otp(otp, user):
+    
+    response = {}
+    sender = "collabchat1@gmail.com"
+    password = "vtfvvbvqrnzfnorc"
+    receiver = [user.email]
+
+    message = """\
+    Subject: Verification
+
+    Your OTP: """+str(otp)
+        
+    server = "smtp.gmail.com"
+    port = 587
+    context = ssl.create_default_context()
+    
+    try:
+        smtp = smtplib.SMTP(server, port)
+        smtp.starttls(context=context)
+        smtp.login(sender, password)
+        smtp.sendmail(sender, receiver, message)
+        config.otp_store.update({user.email: otp})
+    except Exception:
+        response.update({"error": "something went wrong!"})  
+    return response    
+
+def verify_otp(entered_otp, user, db: Session):
+    response = {"verified": False}
+    otp = int(config.otp_store.get(user.email))
+    if entered_otp == otp:
+        response['verified'] = True
+        config.otp_store.pop(user.email)        
+        user.is_verified = True
+        db.add(user)
+        db.commit()
+    return response    
+
 
 # social login
 def social_login(db: Session, request: Request, response: Response, data: validators.SocialLoginValidator):
@@ -186,7 +233,8 @@ def social_login(db: Session, request: Request, response: Response, data: valida
                     "full_name": full_name,
                     "email": token_data["email"],
                     "password": "",
-                    "is_social_account": True
+                    "is_social_account": True,
+                    "is_verified": token_data["email_verified"]
                 }
                 
                 print(token_data)
@@ -306,9 +354,9 @@ class SocketManager:
             await connection[0].send_json(msg_data)    
 
     async def to_room_participants(self, data: dict):
-        for connection in self.active_connections:            
-            if connection[1].username in data['participants']:
-                print("data for room participant:")
+        for connection in self.active_connections:   
+            print(data)         
+            if connection[1].username in data['participants']:                
                 print(connection[1].username)
                 print(data)
                 await connection[0].send_json(data)
@@ -497,7 +545,7 @@ def get_participants(room: int, db: Session):
 def room_participants(room: int, db: Session):
     room = db.query(models.Room).filter(models.Room.id == room).first()
     if room:
-        return [{'name': participant.full_name.title(), 'email': participant.email, 'username': participant.username} for participant in room.participants]
+        return [{'name': participant.full_name.title(), 'email': participant.email, 'username': participant.username, 'is_verified': participant.is_verified} for participant in room.participants]
     return None    
 
 # create message object and save it in db

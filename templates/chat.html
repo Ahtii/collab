@@ -30,8 +30,29 @@
 </head>
 <body>
     <div class="container-fluid chatBox">
+        <!-- VERIFIED ALERT BOX -->
+        <div class="alert alert-dismissible fade hide email-verifier">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <p>
+                Please verify your email in order to use all features of <strong style="color: purple;">Collab</strong>.
+            </p>  
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-8">
+                        <span class="verify-err hide">Invalid code</span>
+                        <input class="form-control verify-input hide" type="number" placeholder="Enter 5 digit number here">                 
+                    </div>
+                    <div class="col ml-1">
+                        <button class="btn send-btn"><i class="fa fa-spinner fa-spin sending hide"></i> <span class="send-txt"> Send OTP </span></button>
+                        <button class="btn verify-btn hide"><i class="fa fa-spinner fa-spin verifying hide"></i> <span class="verify-txt"> Verify </span></button>                    
+                        <p class="verified-msg hide">Verified Successfully.</p>
+                    </div>
+                </div>                 
+            </div>
+        </div>
         <div class="row">
-
             <!--LEFT PANEL-->
             <div class="col-sm-4 col-md-5 col-lg-4 p-0 d-none d-md-block leftPanel" id="left-panel">
                 <div class="card">
