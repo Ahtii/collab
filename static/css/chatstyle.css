@@ -130,6 +130,7 @@ body{
 /* .chatBody{
     width: 100%;
     height: 100%;
+    overflow-x: hidden;
 } */
 
 .chat-pic{
@@ -401,6 +402,7 @@ body{
     word-wrap: inherit;
     overflow: hidden;
     text-align: inherit;
+    font-size: medium;
     
 }
 
@@ -411,6 +413,7 @@ body{
     text-decoration: none;
     background: transparent;
     resize: none;
+    font-size: medium;
 
 }
 .profileDesig{
@@ -420,6 +423,7 @@ body{
     text-decoration: none;
     background: transparent;
     resize: none;
+    font-size: medium;
 
 }
 /* //////////////////////// */

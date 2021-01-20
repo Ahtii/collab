@@ -350,8 +350,12 @@ $(document).ready(function(){
             // console.log("Signup Success!")
             $.post("/api/user", JSON.stringify(form_data),function(response){
                 var error = response["error"];
-                if (error)
-                    alert(error);
+                if (error){
+                    document.getElementById("emessage").innerHTML = "This email has already been used.";
+                    document.getElementById("emessage").style.color = "Red";
+                    // alert(error);
+                    // alert("Email error");
+                }
                 else
                     $("#sign-in-btn").trigger("click");
             });
