@@ -437,6 +437,131 @@ $(document).ready(function(){
     });
 
     }); //closing of login
+
+    /* FORGOT PASSWORD RELATED CODE */
+
+    // Forgot Password Modal
+
+    $(".forgotpassword-field").on("click", function(e){
+        $("#forgotpassword-modal").modal("toggle");              
+    });
+
+    // on email or otp input change value
+
+    $("#forgotpassword-email-field, #forgotpassword-secret-field").on("keyup", function(){
+        $(".forgotpassword-err").text("");
+    });
+
+    // Send email to backend
+
+    var email = "aquibchishti@gmail.com";
+
+    $(".forgotpassword-send-btn").on("click", function(e){
+        e.preventDefault();        
+        
+        var text = $(".send-txt").text().trim().toLowerCase();
+
+        if (text == "send"){
+            $(".send-txt").text("Sending");
+        } else {
+            $(".send-txt").text("Resending");
+        }
+        
+        $(".sending").removeClass("hide");
+
+        email = $("#forgotpassword-email-field").val();
+        
+        if (email){
+
+            var data = { "email": email };
+            $.post('send-otp', JSON.stringify(data), function(response){
+
+                $(".send-txt").text("Send");
+                $(".sending").addClass("hide");                
+
+                var error = response['error'];
+
+                if (error)
+                    $(".forgotpassword-err").text(error);
+                else {
+                    $(".send-txt").text("Resend");
+                    $(".send-email").addClass("hide");
+                    $(".verify-email").removeClass("hide");
+                    $(".forgotpassword-verify-btn").removeClass("hide");
+                }    
+
+            });
+        }  
+    });
+
+
+    // Verify secret code with backend
+
+    $(".forgotpassword-verify-btn").on("click", function(e){
+        e.preventDefault();        
+
+        $(".verify-txt").text("Verifying");
+        $(".verifying").removeClass("hide");        
+        
+        var otp = $("#forgotpassword-secret-field").val();
+        
+        if (otp == "")
+            otp = 0;
+
+        var data = { 'otp': otp, 'email': email }
+
+        $.post('/verify-otp', JSON.stringify(data), function(response){
+            $(".verifying").addClass("hide");           
+            var verified = response["verified"];
+            $(".verify-txt").text("Verify");            
+            if (verified){                                                
+                $("#forgotpassword-form").addClass("hide");
+                $("#password-reset-form").removeClass("hide");                
+            } else {
+                var error = response['error'];
+                if (error)
+                    $(".forgotpassword-err").text(error);
+                else
+                    $(".forgotpassword-err").text("Invalid code");
+            }           
+        })        
+    });
+
+    // Password Reset Form
+
+    $("#password-reset-form").on("submit", function(e){
+        e.preventDefault();
+
+        $(".set-txt").text("Changing");
+        $(".setting").removeClass("hide");                
+
+        var password = $("#password-reset-field").val();
+        var confirm_password = $("#confirm-password-reset-field").val();
+
+        // validate above fields
+
+        var data = { 'email': email, 'password': password }
+
+        $.post('/change-password', JSON.stringify(data), function(response){
+            $(".setting").addClass("hide");           
+            var changed = response["changed"];            
+            $(".set-txt").text("Change");            
+            if (changed){                                                
+                $("#forgotpassword-form").removeClass("hide");
+                $("#password-reset-form").addClass("hide");                
+                $("#forgotpassword-modal").modal("toggle");
+                $(".notifier").removeClass("hide");
+                $(".notifier-msg").text("Password changed successfully.");
+                setTimeout(function(){
+                    $(".notifier-msg").text("");
+                    $(".notifier .close").trigger("click");
+                }, 3000); 
+            } else {
+                $(".password-reset-err").text(response['error']);
+            }           
+        })        
+    });
+
 });  //closing of ready
 
 

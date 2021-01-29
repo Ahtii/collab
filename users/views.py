@@ -82,6 +82,12 @@ def authenticate(db: Session, username: str, password: str):
     return user
 
 
+# get use by email
+def get_user_by_email(email: str, db: Session):
+    email = email.lower()
+    user = db.query(models.User).filter(models.User.email == email).first()
+    return user
+
 # generate token
 def gen_token(username, time: int = settings.ACCESS_TOKEN_EXPIRE_MINUTES):
     data = {'sub': username}
@@ -187,14 +193,26 @@ def send_otp(otp, user):
 
 def verify_otp(entered_otp, user, db: Session):
     response = {"verified": False}
-    otp = int(config.otp_store.get(user.email))
+    otp = int(config.otp_store.get(user.email))    
     if entered_otp == otp:
         response['verified'] = True
         config.otp_store.pop(user.email)        
         user.is_verified = True
         db.add(user)
         db.commit()
-    return response    
+    return response 
+
+def change_password(new_password: str, user: models.User, db: Session):
+    changed = False
+    try:
+        hashed_password = gen_hash(new_password)   
+        user.password = hashed_password
+        db.add(user)
+        db.commit()
+        changed = True
+    except Exception:
+        return {"error": "Something went wrong!"}    
+    return {"changed": changed}    
 
 
 # social login

@@ -99,3 +99,5 @@ class RoomMessage(BaseMessage, Base):
 
     sender_id = Column(Integer, ForeignKey('user.id'))
     room_id = Column(Integer, ForeignKey('room.id'))
+
+

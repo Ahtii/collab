@@ -75,5 +75,15 @@ class ProfileUpdateForm(BaseModel):
 
 # OTP form
 class OTPForm(BaseModel):
-    otp: int = None    
+    otp: int = None
+    email: str = None    
+
+# Email form
+class EmailForm(BaseModel):
+    email: str = None        
+
+# Password change form
+class PasswordForm(BaseModel):
+    email: str
+    password: str            
 

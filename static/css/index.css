@@ -575,3 +575,99 @@ form.sign-in-form {
     left: 50%;
   }
 }
+
+/* Ahtisham's Code */
+
+.hide {
+  display: none;
+}
+
+.forgotpassword-field {
+  cursor: pointer;
+}
+
+#forgotpassword-form {
+  position: relative;
+}
+
+.forgotpassword-send-secret {
+  font-size: 12px;
+  text-align: center;
+}
+
+#forgotpassword-secret-field, #forgotpassword-email-field, #password-reset-field, #confirm-password-reset-field  {
+  font-size: 12px;
+}
+
+#forgotpassword-email-field {
+  margin-top: 10px;
+}
+
+.forgotpassword-modal-text, .password-reset-text {
+  font-size: 12px;
+}
+
+.highlighter {
+  color: purple;
+}
+
+.forgotpassword-err {
+    color: maroon;
+    font-size: 10px;
+    text-align: left;
+}
+
+.forgotpassword-verify-btn, .forgotpassword-send-btn, .password-reset-btn {
+    font-size: 12px;    
+    background-color: purple;
+    color: rgb(200, 200, 200);
+    padding: 5px;
+}
+
+.forgotpassword-verify-btn:hover, .forgotpassword-send-btn:hover, .password-reset-btn:hover {
+    color: rgb(200, 200, 200);
+    box-shadow: 0px 0px 2px purple;
+    border-color: rgb(200, 200, 200);
+}
+
+.password-reset-successfull {
+  color: green;
+  font-size: 11px;
+}
+
+#confirm-password-reset-field {
+  margin-top: 15px;
+}
+
+.password-reset-btn {
+  margin-top: 8px;
+}
+
+.notifier {
+  background-color: rgb(230, 230, 230);
+  opacity: 0.8;
+  box-shadow: 0px 0px 5px gray;
+  border-radius: 10px;
+  border: 2px solid purple;
+  position: relative;
+  width: 40%;
+  z-index: 12;
+  margin-top: 20px;
+  left: 60%;
+}
+
+.notifier-icon {
+  font-size: 30px;
+  position: absolute;  
+  left: -5%;
+  top: -2px;
+  transform: translateX(5%);
+  color: rgb(200, 200, 200);
+}
+
+.notifier-msg {
+  color: green;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px;
+}

@@ -78,12 +78,18 @@ def preview_file(request: Request):
     # UTILITIES 
 
 @app.post("/send-otp")
-def send_otp(request: Request, db: Session = Depends(get_db)):    
+def send_otp(request: Request, data: validators.EmailForm = None, db: Session = Depends(get_db)):    
     response = {}
-    try:
-        user = views.get_current_user(db, request.cookies.get("access_token"))
+    try:        
+        if data:
+            user = views.get_user_by_email(data.email, db)
+            if user is None:
+                response.update({"error": "Account with that email doesn't exists."})
+                return response
+        else:
+            user = views.get_current_user(db, request.cookies.get("access_token"))
         if user:
-            otp = views.gen_otp()
+            otp = views.gen_otp()            
             response.update(views.send_otp(otp, user))
     except Exception:
         response.update({"error": "something went wrong!"})
@@ -93,12 +99,29 @@ def send_otp(request: Request, db: Session = Depends(get_db)):
 def verify_otp(request: Request, data: validators.OTPForm, db: Session = Depends(get_db)):    
     response = {}
     try:
-        user = views.get_current_user(db, request.cookies.get("access_token"))
-        if user:
+        email = data.email        
+        if email:            
+            user = views.get_user_by_email(email, db)
+        else:
+            user = views.get_current_user(db, request.cookies.get("access_token"))
+        if user:            
             response.update(views.verify_otp(data.otp, user, db))          
     except Exception:
         response.update({"error": "something went wrong!"})        
     return response
+
+@app.post("/change-password")
+def verify_otp(request: Request, data: validators.PasswordForm, db: Session = Depends(get_db)):    
+    response = {}
+    try:
+        email = data.email        
+        if email:            
+            user = views.get_user_by_email(email, db)
+        if user:            
+            response.update(views.change_password(data.password, user, db))
+    except Exception:
+        response.update({"error": "something went wrong!"})        
+    return response    
 
     # API ENDPOINTS
 

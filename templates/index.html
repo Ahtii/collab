@@ -16,100 +16,163 @@
 </head>
 <body>
     <div class="container auth-container">
+        <!-- Forgot Password Notification -->
+        <div class="alert notifier hide">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button> 
+            <span class="notifier-msg"></span>
+        </div>
+        <!-- Forgot Password Modal -->
+        <div class="modal fade" id="forgotpassword-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #aba6bf;">
+                        <h6 class="modal-title">Forgot Password</h6>
+                        <span class="close" data-dismiss="modal" style="cursor: pointer;">&times;</span>
+                    </div> <!--closing of modal header-->
+
+                    <div class="modal-body">                       
+                        <!-- Forgot Password Verification Form -->
+                        <form id="forgotpassword-form">                            
+                            <div class="form-group send-email">
+                                <p class="forgotpassword-modal-text">Type your account email below to receive a <strong class="highlighter"> secret code </strong>.</p>
+                                <input type="email" class="form-control" id="forgotpassword-email-field" placeholder="Enter your email">                                                                
+                            </div>
+                            <div class="form-group verify-email hide">
+                                <p class="forgotpassword-modal-text">We have send a <strong class="highlighter"> secret code </strong> to your <strong class="highlighter"> email </strong> please type it below to continue.</p>
+                                <input type="number" class="form-control" id="forgotpassword-secret-field" placeholder="Enter your secret code">                                
+                            </div>
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="forgotpassword-err"></p>   
+                                    </div>
+                                    <div class="col forgotpassword-btn-group text-right">                                    
+                                        <button type="submit" class="btn forgotpassword-send-btn"><i class="fa fa-spinner fa-spin sending hide"></i> <span class="send-txt"> Send </span></button>   
+                                        <button type="submit" class="btn forgotpassword-verify-btn hide"><i class="fa fa-spinner fa-spin verifying hide"></i> <span class="verify-txt"> Verify </span></button>                                                                                                                                                 
+                                    </div>
+                                </div>                     
+                            </div>                            
+                        </form>
+                        <!-- Password Reset Form -->
+                        <form id="password-reset-form" class="hide">                            
+                            <div class="form-group">
+                                <p class="password-reset-text">Please type your new password below.</p>
+                                <input type="password" class="form-control" id="password-reset-field" placeholder="Password">                              
+                                <input type="password" class="form-control" id="confirm-password-reset-field" placeholder="Confirm Password">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <p class="password-reset-err"></p>                                            
+                                        </div>
+                                        <div class="col text-right">                                    
+                                            <button type="submit" class="btn password-reset-btn"><i class="fa fa-spinner fa-spin setting hide"></i> <span class="set-txt"> Change </span></button>
+                                        </div>
+                                    </div>                     
+                                </div>                                                                 
+                            </div>                      
+                        </form>
+                        <!-- <a href="#" class="sheet-url hide">Sheet Url</a> -->                                                                
+                    </div> <!--closing of modal body-->
+                    <div class="modal-footer" style="background-color: #aba6bf;">
+                    </div> <!-- closing of modal footer-->                        
+                </div> <!--closing of modal content-->
+            </div> <!--closing of modal dialog-->
+        </div> <!--closing of modal-->   
         <div class="forms-container">
-            <div class="signin-signup">
-            <form id="login-form" class="sign-in-form">
-            <div>
-                <h2 class="title">Login</h2>
-            </div>
-            <div class="fields">
-                <div class="input-field">
-                <i class="fa fa-user-circle-o"></i>
-                <input type="text" name="username" placeholder="Username or Email" required/>
-                <!-- <span class="forgotmessage" id="forgotmessage"></span> -->
-                </div>
-                <div class="input-field">
-                <i class="fa fa-lock"></i>
-                <input type="password" name="password" placeholder="Password" required/>
-                <span class="forgotmessage" id="forgotmessage"></span>
-                </div>
-                <div class="forgot-pass">
-                    <a href="">
-                        <span>Forgot Password?</span>
-                    </a>
-                </div>
-            </div>
-            <div>
-                <button type="submit" class="btn btnl solid" >Login</button>
-            </div>
+            <div class="signin-signup">                
+                <form id="login-form" class="sign-in-form">
                 <div>
-                <div class="social-media">                         
-                <a id="google-signin" class="social-iconl">
-                    <i class="fa fa-google"></i>
-                    </a>
-                    <span class="gmail">or sign in with your Gmail</span>
-                </div>
-            </div>
-            </form>
-            <form id="register-form" name="signupForm" class="sign-up-form">
-                <div>
-                <h2 class="title">Sign up</h2>
+                    <h2 class="title">Login</h2>
                 </div>
                 <div class="fields">
-
-                <!-- <div class="input-field">
-                <i class="fa fa-user"></i>
-                <input id="first_name" name="fname" type="text" placeholder="First Name *" class="first-name-field" onkeyup="return fnameFunc()" required/>
-                <span class="fmessage" id="fmessage"></span>
+                    <div class="input-field">
+                        <i class="fa fa-user-circle-o"></i>
+                        <input type="text" name="username" placeholder="Username or Email" required/>
+                        <!-- <span class="forgotmessage" id="forgotmessage"></span> -->
+                    </div>
+                    <div class="input-field">
+                        <i class="fa fa-lock"></i>
+                        <input type="password" name="password" placeholder="Password" required/>
+                        <span class="forgotmessage" id="forgotmessage"></span>
+                    </div>
+                    <!-- Forgot Password Field -->
+                    <div class="forgot-pass">
+                        <a class="forgotpassword-field" style="font-size: 12px;"> Forgot Password? </a>
+                    </div>                             
                 </div>
+                <div>
+                    <button type="submit" class="btn btnl solid" >Login</button>
+                </div>
+                    <div>
+                    <div class="social-media">                         
+                    <a id="google-signin" class="social-iconl">
+                        <i class="fa fa-google"></i>
+                        </a>
+                        <span class="gmail">or sign in with your Gmail</span>
+                    </div>
+                </div>
+                </form>                                
+                <form id="register-form" name="signupForm" class="sign-up-form">
+                    <div>
+                    <h2 class="title">Sign up</h2>
+                    </div>
+                    <div class="fields">
 
-                <div class="input-field">
-                <i class="fa fa-user"></i>
-                <input id="last_name" type="text" placeholder="Last Name"/>
+                    <!-- <div class="input-field">
+                    <i class="fa fa-user"></i>
+                    <input id="first_name" name="fname" type="text" placeholder="First Name *" class="first-name-field" onkeyup="return fnameFunc()" required/>
+                    <span class="fmessage" id="fmessage"></span>
+                    </div>
+
+                    <div class="input-field">
+                    <i class="fa fa-user"></i>
+                    <input id="last_name" type="text" placeholder="Last Name"/>
+                    </div> -->
+
+                    <div class="input-field">
+                    <i class="fa fa-user"></i>
+                    <input id="full_name" type="text" placeholder="Full Name *" class="full-name-field" onkeyup="return fullnameFunc()" required/>
+                    <span class="fnmessage" id="fnmessage"></span>
+                    </div>
+
+                    <div class="input-field">
+                    <i class="fa fa-envelope"></i>
+                    <input id="email" type="email" placeholder="Email *" class="email-field" onkeyup="emailFunc()" required/>
+                    <span class="emessage" id="emessage"></span>
+                    </div>
+
+                    <!-- <div class="input-field">
+                    <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                    <input id="username" type="text" placeholder="Username *" class="username-field" onkeyup="return unameFunc()" required/>
+                    <span class="umessage" id="umessage"></span>
+                    </div> -->
+
+                    <div class="input-field">
+                    <i class="fa fa-lock"></i>
+                    <input id="password" name="pass" type="password" placeholder="Password *" class="password-field" onkeyup= "return passFunc()" required/> <!--pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"-->
+                    <span class="pmessage" id="pmessage"></span>
+                    </div>
+
+                    <div class="input-field">
+                    <i class="fa fa-lock"></i>
+                    <input id="cpassword" name="cpass" type="password" placeholder="Confirm Password *" class="password-field" onkeyup= "return cpassFunc()" required/> <!--pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"-->
+                    <span class="cpmessage" id="cpmessage"></span>
+                    </div>
+
+                </div>
+                <div>
+                    <input type="submit"  id="submitbtn" class="btn btnu " value="Sign up"/>
+                </div>
+                <p class="helper-text">* denotes a required field</p>
+                </form>
+                <!-- <div id="checksField" style="display: none;">
+                    <h3>Password must contain the following:</h3>
+                    <p id="letter" class="wrong">A <b>lowercase</b> letter</p>
+                    <p id="capital" class="wrong">A <b>capital (uppercase)</b>letter</p>
+                    <p id="number" class="wrong">A <b>number</b></p>
                 </div> -->
-
-                <div class="input-field">
-                <i class="fa fa-user"></i>
-                <input id="full_name" type="text" placeholder="Full Name *" class="full-name-field" onkeyup="return fullnameFunc()" required/>
-                <span class="fnmessage" id="fnmessage"></span>
-                </div>
-
-                <div class="input-field">
-                <i class="fa fa-envelope"></i>
-                <input id="email" type="email" placeholder="Email *" class="email-field" onkeyup="emailFunc()" required/>
-                <span class="emessage" id="emessage"></span>
-                </div>
-
-                <!-- <div class="input-field">
-                <i class="fa fa-user-circle-o" aria-hidden="true"></i>
-                <input id="username" type="text" placeholder="Username *" class="username-field" onkeyup="return unameFunc()" required/>
-                <span class="umessage" id="umessage"></span>
-                </div> -->
-
-                <div class="input-field">
-                <i class="fa fa-lock"></i>
-                <input id="password" name="pass" type="password" placeholder="Password *" class="password-field" onkeyup= "return passFunc()" required/> <!--pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"-->
-                <span class="pmessage" id="pmessage"></span>
-                </div>
-
-                <div class="input-field">
-                <i class="fa fa-lock"></i>
-                <input id="cpassword" name="cpass" type="password" placeholder="Confirm Password *" class="password-field" onkeyup= "return cpassFunc()" required/> <!--pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"-->
-                <span class="cpmessage" id="cpmessage"></span>
-                </div>
-
-            </div>
-            <div>
-                <input type="submit"  id="submitbtn" class="btn btnu " value="Sign up"/>
-            </div>
-            <p class="helper-text">* denotes a required field</p>
-            </form>
-            <!-- <div id="checksField" style="display: none;">
-                <h3>Password must contain the following:</h3>
-                <p id="letter" class="wrong">A <b>lowercase</b> letter</p>
-                <p id="capital" class="wrong">A <b>capital (uppercase)</b>letter</p>
-                <p id="number" class="wrong">A <b>number</b></p>
-            </div> -->
             </div>
         </div>
 
