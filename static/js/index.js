@@ -68,6 +68,8 @@ var isfnError = false;
 var iseError = false;
 var ispError = false;
 var iscpError = false;
+var isfpError = false;
+var isfcpError = false;
 
 
 ////////////// FOR FULL NAME ////////////////
@@ -319,6 +321,88 @@ function cpassFunc(){
             return false;
         }
 } //cpassFunc close
+
+///////////// FOR FORGOT PASSWORD ///////////////////
+
+function fpassFunc(){
+    var passpattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+
+    var fp = document.getElementById("password-reset-field").value;
+    // var uu = document.getElementById("username").value;
+
+    if(fp==""){
+        document.getElementById("fpmessage").innerHTML = "Password can't be empty. ";
+        document.getElementById("fpmessage").style.color = "Red";
+        isfpError = true;
+        return false;
+    }
+    if(fp.length<8){
+        document.getElementById("fpmessage").innerHTML = "Password can't be less than 8 characters. ";
+        document.getElementById("fpmessage").style.color = "Red";
+        isfpError = true;
+        return false;
+    }
+    if(fp.indexOf(' ') >= 0){
+        document.getElementById("fpmessage").innerHTML = "Password can't have spaces. ";
+        document.getElementById("fpmessage").style.color = "Red";
+        isfpError = true;
+        return false;
+    }
+    // if(fp == uu){
+    //     document.getElementById("pmessage").innerHTML = "Password can't be same as username. ";
+    //     isfpError = true;
+    //     return false;
+    // }
+   
+    if(fp.match(passpattern)){
+        document.getElementById("fpmessage").innerHTML = "Valid. ";
+        document.getElementById("fpmessage").style.color = "Green";
+        // document.getElementById("submit").removeAttribute('disabled');
+        isfpError = false;
+        true;}
+        else {
+            document.getElementById("fpmessage").innerHTML = "Password must contain lowercase, uppercase and a number. ";
+            document.getElementById("fpmessage").style.color = "Red";
+            isfpError = true;
+            return false;
+        }
+} //fpassFunc close
+
+////////////// FOR FORGOT CONFIRM PASSWORD /////////
+
+/////////////// FOR CONFIRM PASSWORD ///////////////
+
+function fcpassFunc(){
+    // var cpasspattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+
+    var fcp = document.getElementById("password-reset-field").value;
+    var fpp = document.getElementById("confirm-password-reset-field").value;
+
+    if(fpp==""){
+        document.getElementById("fcpmessage").innerHTML = "Password didn't match. ";
+        document.getElementById("fcpmessage").style.color = "Red";
+        isfcpError = true;
+        return false;
+    }
+    if(fpp.indexOf(' ') >= 0){
+        document.getElementById("fcpmessage").innerHTML = "Password didn't match. ";
+        document.getElementById("fcpmessage").style.color = "Red";
+        isfcpError = true;
+        return false;
+    }
+    if(fpp.match(fcp)){
+        document.getElementById("fcpmessage").innerHTML = "Password matched ";
+        document.getElementById("fcpmessage").style.color = "Green";
+        // document.getElementById("submit").removeAttribute('disabled');
+        isfcpError = false;
+        true;}
+        else {
+            document.getElementById("fcpmessage").innerHTML = "Password didn't match.";
+            document.getElementById("fcpmessage").style.color = "Red";
+            isfcpError = true;
+            return false;
+        }
+} //fcpassFunc close
 ///////////////////////////////////////////////////
 
 
@@ -545,8 +629,9 @@ $(document).ready(function(){
         $.post('/change-password', JSON.stringify(data), function(response){
             $(".setting").addClass("hide");           
             var changed = response["changed"];            
-            $(".set-txt").text("Change");            
-            if (changed){                                                
+            $(".set-txt").text("Change");   
+            //alert("ok ok ok");      
+            if (isfpError == false && isfcpError == false){                                                
                 $("#forgotpassword-form").removeClass("hide");
                 $("#password-reset-form").addClass("hide");                
                 $("#forgotpassword-modal").modal("toggle");
