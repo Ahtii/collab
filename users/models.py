@@ -26,6 +26,7 @@ class utcnow(expression.FunctionElement):
 def my_utcnow(element, compiler, **kw):
     return "UTC_TIMESTAMP()"                      
 
+
 class Profile(Base):
 
     __tablename__ = "profile"
@@ -54,6 +55,7 @@ class User(Base):
     room = relationship("Room", secondary=user_room, backref='participants', lazy='dynamic')
     profile_id = Column(Integer, ForeignKey("profile.id"))    
 
+
 class Room(Base):
 
     __tablename__ = "room"
@@ -65,6 +67,7 @@ class Room(Base):
     admin = Column(String(50))  # link to use mode
     sheet = relationship("Sheet", backref='sheets')
     is_default = Column(Boolean, default=False)
+
 
 class Sheet(Base):
 
